@@ -45,89 +45,88 @@ import {
   Sparkles,
   Crown,
   Rocket,
-  User
+  User,
+  Coins,
+  ShoppingBag,
+  Trophy,
+  UserCheck,
+  Wallet,
+  Store,
+  Medal,
+  HeartHandshake,
+  Briefcase,
+  BookOpen,
+  Code,
+  Coffee,
+  Gamepad2,
+  Gauge,
+  Zap as Lightning,
+  Globe,
+  Cpu,
+  Activity as Pulse
 } from 'lucide-react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-// Enhanced grid pattern with subtle movement
-const GridPattern = () => {
-  const opacity = useSharedValue(0.03);
-  const shift = useSharedValue(0);
+// Pulsing Badge Component for enhanced visual appeal
+const PulsingBadge = ({ children, delay = 0, style }) => {
+  const pulseScale = useSharedValue(1);
+  const pulseOpacity = useSharedValue(1);
 
   useEffect(() => {
-    opacity.value = withTiming(0.05, { duration: 2000 });
-    shift.value = withRepeat(
-      withSequence(
-        withTiming(2, { duration: 8000 }),
-        withTiming(0, { duration: 8000 })
-      ),
-      -1,
-      true
-    );
-  }, []);
+    const startPulsing = () => {
+      pulseScale.value = withRepeat(
+        withSequence(
+          withTiming(1.1, { duration: 1000 }),
+          withTiming(1, { duration: 1000 })
+        ),
+        -1,
+        true
+      );
+      
+      pulseOpacity.value = withRepeat(
+        withSequence(
+          withTiming(0.8, { duration: 1000 }),
+          withTiming(1, { duration: 1000 })
+        ),
+        -1,
+        true
+      );
+    };
+
+    const timer = setTimeout(startPulsing, delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateX: shift.value }],
+    transform: [{ scale: pulseScale.value }],
+    opacity: pulseOpacity.value,
   }));
 
   return (
-    <Animated.View style={[animatedStyle, { 
-      position: 'absolute', 
-      width: '100%', 
-      height: '100%',
-      pointerEvents: 'none'
-    }]}>
-      {Array.from({ length: 8 }, (_, i) => (
-        <View
-          key={i}
-          style={{
-            position: 'absolute',
-            left: (i + 1) * (screenWidth / 8),
-            top: 0,
-            width: 1,
-            height: '100%',
-            backgroundColor: '#1f2937',
-          }}
-        />
-      ))}
-      {Array.from({ length: 15 }, (_, i) => (
-        <View
-          key={`h-${i}`}
-          style={{
-            position: 'absolute',
-            top: (i + 1) * (screenHeight / 15),
-            left: 0,
-            width: '100%',
-            height: 1,
-            backgroundColor: '#1f2937',
-          }}
-        />
-      ))}
+    <Animated.View style={[style, animatedStyle]}>
+      {children}
     </Animated.View>
   );
 };
 
-// Animated Footer Background Component
-const FooterBackground = () => {
-  const particles = Array.from({ length: 12 }, (_, i) => ({
+// Modern floating particles background
+const FloatingBackground = () => {
+  const particles = Array.from({ length: 20 }, (_, i) => ({
     id: i,
     x: useSharedValue(Math.random() * screenWidth),
-    y: useSharedValue(Math.random() * 400),
-    opacity: useSharedValue(Math.random() * 0.5 + 0.2),
+    y: useSharedValue(Math.random() * screenHeight),
+    opacity: useSharedValue(Math.random() * 0.1 + 0.05),
+    scale: useSharedValue(Math.random() * 0.5 + 0.5),
   }));
 
-  const gradientShift = useSharedValue(0);
-
   useEffect(() => {
-    // Animate particles
     particles.forEach((particle, index) => {
       particle.x.value = withRepeat(
         withSequence(
-          withTiming(Math.random() * screenWidth, { duration: 8000 + index * 1000 }),
-          withTiming(Math.random() * screenWidth, { duration: 8000 + index * 1000 })
+          withTiming(Math.random() * screenWidth, { duration: 15000 + index * 2000 }),
+          withTiming(Math.random() * screenWidth, { duration: 15000 + index * 2000 })
         ),
         -1,
         true
@@ -135,8 +134,8 @@ const FooterBackground = () => {
       
       particle.y.value = withRepeat(
         withSequence(
-          withTiming(Math.random() * 400, { duration: 6000 + index * 800 }),
-          withTiming(Math.random() * 400, { duration: 6000 + index * 800 })
+          withTiming(Math.random() * screenHeight, { duration: 20000 + index * 1500 }),
+          withTiming(Math.random() * screenHeight, { duration: 20000 + index * 1500 })
         ),
         -1,
         true
@@ -144,47 +143,23 @@ const FooterBackground = () => {
 
       particle.opacity.value = withRepeat(
         withSequence(
-          withTiming(0.8, { duration: 3000 + index * 500 }),
-          withTiming(0.2, { duration: 3000 + index * 500 })
+          withTiming(0.15, { duration: 8000 + index * 1000 }),
+          withTiming(0.05, { duration: 8000 + index * 1000 })
         ),
         -1,
         true
       );
     });
-
-    // Gradient animation
-    gradientShift.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 8000 }),
-        withTiming(0, { duration: 8000 })
-      ),
-      -1,
-      true
-    );
   }, []);
 
-  const gradientStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(gradientShift.value, [0, 1], [0.1, 0.3]),
-  }));
-
   return (
-    <View style={styles.footerBackground}>
-      {/* Animated gradient overlay */}
-      <Animated.View style={[gradientStyle]}>
-        <LinearGradient
-          colors={['#3b82f6', '#8b5cf6', '#10b981']}
-          style={styles.footerGradientOverlay}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
-      </Animated.View>
-
-      {/* Floating particles */}
+    <View style={styles.floatingBackground}>
       {particles.map((particle) => {
         const animatedStyle = useAnimatedStyle(() => ({
           transform: [
             { translateX: particle.x.value },
             { translateY: particle.y.value },
+            { scale: particle.scale.value }
           ],
           opacity: particle.opacity.value,
         }));
@@ -192,21 +167,10 @@ const FooterBackground = () => {
         return (
           <Animated.View
             key={particle.id}
-            style={[styles.footerParticle, animatedStyle]}
+            style={[styles.particle, animatedStyle]}
           />
         );
       })}
-
-      {/* Floating geometric elements */}
-      <Animated.View style={[styles.footerFloatingElement, { top: 60, left: 40 }]}>
-        <Target color="#3b82f6" size={80} strokeWidth={0.5} />
-      </Animated.View>
-      <Animated.View style={[styles.footerFloatingElement, { top: 200, right: 30 }]}>
-        <Layers color="#10b981" size={60} strokeWidth={0.5} />
-      </Animated.View>
-      <Animated.View style={[styles.footerFloatingElement, { bottom: 120, left: 60 }]}>
-        <Sparkles color="#8b5cf6" size={70} strokeWidth={0.5} />
-      </Animated.View>
     </View>
   );
 };
@@ -214,234 +178,232 @@ const FooterBackground = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0a0a0a',
   },
   scrollContainer: {
     flex: 1,
-    paddingHorizontal: 24,
   },
   
-  // Header Section - Enhanced
-  headerSection: {
-    alignItems: 'center',
-    marginTop: 40,
-    marginBottom: 50,
-  },
-  logoContainer: {
-    width: 110,
-    height: 110,
-    backgroundColor: '#0a0a0a',
-    borderWidth: 2,
-    borderColor: '#1f2937',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    marginBottom: 28,
-    transform: [{ rotate: '45deg' }],
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-  },
-  logoContent: {
-    transform: [{ rotate: '-45deg' }],
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoCornerTL: {
+  // Floating background
+  floatingBackground: {
     position: 'absolute',
-    top: -2,
-    left: -2,
-    width: 24,
-    height: 24,
-    borderTopWidth: 3,
-    borderLeftWidth: 3,
-    borderColor: '#3b82f6',
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
   },
-  logoCornerBR: {
+  particle: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 24,
-    height: 24,
-    borderBottomWidth: 3,
-    borderRightWidth: 3,
-    borderColor: '#3b82f6',
-  },
-  logoText: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: '#ffffff',
-    letterSpacing: 4,
-    fontFamily: 'monospace',
-  },
-  statusIndicator: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 10,
-    height: 10,
-    backgroundColor: '#10b981',
-    borderRadius: 5,
-  },
-  pulseRing: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: '#10b981',
-    opacity: 0.4,
-  },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  mainTitle: {
-    fontSize: 44,
-    fontWeight: '900',
-    color: '#ffffff',
-    textAlign: 'center',
-    letterSpacing: -1,
-    marginBottom: 10,
-    fontFamily: 'monospace',
-    textShadowColor: 'rgba(59, 130, 246, 0.3)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
-  },
-  titleUnderline: {
-    width: 90,
-    height: 2,
+    width: 4,
+    height: 4,
     backgroundColor: '#3b82f6',
-    marginBottom: 18,
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-    letterSpacing: 3,
-    textTransform: 'uppercase',
-    marginBottom: 18,
-    fontWeight: '700',
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 18,
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
-  },
-  statusDot: {
-    width: 12,
-    height: 12,
-    backgroundColor: '#10b981',
-    marginRight: 10,
-    borderRadius: 6,
-  },
-  statusText: {
-    fontSize: 14,
-    color: '#3b82f6',
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-  },
-  description: {
-    fontSize: 17,
-    color: '#9ca3af',
-    textAlign: 'center',
-    lineHeight: 26,
-    maxWidth: 320,
-    fontWeight: '400',
-  },
-  
-  // Hero Stats - Enhanced Impact
-  heroSection: {
-    marginBottom: 50,
-  },
-  sectionTitleContainer: {
-    alignItems: 'flex-start',
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
-    fontFamily: 'monospace',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  sectionTitleUnderline: {
-    width: 60,
-    height: 3,
-    backgroundColor: '#3b82f6',
-    marginTop: 8,
     borderRadius: 2,
   },
   
-  // Hero Card - More Dramatic
-  heroCard: {
-    backgroundColor: '#0a0a0a',
-    borderWidth: 2,
-    borderColor: '#3b82f6',
-    padding: 40,
-    marginBottom: 32,
+  // Header Section - Modern & Professional
+  headerSection: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 40,
     position: 'relative',
-    alignItems: 'center',
-    borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
   },
-  heroGradient: {
+  headerBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 280,
+  },
+  headerContent: {
+    position: 'relative',
+    zIndex: 2,
+  },
+  
+  // Enhanced Header Layout
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 24,
+  },
+  
+  // Enhanced Logo and branding
+  brandContainer: {
+    flex: 1,
+  },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logoIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 20,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  logoIconGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    opacity: 0.15,
   },
-  heroContent: {
-    alignItems: 'center',
-    zIndex: 2,
+  logoIconGlow: {
+    position: 'absolute',
+    top: -8,
+    left: -8,
+    right: -8,
+    bottom: -8,
+    borderRadius: 24,
+    opacity: 0.6,
   },
-  heroValue: {
-    fontSize: 80,
+  logoText: {
+    fontSize: 28,
     fontWeight: '900',
     color: '#ffffff',
     fontFamily: 'monospace',
-    marginBottom: 12,
-    textShadowColor: 'rgba(59, 130, 246, 0.8)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 30,
-  },
-  heroLabel: {
-    fontSize: 20,
-    color: '#3b82f6',
     letterSpacing: 3,
-    textTransform: 'uppercase',
-    fontWeight: '800',
-    marginBottom: 10,
-  },
-  heroSubtext: {
-    fontSize: 15,
-    color: '#6b7280',
-    textAlign: 'center',
-    fontWeight: '500',
+    textShadowColor: 'rgba(59, 130, 246, 0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
   
-  // Enhanced Stats Grid
+  // Staff Info Section
+  staffInfoContainer: {
+    marginBottom: 20,
+  },
+  welcomeText: {
+    fontSize: 16,
+    color: '#9ca3af',
+    fontWeight: '500',
+    marginBottom: 4,
+    letterSpacing: 0.5,
+  },
+  staffName: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#ffffff',
+    marginBottom: 4,
+    letterSpacing: 0.5,
+  },
+  staffRole: {
+    fontSize: 14,
+    color: '#3b82f6',
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  
+  // Enhanced Title Section
+  titleSection: {
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#ffffff',
+    marginBottom: 8,
+    letterSpacing: -0.5,
+    textShadowColor: 'rgba(255, 255, 255, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+  
+  // Enhanced Status indicators
+  statusContainer: {
+    alignItems: 'flex-end',
+  },
+  statusIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    borderWidth: 1,
+    borderColor: '#10b981',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 25,
+    marginBottom: 16,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  statusGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    backgroundColor: '#10b981',
+    borderRadius: 5,
+    marginRight: 10,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+  },
+  statusText: {
+    fontSize: 13,
+    color: '#10b981',
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    textShadowColor: 'rgba(16, 185, 129, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  
+  // Enhanced Time Info
+  timeInfo: {
+    alignItems: 'flex-end',
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  currentTime: {
+    fontSize: 20,
+    color: '#ffffff',
+    fontWeight: '900',
+    fontFamily: 'monospace',
+    textShadowColor: 'rgba(59, 130, 246, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  currentDate: {
+    fontSize: 13,
+    color: '#6b7280',
+    fontWeight: '600',
+    marginTop: 2,
+    letterSpacing: 0.5,
+  },
+  
+  // Floating decorative elements
+  headerDecoration: {
+    position: 'absolute',
+    opacity: 0.1,
+  },
+  
+  // Quick Stats Grid - Modern Cards
+  quickStatsSection: {
+    paddingHorizontal: 24,
+    marginBottom: 32,
+  },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -449,448 +411,289 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: (screenWidth - 60) / 2,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: '#111827',
     borderWidth: 1,
     borderColor: '#1f2937',
-    padding: 22,
-    marginBottom: 18,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
     position: 'relative',
-    borderRadius: 16,
     overflow: 'hidden',
   },
-  // Creative borders instead of ugly corners
-  statCardPrimary: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#3b82f6',
-    backgroundColor: 'rgba(59, 130, 246, 0.02)',
-  },
-  statCardSecondary: {
-    borderTopWidth: 4,
-    borderTopColor: '#10b981',
-    backgroundColor: 'rgba(16, 185, 129, 0.02)',
-  },
-  statCardTertiary: {
-    borderRightWidth: 4,
-    borderRightColor: '#f59e0b',
-    backgroundColor: 'rgba(245, 158, 11, 0.02)',
-  },
-  statCardQuaternary: {
-    borderBottomWidth: 4,
-    borderBottomColor: '#8b5cf6',
-    backgroundColor: 'rgba(139, 92, 246, 0.02)',
-  },
-  // Urgent notification badge
-  urgentBadge: {
+  statCardGradient: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 20,
-    height: 20,
-    backgroundColor: '#ef4444',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  urgentText: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: '#ffffff',
-  },
-  // Floating accent elements
-  statFloatingIcon: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 60,
     opacity: 0.1,
   },
   statIconContainer: {
-    width: 44,
-    height: 44,
-    backgroundColor: '#111827',
-    borderWidth: 1,
-    borderColor: '#374151',
+    width: 48,
+    height: 48,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14,
-    borderRadius: 12,
+    marginBottom: 16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   statValue: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: '900',
     color: '#ffffff',
-    marginBottom: 6,
+    marginBottom: 4,
     fontFamily: 'monospace',
   },
   statLabel: {
-    fontSize: 13,
-    color: '#6b7280',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+    fontSize: 14,
+    color: '#9ca3af',
     fontWeight: '600',
     marginBottom: 8,
   },
   statTrend: {
-    fontSize: 15,
-    color: '#10b981',
+    fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
-  
-  // Enhanced Quick Actions
-  actionsSection: {
-    marginBottom: 50,
+  trendPositive: {
+    color: '#10b981',
   },
-  actionsGrid: {
+  trendNeutral: {
+    color: '#6b7280',
+  },
+  
+  // Management Grid - Professional Layout
+  managementSection: {
+    paddingHorizontal: 24,
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#ffffff',
+    letterSpacing: 0.5,
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    borderRadius: 12,
+  },
+  viewAllText: {
+    fontSize: 12,
+    color: '#3b82f6',
+    fontWeight: '700',
+    marginRight: 4,
+    letterSpacing: 0.5,
+  },
+  
+  managementGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  actionCard: {
+  managementCard: {
     width: (screenWidth - 60) / 2,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: '#111827',
     borderWidth: 1,
-    borderColor: '#3b82f6',
+    borderColor: '#1f2937',
+    borderRadius: 20,
     padding: 24,
-    marginBottom: 18,
+    marginBottom: 16,
     position: 'relative',
-    minHeight: 150,
     overflow: 'hidden',
-    borderRadius: 18,
+    height: 160,
   },
-  actionCard1: {
-    borderTopLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-  actionCard2: {
-    borderTopRightRadius: 28,
-    borderBottomLeftRadius: 28,
-  },
-  actionCard3: {
-    borderRadius: 28,
-    borderTopLeftRadius: 6,
-    borderBottomRightRadius: 6,
-  },
-  actionCard4: {
-    borderRadius: 28,
-    borderTopRightRadius: 6,
-    borderBottomLeftRadius: 6,
-  },
-  actionGradient: {
+  managementCardGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    opacity: 0.12,
+    opacity: 0.05,
   },
-  // Action badge for counts
-  actionBadge: {
+  managementIconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  managementTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#ffffff',
+    marginBottom: 6,
+    letterSpacing: 0.5,
+    numberOfLines: 1,
+  },
+  managementDesc: {
+    fontSize: 13,
+    color: '#6b7280',
+    lineHeight: 18,
+    marginBottom: 12,
+    numberOfLines: 2,
+    textAlign: 'left',
+  },
+  managementBadge: {
     position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: '#ef4444',
     borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    zIndex: 10,
-  },
-  actionBadgeText: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: '#ffffff',
-  },
-  actionHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    zIndex: 2,
-  },
-  actionIconContainer: {
-    width: 48,
-    height: 48,
-    backgroundColor: 'rgba(59, 130, 246, 0.25)',
-    borderWidth: 1,
-    borderColor: '#3b82f6',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    minWidth: 28,
+    minHeight: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 14,
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  actionArrow: {
-    marginTop: 6,
-  },
-  actionLabel: {
-    fontSize: 17,
+  managementBadgeText: {
+    fontSize: 12,
     color: '#ffffff',
-    fontWeight: '800',
-    marginBottom: 6,
-    letterSpacing: 0.5,
-    zIndex: 2,
+    fontWeight: '900',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  actionDesc: {
-    fontSize: 14,
-    color: '#6b7280',
-    lineHeight: 20,
-    zIndex: 2,
-    fontWeight: '500',
-  },
-  actionFloatingIcon: {
+  managementFloatingIcon: {
     position: 'absolute',
-    bottom: -15,
-    right: -15,
-    opacity: 0.08,
+    bottom: -8,
+    right: -8,
+    opacity: 0.1,
   },
   
-  // Enhanced Events Section
-  eventsSection: {
-    marginBottom: 50,
-  },
-  eventsCard: {
-    backgroundColor: '#0a0a0a',
-    borderWidth: 1,
-    borderColor: '#1f2937',
-    position: 'relative',
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  eventsHeaderGradient: {
+  // Enhanced badge with gradient background
+  managementBadgeGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: '100%',
-    opacity: 0.08,
+    bottom: 0,
+    borderRadius: 12,
   },
-  eventsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  
+  // Enhanced icon background with glow effect
+  managementIconGlow: {
+    position: 'absolute',
+    top: -4,
+    left: -4,
+    right: -4,
+    bottom: -4,
+    borderRadius: 20,
+    opacity: 0.3,
+  },
+  
+  // Analytics Dashboard Section
+  analyticsSection: {
+    paddingHorizontal: 24,
+    marginBottom: 32,
+  },
+  analyticsGrid: {
+    gap: 16,
+  },
+  analyticsCard: {
+    backgroundColor: '#111827',
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    borderRadius: 20,
     padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1f2937',
     position: 'relative',
+    overflow: 'hidden',
   },
-  eventsTitle: {
-    fontSize: 20,
+  analyticsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  analyticsTitle: {
+    fontSize: 18,
     fontWeight: '800',
     color: '#ffffff',
     letterSpacing: 0.5,
   },
-  pendingBadge: {
-    backgroundColor: 'rgba(251, 191, 36, 0.25)',
-    borderWidth: 1,
-    borderColor: '#f59e0b',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 15,
-  },
-  pendingCount: {
-    fontSize: 18,
-    color: '#f59e0b',
-    fontWeight: '900',
-    marginRight: 8,
-    fontFamily: 'monospace',
-  },
-  pendingLabel: {
-    fontSize: 11,
-    color: '#f59e0b',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    fontWeight: '700',
-  },
-  
-  eventCard: {
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(31, 41, 55, 0.5)',
-    position: 'relative',
-    backgroundColor: 'rgba(15, 15, 15, 0.6)',
-  },
-  eventCardLast: {
-    borderBottomWidth: 0,
-  },
-  eventCardHighPriority: {
-    borderLeftWidth: 5,
-    borderLeftColor: '#ef4444',
-  },
-  eventCardUrgent: {
-    borderLeftWidth: 5,
-    borderLeftColor: '#f59e0b',
-  },
-  
-  // Compact Event Cards
-  eventCardCompact: {
-    backgroundColor: '#1f2937',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#374151',
-  },
-  eventCompactHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  eventCompactLeft: {
-    flex: 1,
-    marginRight: 16,
-  },
-  eventCompactRight: {
-    alignItems: 'flex-end',
-    gap: 12,
-  },
-  eventTitleCompact: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-    fontFamily: 'monospace',
-    marginBottom: 6,
-    flex: 1,
-  },
-  eventOrganizerCompact: {
-    fontSize: 12,
-    color: '#9ca3af',
-    fontFamily: 'monospace',
-    marginBottom: 8,
-  },
-  eventCompactDetails: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  eventDetailCompact: {
-    fontSize: 11,
-    color: '#6b7280',
-    fontFamily: 'monospace',
-  },
-  eventDescription: {
-    fontSize: 15,
-    color: '#9ca3af',
-    lineHeight: 22,
-    marginBottom: 20,
-    fontWeight: '400',
-  },
-  eventDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    flexWrap: 'wrap',
-  },
-  eventDetailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 24,
-    marginBottom: 6,
-    backgroundColor: 'rgba(55, 65, 81, 0.4)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  eventDetailText: {
-    fontSize: 13,
-    color: '#6b7280',
-    marginLeft: 8,
-    letterSpacing: 0.5,
-    fontWeight: '600',
-  },
-  
-  // Speakers section
-  speakersSection: {
-    marginBottom: 20,
-  },
-  speakersTitle: {
-    fontSize: 14,
-    color: '#ffffff',
-    fontWeight: '700',
-    marginBottom: 12,
-    letterSpacing: 0.5,
-  },
-  speakersList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  speakerTag: {
+  analyticsIcon: {
+    width: 40,
+    height: 40,
     backgroundColor: 'rgba(59, 130, 246, 0.2)',
     borderWidth: 1,
     borderColor: '#3b82f6',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
     borderRadius: 12,
-    marginRight: 8,
-    marginBottom: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  speakerText: {
+  analyticsMetrics: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  analyticsMetric: {
+    alignItems: 'center',
+  },
+  metricValue: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#ffffff',
+    marginBottom: 4,
+    fontFamily: 'monospace',
+  },
+  metricLabel: {
     fontSize: 12,
-    color: '#3b82f6',
+    color: '#6b7280',
     fontWeight: '600',
-    letterSpacing: 0.5,
+    textAlign: 'center',
   },
   
-  // Fixed Event Actions Layout
-  eventActionsContainer: {
-    marginTop: 4,
-  },
-  eventActionsButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  actionButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    marginLeft: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-    minHeight: 44,
-    borderRadius: 12,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  rejectButton: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderWidth: 1,
-    borderColor: '#ef4444',
-    shadowColor: '#ef4444',
-  },
-  approveButton: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderWidth: 1,
-    borderColor: '#10b981',
-    shadowColor: '#10b981',
-  },
-  actionButtonText: {
-    fontSize: 13,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-    marginLeft: 8,
-    textTransform: 'uppercase',
-  },
-  rejectButtonText: {
-    color: '#ef4444',
-  },
-  approveButtonText: {
-    color: '#10b981',
-  },
-  
-  // Activity Feed Section
+  // Recent Activity Feed
   activitySection: {
-    marginBottom: 50,
+    paddingHorizontal: 24,
+    marginBottom: 40,
   },
-  activityCard: {
-    backgroundColor: '#0a0a0a',
+  activityFeed: {
+    backgroundColor: '#111827',
     borderWidth: 1,
     borderColor: '#1f2937',
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
+  },
+  activityHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1f2937',
+  },
+  activityTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#ffffff',
+    letterSpacing: 0.5,
   },
   activityItem: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(31, 41, 55, 0.5)',
@@ -899,14 +702,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   activityIconContainer: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    borderWidth: 1,
-    borderColor: '#3b82f6',
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
     marginRight: 16,
   },
   activityContent: {
@@ -922,782 +722,125 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#ffffff',
   },
-  activityEvent: {
+  activityAction: {
     fontWeight: '600',
     color: '#3b82f6',
-  },
-  activityRating: {
-    color: '#f59e0b',
-    fontWeight: '600',
   },
   activityTime: {
     fontSize: 12,
     color: '#6b7280',
     fontWeight: '500',
   },
+  activityValue: {
+    alignItems: 'flex-end',
+  },
+  activityAmount: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#f59e0b',
+    marginBottom: 2,
+  },
+  activityChange: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
   
-  // 1337 School Footer
-  schoolFooter: {
-    backgroundColor: '#0a0a0a',
+  // Footer
+  footerSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+  footerCard: {
+    backgroundColor: '#111827',
     borderWidth: 1,
     borderColor: '#1f2937',
     borderRadius: 20,
-    padding: 32,
-    marginBottom: 50,
+    padding: 24,
     alignItems: 'center',
-  },
-  schoolFooterHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  schoolLogo: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#3b82f6',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 20,
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-  },
-  schoolLogoText: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#ffffff',
-    fontFamily: 'monospace',
-  },
-  schoolInfo: {
-    alignItems: 'flex-start',
-  },
-  schoolName: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#ffffff',
-    marginBottom: 4,
-    letterSpacing: 0.5,
-  },
-  schoolTagline: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '600',
-    letterSpacing: 1,
-  },
-  schoolMessage: {
-    fontSize: 16,
-    color: '#9ca3af',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 24,
-    fontStyle: 'italic',
-  },
-  schoolFooterBottom: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(59, 130, 246, 0.2)',
-    paddingTop: 20,
-  },
-  schoolCopyright: {
-    fontSize: 13,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  schoolVersion: {
-    fontSize: 12,
-    color: '#3b82f6',
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  
-  // Enhanced Footer
-  enterpriseFooter: {
-    marginTop: 60,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  
-  // Artistic background elements
-  footerBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
-  },
-  footerGradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    opacity: 0.3,
-  },
-  footerParticle: {
-    position: 'absolute',
-    width: 2,
-    height: 2,
-    backgroundColor: '#3b82f6',
-    borderRadius: 1,
-  },
-  footerFloatingElement: {
-    position: 'absolute',
-    opacity: 0.1,
-  },
-  
-  // Main footer container
-  footerMainContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 50,
-    paddingBottom: 40,
-    position: 'relative',
-    zIndex: 10,
-  },
-  
-  // Header section
-  footerHeader: {
-    alignItems: 'center',
-    marginBottom: 40,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(59, 130, 246, 0.2)',
-    paddingBottom: 30,
-  },
-  footerLogoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
   },
   footerLogo: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#0a0a0a',
-    borderWidth: 2,
-    borderColor: '#3b82f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 30,
-    marginRight: 16,
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-  },
-  footerLogoText: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#ffffff',
-    letterSpacing: 2,
-    fontFamily: 'monospace',
-  },
-  footerBrandContainer: {
-    alignItems: 'flex-start',
-  },
-  footerBrandTitle: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#ffffff',
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  footerBrandSubtitle: {
-    fontSize: 13,
-    color: '#6b7280',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    fontWeight: '600',
-  },
-  footerTagline: {
-    fontSize: 16,
-    color: '#9ca3af',
-    textAlign: 'center',
-    lineHeight: 24,
-    fontStyle: 'italic',
-    letterSpacing: 0.5,
-  },
-  
-  // Stats showcase
-  footerStatsSection: {
-    marginBottom: 40,
-  },
-  footerStatsTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#ffffff',
-    textAlign: 'center',
-    marginBottom: 24,
-    letterSpacing: 1,
-  },
-  footerStatsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-  },
-  footerStatCard: {
-    width: (screenWidth - 80) / 3,
-    backgroundColor: 'rgba(59, 130, 246, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 12,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  footerStatCardGlow: {
-    position: 'absolute',
-    top: -1,
-    left: -1,
-    right: -1,
-    height: 3,
-    opacity: 0.6,
-  },
-  footerStatValue: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#ffffff',
-    fontFamily: 'monospace',
-    marginBottom: 4,
-  },
-  footerStatLabel: {
-    fontSize: 10,
-    color: '#6b7280',
-    textAlign: 'center',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    fontWeight: '600',
-  },
-  
-  // Network status
-  footerNetworkSection: {
-    backgroundColor: 'rgba(16, 185, 129, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.2)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 40,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  footerNetworkGlow: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '100%',
-    opacity: 0.1,
-  },
-  footerNetworkHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     marginBottom: 16,
   },
-  footerNetworkIcon: {
+  footerLogoIcon: {
     width: 40,
     height: 40,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    borderWidth: 1,
-    borderColor: '#10b981',
+    backgroundColor: '#3b82f6',
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
     marginRight: 12,
   },
-  footerNetworkTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#10b981',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  footerNetworkContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  footerNetworkStatus: {
-    alignItems: 'center',
-  },
-  footerNetworkStatusDot: {
-    width: 12,
-    height: 12,
-    backgroundColor: '#10b981',
-    borderRadius: 6,
-    marginBottom: 8,
-  },
-  footerNetworkStatusText: {
-    fontSize: 12,
-    color: '#10b981',
-    fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  footerNetworkInfo: {
-    alignItems: 'flex-end',
-  },
-  footerNetworkUptime: {
-    fontSize: 14,
+  footerLogoText: {
+    fontSize: 18,
+    fontWeight: '900',
     color: '#ffffff',
-    fontWeight: '700',
-    marginBottom: 2,
+    fontFamily: 'monospace',
   },
-  footerNetworkLocation: {
-    fontSize: 11,
+  footerText: {
+    fontSize: 14,
     color: '#6b7280',
-    letterSpacing: 0.5,
-  },
-  
-  // Links section
-  footerLinksSection: {
-    marginBottom: 40,
-  },
-  footerLinksGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-  },
-  footerLinkGroup: {
-    width: (screenWidth - 80) / 2,
-    marginBottom: 24,
-  },
-  footerLinkGroupTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#ffffff',
-    marginBottom: 12,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  footerLink: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginBottom: 4,
-    borderRadius: 8,
-    backgroundColor: 'rgba(55, 65, 81, 0.3)',
-  },
-  footerLinkText: {
-    fontSize: 13,
-    color: '#9ca3af',
-    fontWeight: '500',
-    letterSpacing: 0.5,
-  },
-  
-  // Certification showcase
-  footerCertificationSection: {
-    backgroundColor: 'rgba(139, 92, 246, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.2)',
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 40,
-    alignItems: 'center',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  footerCertificationGlow: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '100%',
-    opacity: 0.08,
-  },
-  footerCertificationBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: '#8b5cf6',
-    marginBottom: 16,
-  },
-  footerCertificationIcon: {
-    marginRight: 12,
-  },
-  footerCertificationText: {
-    fontSize: 14,
-    color: '#8b5cf6',
-    fontWeight: '800',
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-  },
-  footerCertificationDescription: {
-    fontSize: 13,
-    color: '#9ca3af',
     textAlign: 'center',
     lineHeight: 20,
-    letterSpacing: 0.5,
-  },
-  
-  // Final footer bar
-  footerBottomBar: {
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(59, 130, 246, 0.2)',
-    paddingTop: 24,
-    paddingBottom: 24,
-    alignItems: 'center',
-  },
-  footerBottomContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
     marginBottom: 16,
   },
-  footerCopyrightContainer: {
-    alignItems: 'flex-start',
+  footerInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(31, 41, 55, 0.5)',
+    paddingTop: 16,
   },
-  footerCopyrightMain: {
-    fontSize: 14,
+  footerItem: {
+    alignItems: 'center',
+  },
+  footerItemValue: {
+    fontSize: 16,
+    fontWeight: '700',
     color: '#ffffff',
-    fontWeight: '700',
-    marginBottom: 4,
-    letterSpacing: 0.5,
-  },
-  footerCopyrightSub: {
-    fontSize: 12,
-    color: '#6b7280',
-    letterSpacing: 0.5,
-  },
-  footerVersionContainer: {
-    alignItems: 'flex-end',
-  },
-  footerVersionBadge: {
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    borderWidth: 1,
-    borderColor: '#3b82f6',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
     marginBottom: 4,
   },
-  footerVersionText: {
+  footerItemLabel: {
     fontSize: 12,
-    color: '#3b82f6',
-    fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  footerBuildText: {
-    fontSize: 10,
     color: '#6b7280',
-    letterSpacing: 0.5,
-  },
-  footerFinalMessage: {
-    fontSize: 12,
-    color: '#4b5563',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    letterSpacing: 0.5,
-    lineHeight: 18,
+    fontWeight: '500',
   },
   
   bottomSpacer: {
-    height: 40,
-  },
-  
-  expandButton: {
-    width: 32,
-    height: 32,
-    backgroundColor: '#374151',
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  expandIcon: {
-    transform: [{ rotate: '0deg' }],
-  },
-  
-  eventExpandedContent: {
-    marginTop: 20,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#374151',
-  },
-  
-  eventCompactInfo: {
-    gap: 4,
-  },
-  
-  eventHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  
-  eventTitleContainer: {
-    flex: 1,
-    marginRight: 20,
-  },
-  
-  // Event title row with category badge
-  eventTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  
-  eventTitle: {
-    fontSize: 19,
-    fontWeight: '800',
-    color: '#ffffff',
-    letterSpacing: 0.5,
-    lineHeight: 26,
-    flex: 1,
-  },
-  
-  // Event type badge
-  eventTypeBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginLeft: 12,
-  },
-  
-  eventTypeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  
-  eventOrganizer: {
-    fontSize: 15,
-    color: '#6b7280',
-    marginBottom: 4,
-    fontWeight: '500',
-  },
-  
-  eventStats: {
-    fontSize: 13,
-    color: '#9ca3af',
-    letterSpacing: 0.5,
-    fontWeight: '600',
-  },
-  
-  priorityBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
-  },
-  
-  priorityText: {
-    fontSize: 11,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    height: 120,
   },
 });
 
 export default function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
-  const [expandedEvents, setExpandedEvents] = useState(new Set());
   
-  // Enhanced animation values
+  // Animation values
   const masterOpacity = useSharedValue(0);
-  const headerSlide = useSharedValue(30);
-  const pulseScale = useSharedValue(1);
-  const heroGlow = useSharedValue(0);
+  const slideY = useSharedValue(30);
   
-  // 1337 School-specific data matching README requirements
-  const schoolStats = { 
-    value: '1,337', 
-    label: 'Active Students', 
-    subtext: '42 Network Community' 
-  };
+  // Current time
+  const [currentTime, setCurrentTime] = useState(new Date());
   
-  // Core admin metrics for 1337 school
-  // const adminMetrics = [
-  //   { icon: Calendar, value: '24', label: 'Pending Events', trend: '+6 today', type: 'primary', urgent: true },
-  //   { icon: Users, value: '892', label: 'Registered Students', trend: '+12 this week', type: 'secondary' },
-  //   { icon: TrendingUp, value: '94.2%', label: 'Event Attendance', trend: '+5.1%', type: 'tertiary' },
-  //   { icon: Star, value: '4.8/5', label: 'Avg Rating', trend: '+0.2', type: 'quaternary' },
-  // ];
-
-  // 1337-specific quick actions from README
-  const adminActions = [
-    { 
-      icon: CheckCircle, 
-      label: 'Approve Events', 
-      desc: 'Review pending events', 
-      gradient: ['#10b981', '#059669'],
-      floatingIcon: Calendar,
-      count: 6
-    },
-    { 
-      icon: Users, 
-      label: 'Manage Users', 
-      desc: 'Student & staff access', 
-      gradient: ['#3b82f6', '#1d4ed8'],
-      floatingIcon: Shield 
-    },
-    { 
-      icon: Settings, 
-      label: 'Shop Requests', 
-      desc: 'Image & nickname changes', 
-      gradient: ['#f59e0b', '#d97706'],
-      floatingIcon: User,
-      count: 3
-    },
-    { 
-      icon: Bell, 
-      label: 'Notifications', 
-      desc: 'Broadcast to students', 
-      gradient: ['#8b5cf6', '#7c3aed'],
-      floatingIcon: Flame 
-    },
-  ];
-
-  // Profile change requests from students
-  const profileRequests = [
-    {
-      id: 1,
-      studentId: 'Student #1234',
-      type: 'nickname',
-      currentValue: 'coder_42',
-      requestedValue: 'elite_coder_1337',
-      submittedAt: '2 hours ago',
-      reason: 'Want to reflect my new skills level',
-    },
-    {
-      id: 2,
-      studentId: 'Student #5678',
-      type: 'profile_image',
-      currentValue: 'default_avatar.png',
-      requestedValue: 'new_professional_photo.jpg',
-      submittedAt: '5 hours ago',
-      reason: 'Updated professional headshot',
-    },
-    {
-      id: 3,
-      studentId: 'Student #9012',
-      type: 'nickname',
-      currentValue: 'newbie_dev',
-      requestedValue: 'algorithm_master',
-      submittedAt: '1 day ago',
-      reason: 'Completed advanced algorithms track',
-    },
-  ];
-
-  // 1337 school events requiring approval (matching README)
-  const pendingEvents = [
-    {
-      id: 1,
-      title: 'C Programming Workshop',
-      organizer: '1337 Coding Club',
-      category: 'Workshop',
-      priority: 'HIGH',
-      preRegistered: 45,
-      capacity: 50,
-      date: '2024-12-28',
-      time: '14:00',
-      location: 'Lab A - Building 1',
-      description: 'Advanced C programming techniques for algorithm challenges and system programming.',
-      type: 'workshop',
-      duration: '3 hours',
-      speakers: ['Prof. Ahmed Benali', 'Senior Dev Fatima Z.']
-    },
-    {
-      id: 2,
-      title: 'Career Day: Tech Industry',
-      organizer: '1337 Career Services',
-      category: 'Career Event',
-      priority: 'URGENT',
-      preRegistered: 287,
-      capacity: 300,
-      date: '2024-12-30',
-      time: '09:00',
-      location: 'Main Auditorium',
-      description: 'Meet with top tech companies hiring 1337 graduates. Network with industry professionals.',
-      type: 'career',
-      duration: 'Full day',
-      speakers: ['Google Recruiters', 'Microsoft Team', 'Local Startups']
-    },
-    {
-      id: 3,
-      title: 'Hackathon Prep Session',
-      organizer: 'Student Innovation Lab',
-      category: 'Coding Event',
-      priority: 'MEDIUM',
-      preRegistered: 67,
-      capacity: 80,
-      date: '2024-12-29',
-      time: '16:00',
-      location: 'Innovation Hub',
-      description: 'Prepare for upcoming hackathons with team formation and project planning strategies.',
-      type: 'coding',
-      duration: '2 hours',
-      speakers: ['Hackathon Winners 2024']
-    }
-  ];
-
-  // Recent platform activity
-  const recentActivity = [
-    { type: 'registration', user: 'Student #1234', event: 'C Programming Workshop', time: '2 min ago' },
-    { type: 'event_created', user: 'Prof. Sarah M.', event: 'Advanced Algorithms', time: '15 min ago' },
-    { type: 'feedback', user: 'Student #5678', event: 'Web Dev Bootcamp', time: '32 min ago', rating: 5 },
-    { type: 'registration', user: 'Student #9012', event: 'Career Day', time: '1 hour ago' },
-  ];
-
   useEffect(() => {
     StatusBar.setBarStyle('light-content');
     
-    // Enhanced entrance animations
-    const sequence = async () => {
-      masterOpacity.value = withTiming(1, { duration: 1000 });
-      headerSlide.value = withTiming(0, { duration: 800 });
-    };
+    // Entrance animations
+    masterOpacity.value = withTiming(1, { duration: 1000 });
+    slideY.value = withTiming(0, { duration: 800 });
     
-    // Pulse animation for status
-    pulseScale.value = withRepeat(
-      withSequence(
-        withTiming(1.3, { duration: 1200 }),
-        withTiming(1, { duration: 1200 })
-      ),
-      -1,
-      true
-    );
+    // Update time every minute
+    const timeInterval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
     
-    // Hero glow effect
-    heroGlow.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 2000 }),
-        withTiming(0.3, { duration: 2000 })
-      ),
-      -1,
-      true
-    );
-    
-    sequence();
+    return () => clearInterval(timeInterval);
   }, []);
 
   const containerStyle = useAnimatedStyle(() => ({
     opacity: masterOpacity.value,
-  }));
-
-  const headerStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: headerSlide.value }],
-  }));
-
-  const pulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale.value }],
-  }));
-
-  const heroGlowStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(heroGlow.value, [0, 1], [0.1, 0.2]),
+    transform: [{ translateY: slideY.value }],
   }));
 
   const handleRefresh = async () => {
@@ -1706,75 +849,136 @@ export default function AdminDashboard() {
     setRefreshing(false);
   };
 
-  const toggleEventExpansion = (eventId) => {
-    setExpandedEvents(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(eventId)) {
-        newSet.delete(eventId);
-      } else {
-        newSet.add(eventId);
-      }
-      return newSet;
-    });
-  };
+  // Enhanced data based on new README features
+  const quickStats = [
+    {
+      icon: Users,
+      value: '1,247',
+      label: 'Active Students',
+      trend: '+23 today',
+      color: '#3b82f6',
+      gradient: ['#3b82f6', '#1d4ed8'],
+    },
+    {
+      icon: Calendar,
+      value: '18',
+      label: 'Pending Events',
+      trend: '+5 this week',
+      color: '#f59e0b',
+      gradient: ['#f59e0b', '#d97706'],
+    },
+    {
+      icon: Coins,
+      value: '47.2K',
+      label: 'Coins Distributed',
+      trend: '+1.2K today',
+      color: '#10b981',
+      gradient: ['#10b981', '#059669'],
+    },
+    {
+      icon: Trophy,
+      value: '89%',
+      label: 'Engagement Rate',
+      trend: '+7% this month',
+      color: '#8b5cf6',
+      gradient: ['#8b5cf6', '#7c3aed'],
+    },
+  ];
 
-  const handleEventAction = (eventId, action) => {
-    Alert.alert(
-      `${action} Event`,
-      `Are you sure you want to ${action.toLowerCase()} this event?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: action, 
-          style: action === 'Approve' ? 'default' : 'destructive',
-          onPress: () => console.log(`${action} event ${eventId}`)
-        }
-      ]
-    );
-  };
+  const managementModules = [
+    {
+      title: 'Event Management',
+      description: 'Approve and manage events',
+      icon: Calendar,
+      color: '#3b82f6',
+      gradient: ['#3b82f6', '#1d4ed8'],
+      badge: 6,
+    },
+    {
+      title: 'Shop Requests',
+      description: 'Profile customizations',
+      icon: ShoppingBag,
+      color: '#f59e0b',
+      gradient: ['#f59e0b', '#d97706'],
+      badge: 3,
+    },
+    {
+      title: 'Wallet System',
+      description: 'Monitor transactions',
+      icon: Wallet,
+      color: '#10b981',
+      gradient: ['#10b981', '#059669'],
+    },
+    {
+      title: 'Leaderboard',
+      description: 'Student rankings',
+      icon: Medal,
+      color: '#8b5cf6',
+      gradient: ['#8b5cf6', '#7c3aed'],
+    },
+    {
+      title: 'Volunteers',
+      description: 'Manage applications',
+      icon: HeartHandshake,
+      color: '#ef4444',
+      gradient: ['#ef4444', '#dc2626'],
+    },
+    {
+      title: 'Analytics',
+      description: 'Platform insights',
+      icon: BarChart3,
+      color: '#06b6d4',
+      gradient: ['#06b6d4', '#0891b2'],
+    },
+  ];
 
-  const getStatCardStyle = (type) => {
-    switch (type) {
-      case 'primary': return styles.statCardPrimary;
-      case 'secondary': return styles.statCardSecondary;
-      case 'tertiary': return styles.statCardTertiary;
-      case 'quaternary': return styles.statCardQuaternary;
-      default: return {};
-    }
-  };
-
-  const getStatIconColor = (type) => {
-    switch (type) {
-      case 'primary': return '#3b82f6';
-      case 'secondary': return '#10b981';
-      case 'tertiary': return '#f59e0b';
-      case 'quaternary': return '#8b5cf6';
-      default: return '#3b82f6';
-    }
-  };
-
-  const getEventTypeColor = (type) => {
-    switch (type) {
-      case 'workshop': return '#3b82f6';
-      case 'career': return '#10b981';
-      case 'coding': return '#f59e0b';
-      default: return '#8b5cf6';
-    }
-  };
-
-  const getActivityIcon = (type) => {
-    switch (type) {
-      case 'registration': return Users;
-      case 'event_created': return Plus;
-      case 'feedback': return Star;
-      default: return Activity;
-    }
-  };
+  const recentActivity = [
+    {
+      type: 'coin_earned',
+      user: 'Student #1234',
+      action: 'earned 50 coins',
+      detail: 'C++ Workshop attendance',
+      time: '2 min ago',
+      amount: '+50',
+      icon: Coins,
+      color: '#10b981',
+    },
+    {
+      type: 'shop_request',
+      user: 'Student #5678',
+      action: 'requested nickname change',
+      detail: 'to "algorithm_master"',
+      time: '15 min ago',
+      amount: '-100',
+      icon: User,
+      color: '#f59e0b',
+    },
+    {
+      type: 'event_created',
+      user: 'Prof. Sarah M.',
+      action: 'created new event',
+      detail: 'Advanced React Workshop',
+      time: '1 hour ago',
+      amount: '',
+      icon: Plus,
+      color: '#3b82f6',
+    },
+    {
+      type: 'volunteer_application',
+      user: 'Student #9012',
+      action: 'applied as volunteer',
+      detail: 'Career Day Tech Fair',
+      time: '2 hours ago',
+      amount: '',
+      icon: HeartHandshake,
+      color: '#8b5cf6',
+    },
+  ];
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      <GridPattern />
+      <FloatingBackground />
       
       <SafeAreaView style={styles.container}>
         <Animated.View style={[containerStyle, styles.container]}>
@@ -1785,124 +989,166 @@ export default function AdminDashboard() {
               <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
             }
           >
-            {/* Enhanced Header */}
-            <Animated.View entering={FadeInDown.delay(200)} style={[headerStyle, styles.headerSection]}>
-              <View style={styles.logoContainer}>
-                <View style={styles.logoCornerTL} />
-                <View style={styles.logoCornerBR} />
-                <View style={styles.logoContent}>
-                  <Text style={styles.logoText}>1337</Text>
+            {/* Modern Header */}
+            <Animated.View entering={FadeInDown.delay(200)} style={styles.headerSection}>
+              <LinearGradient
+                colors={['rgba(59, 130, 246, 0.15)', 'rgba(139, 92, 246, 0.1)', 'transparent']}
+                style={styles.headerBackground}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              />
+              
+              {/* Floating Decorative Elements */}
+              <View style={[styles.headerDecoration, { top: 40, right: 60 }]}>
+                <Target color="#3b82f6" size={120} strokeWidth={0.5} />
+              </View>
+              <View style={[styles.headerDecoration, { bottom: 60, left: 40 }]}>
+                <Layers color="#8b5cf6" size={100} strokeWidth={0.5} />
+              </View>
+              <View style={[styles.headerDecoration, { top: 120, left: 20 }]}>
+                <Sparkles color="#10b981" size={80} strokeWidth={0.5} />
+              </View>
+              
+              <View style={styles.headerContent}>
+                <View style={styles.headerTop}>
+                  <View style={styles.brandContainer}>
+                    <View style={styles.logoRow}>
+                      <View style={styles.logoIcon}>
+                        <LinearGradient
+                          colors={['#3b82f6', '#1d4ed8', '#1e40af']}
+                          style={styles.logoIconGradient}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                        />
+                        <LinearGradient
+                          colors={['rgba(59, 130, 246, 0.8)', 'rgba(29, 78, 216, 0.4)']}
+                          style={styles.logoIconGlow}
+                        />
+                        <Shield color="#ffffff" size={28} strokeWidth={2.5} />
+                      </View>
+                      <Text style={styles.logoText}>1337</Text>
+                    </View>
+                    
+                    {/* Staff Information */}
+                    <Animated.View entering={FadeInRight.delay(400)} style={styles.staffInfoContainer}>
+                      <Text style={styles.welcomeText}>Welcome back,</Text>
+                      <Text style={styles.staffName}>Ahmed Ben Salah</Text>
+                      <Text style={styles.staffRole}>• System Administrator</Text>
+                    </Animated.View>
+                    
+                    {/* Enhanced Title Section */}
+                    <Animated.View entering={FadeInUp.delay(600)} style={styles.titleSection}>
+                      <Text style={styles.headerTitle}>Admin Center</Text>
+                      <Text style={styles.headerSubtitle}>
+                        1337 Event Management System
+                      </Text>
+                    </Animated.View>
+                  </View>
+                  
+                  <View style={styles.statusContainer}>
+                    <Animated.View entering={FadeInDown.delay(800)} style={styles.statusIndicator}>
+                      <LinearGradient
+                        colors={['rgba(16, 185, 129, 0.3)', 'rgba(5, 150, 105, 0.2)']}
+                        style={styles.statusGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      />
+                      <View style={styles.statusDot} />
+                      <Text style={styles.statusText}>Online</Text>
+                    </Animated.View>
+                    
+                    <Animated.View entering={FadeInLeft.delay(1000)} style={styles.timeInfo}>
+                      <Text style={styles.currentTime}>
+                        {currentTime.toLocaleTimeString('en-US', { 
+                          hour: '2-digit', 
+                          minute: '2-digit',
+                          hour12: false 
+                        })}
+                      </Text>
+                      <Text style={styles.currentDate}>
+                        {currentTime.toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </Text>
+                    </Animated.View>
+                  </View>
                 </View>
-                <View style={styles.statusIndicator} />
-                <Animated.View style={[styles.pulseRing, pulseStyle]} />
               </View>
-              
-              <View style={styles.titleContainer}>
-                <Text style={styles.mainTitle}>ADMIN PANEL</Text>
-                <View style={styles.titleUnderline} />
-              </View>
-              
-              <Text style={styles.subtitle}>1337 EVENT MANAGEMENT SYSTEM</Text>
-              
-              <View style={styles.statusContainer}>
-                <View style={styles.statusDot} />
-                <Text style={styles.statusText}>42 Network Connected</Text>
-              </View>
-              
-              <Text style={styles.description}>
-                Manage school events, students, and analytics for the 1337 coding school community.
-              </Text>
             </Animated.View>
 
-            {/* School Statistics Hero */}
-            <Animated.View entering={FadeInUp.delay(400)} style={styles.heroSection}>
-              <View style={styles.sectionTitleContainer}>
-                <Text style={styles.sectionTitle}>School Overview</Text>
-                <View style={styles.sectionTitleUnderline} />
-              </View>
-              
-              <Animated.View entering={FadeInUp.delay(600)} style={styles.heroCard}>
-                <Animated.View style={heroGlowStyle}>
-                  <LinearGradient
-                    colors={['#3b82f6', '#1d4ed8']}
-                    style={styles.heroGradient}
-                  />
-                </Animated.View>
-                <View style={styles.heroContent}>
-                  <Text style={styles.heroValue}>{schoolStats.value}</Text>
-                  <Text style={styles.heroLabel}>{schoolStats.label}</Text>
-                  <Text style={styles.heroSubtext}>{schoolStats.subtext}</Text>
-                </View>
-              </Animated.View>
-              
-              {/* Admin Metrics Grid */}
-              {/* <View style={styles.statsGrid}>
-                {adminMetrics.map((metric, index) => (
+            {/* Quick Stats */}
+            <Animated.View entering={FadeInUp.delay(400)} style={styles.quickStatsSection}>
+              <View style={styles.statsGrid}>
+                {quickStats.map((stat, index) => (
                   <Animated.View
-                    key={metric.label}
-                    entering={FadeInLeft.delay(800 + index * 100)}
-                    style={[styles.statCard, getStatCardStyle(metric.type)]}
+                    key={stat.label}
+                    entering={FadeInLeft.delay(600 + index * 100)}
+                    style={styles.statCard}
                   >
-                    {metric.urgent && (
-                      <View style={styles.urgentBadge}>
-                        <Text style={styles.urgentText}>!</Text>
-                      </View>
-                    )}
-                    <View style={styles.statFloatingIcon}>
-                      <metric.icon color={getStatIconColor(metric.type)} size={50} strokeWidth={0.5} />
+                    <LinearGradient
+                      colors={stat.gradient}
+                      style={styles.statCardGradient}
+                    />
+                    <View style={[styles.statIconContainer, { backgroundColor: `${stat.color}20`, borderWidth: 1, borderColor: stat.color }]}>
+                      <stat.icon color={stat.color} size={24} strokeWidth={2} />
                     </View>
-                    <View style={styles.statIconContainer}>
-                      <metric.icon color={getStatIconColor(metric.type)} size={20} strokeWidth={1.5} />
-                    </View>
-                    <Text style={styles.statValue}>{metric.value}</Text>
-                    <Text style={styles.statLabel}>{metric.label}</Text>
-                    <Text style={styles.statTrend}>{metric.trend}</Text>
+                    <Text style={styles.statValue}>{stat.value}</Text>
+                    <Text style={styles.statLabel}>{stat.label}</Text>
+                    <Text style={[styles.statTrend, styles.trendPositive]}>{stat.trend}</Text>
                   </Animated.View>
                 ))}
-              </View> */}
+              </View>
             </Animated.View>
 
-            {/* Admin Actions */}
-            <Animated.View entering={FadeInUp.delay(1200)} style={styles.actionsSection}>
-              <View style={styles.sectionTitleContainer}>
-                <Text style={styles.sectionTitle}>Admin Actions</Text>
-                <View style={styles.sectionTitleUnderline} />
+            {/* Management Modules */}
+            <Animated.View entering={FadeInUp.delay(800)} style={styles.managementSection}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Management</Text>
+                <AnimatedPressable style={styles.viewAllButton}>
+                  <Text style={styles.viewAllText}>View All</Text>
+                  <ArrowUpRight color="#3b82f6" size={14} strokeWidth={2} />
+                </AnimatedPressable>
               </View>
               
-              <View style={styles.actionsGrid}>
-                {adminActions.map((action, index) => (
+              <View style={styles.managementGrid}>
+                {managementModules.map((module, index) => (
                   <Animated.View
-                    key={action.label}
-                    entering={FadeInRight.delay(1400 + index * 100)}
+                    key={module.title}
+                    entering={FadeInRight.delay(1000 + index * 100)}
                   >
-                    <AnimatedPressable style={[
-                      styles.actionCard,
-                      index === 0 && styles.actionCard1,
-                      index === 1 && styles.actionCard2,
-                      index === 2 && styles.actionCard3,
-                      index === 3 && styles.actionCard4,
-                    ]}>
+                    <AnimatedPressable style={styles.managementCard}>
                       <LinearGradient
-                        colors={action.gradient}
-                        style={styles.actionGradient}
+                        colors={module.gradient}
+                        style={styles.managementCardGradient}
                       />
-                      {action.count && (
-                        <View style={styles.actionBadge}>
-                          <Text style={styles.actionBadgeText}>{action.count}</Text>
-                        </View>
+                      {module.badge && (
+                        <PulsingBadge 
+                          style={styles.managementBadge}
+                          delay={1200 + index * 200}
+                        >
+                          <LinearGradient
+                            colors={['#ef4444', '#dc2626', '#b91c1c']}
+                            style={styles.managementBadgeGradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                          />
+                          <Text style={styles.managementBadgeText}>{module.badge}</Text>
+                        </PulsingBadge>
                       )}
-                      <View style={styles.actionHeader}>
-                        <View style={styles.actionIconContainer}>
-                          <action.icon color="#ffffff" size={20} strokeWidth={1.5} />
-                        </View>
-                        <View style={styles.actionArrow}>
-                          <ArrowUpRight color="#ffffff" size={18} strokeWidth={1.5} />
-                        </View>
+                      <View style={[styles.managementIconContainer, { backgroundColor: `${module.color}20`, borderWidth: 1, borderColor: module.color }]}>
+                        <LinearGradient
+                          colors={[`${module.color}40`, `${module.color}20`]}
+                          style={styles.managementIconGlow}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                        />
+                        <module.icon color={module.color} size={26} strokeWidth={2} />
                       </View>
-                      <Text style={styles.actionLabel}>{action.label}</Text>
-                      <Text style={styles.actionDesc}>{action.desc}</Text>
-                      <View style={styles.actionFloatingIcon}>
-                        <action.floatingIcon color="#ffffff" size={70} strokeWidth={0.5} />
+                      <Text style={styles.managementTitle} numberOfLines={1} ellipsizeMode="tail">{module.title}</Text>
+                      <Text style={styles.managementDesc} numberOfLines={2} ellipsizeMode="tail">{module.description}</Text>
+                      <View style={styles.managementFloatingIcon}>
+                        <module.icon color={module.color} size={60} strokeWidth={0.5} />
                       </View>
                     </AnimatedPressable>
                   </Animated.View>
@@ -1910,200 +1156,109 @@ export default function AdminDashboard() {
               </View>
             </Animated.View>
 
-            {/* Compact Event Approval System */}
-            <Animated.View entering={FadeInUp.delay(1600)} style={styles.eventsSection}>
-              <View style={styles.sectionTitleContainer}>
-                <Text style={styles.sectionTitle}>Event Approvals</Text>
-                <View style={styles.sectionTitleUnderline} />
+            {/* Analytics Overview */}
+            <Animated.View entering={FadeInUp.delay(1200)} style={styles.analyticsSection}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Platform Analytics</Text>
               </View>
               
-              <View style={styles.eventsCard}>
-                <View style={styles.eventsHeader}>
-                  <LinearGradient
-                    colors={['#f59e0b', '#d97706']}
-                    style={styles.eventsHeaderGradient}
-                  />
-                  <Text style={styles.eventsTitle}>Pending Events</Text>
-                  <View style={styles.pendingBadge}>
-                    <Clock color="#f59e0b" size={14} strokeWidth={1.5} />
-                    <Text style={styles.pendingCount}>{pendingEvents.length}</Text>
-                    <Text style={styles.pendingLabel}>PENDING</Text>
+              <View style={styles.analyticsGrid}>
+                <View style={styles.analyticsCard}>
+                  <View style={styles.analyticsHeader}>
+                    <Text style={styles.analyticsTitle}>System Overview</Text>
+                    <View style={styles.analyticsIcon}>
+                      <Gauge color="#3b82f6" size={20} strokeWidth={2} />
+                    </View>
+                  </View>
+                  <View style={styles.analyticsMetrics}>
+                    <View style={styles.analyticsMetric}>
+                      <Text style={styles.metricValue}>99.8%</Text>
+                      <Text style={styles.metricLabel}>Uptime</Text>
+                    </View>
+                    <View style={styles.analyticsMetric}>
+                      <Text style={styles.metricValue}>2.1K</Text>
+                      <Text style={styles.metricLabel}>Daily Active</Text>
+                    </View>
+                    <View style={styles.analyticsMetric}>
+                      <Text style={styles.metricValue}>156ms</Text>
+                      <Text style={styles.metricLabel}>Response Time</Text>
+                    </View>
                   </View>
                 </View>
-                
-                {pendingEvents.map((event, index) => {
-                  const isExpanded = expandedEvents.has(event.id);
-                  return (
-                    <Animated.View
-                      key={event.id}
-                      entering={FadeInLeft.delay(1800 + index * 200)}
-                      style={[
-                        styles.eventCardCompact,
-                        index === pendingEvents.length - 1 && styles.eventCardLast,
-                      ]}
-                    >
-                      {/* Compact Header - Always Visible */}
-                      <View style={styles.eventCompactHeader}>
-                        <View style={styles.eventCompactLeft}>
-                          <View style={styles.eventTitleRow}>
-                            <Text style={styles.eventTitleCompact}>{event.title}</Text>
-                            <View style={[styles.eventTypeBadge, { backgroundColor: `${getEventTypeColor(event.type)}20`, borderColor: getEventTypeColor(event.type) }]}>
-                              <Text style={[styles.eventTypeText, { color: getEventTypeColor(event.type) }]}>{event.category}</Text>
-                            </View>
-                          </View>
-                          
-                          <View style={styles.eventCompactInfo}>
-                            <Text style={styles.eventOrganizerCompact}>by {event.organizer}</Text>
-                            <View style={styles.eventCompactDetails}>
-                              <View style={styles.eventDetailCompact}>
-                                <Calendar color="#6b7280" size={12} strokeWidth={1.5} />
-                                <Text style={styles.eventDetailTextCompact}>{event.date}</Text>
-                              </View>
-                              <View style={styles.eventDetailCompact}>
-                                <Users color="#6b7280" size={12} strokeWidth={1.5} />
-                                <Text style={styles.eventDetailTextCompact}>{event.preRegistered}/{event.capacity}</Text>
-                              </View>
-                            </View>
-                          </View>
-                        </View>
-                        
-                        <View style={styles.eventCompactRight}>
-                          <AnimatedPressable 
-                            onPress={() => toggleEventExpansion(event.id)}
-                            style={styles.expandButton}
-                          >
-                            <ChevronRight 
-                              color="#3b82f6" 
-                              size={20} 
-                              strokeWidth={2}
-                              style={[
-                                styles.expandIcon,
-                                { transform: [{ rotate: isExpanded ? '90deg' : '0deg' }] }
-                              ]}
-                            />
-                          </AnimatedPressable>
-                        </View>
-                      </View>
-
-                      {/* Expandable Content */}
-                      {isExpanded && (
-                        <Animated.View 
-                          entering={FadeInDown.duration(300)}
-                          exiting={FadeInUp.duration(200)}
-                          style={styles.eventExpandedContent}
-                        >
-                          <Text style={styles.eventDescription}>{event.description}</Text>
-                          
-                          <View style={styles.eventDetails}>
-                            <View style={styles.eventDetailItem}>
-                              <Clock color="#6b7280" size={13} strokeWidth={1.5} />
-                              <Text style={styles.eventDetailText}>{event.time} • {event.duration}</Text>
-                            </View>
-                            <View style={styles.eventDetailItem}>
-                              <MapPin color="#6b7280" size={13} strokeWidth={1.5} />
-                              <Text style={styles.eventDetailText}>{event.location}</Text>
-                            </View>
-                          </View>
-
-                          {/* Speakers Section */}
-                          <View style={styles.speakersSection}>
-                            <Text style={styles.speakersTitle}>Speakers:</Text>
-                            <View style={styles.speakersList}>
-                              {event.speakers.map((speaker, idx) => (
-                                <View key={idx} style={styles.speakerTag}>
-                                  <Text style={styles.speakerText}>{speaker}</Text>
-                                </View>
-                              ))}
-                            </View>
-                          </View>
-                          
-                          {/* Actions */}
-                          <View style={styles.eventActionsContainer}>
-                            <View style={styles.eventActionsButtons}>
-                              <AnimatedPressable 
-                                onPress={() => handleEventAction(event.id, 'Reject')}
-                                style={[styles.actionButton, styles.rejectButton]}
-                              >
-                                <XCircle color="#ef4444" size={16} strokeWidth={1.5} />
-                                <Text style={[styles.actionButtonText, styles.rejectButtonText]}>Reject</Text>
-                              </AnimatedPressable>
-                              
-                              <AnimatedPressable 
-                                onPress={() => handleEventAction(event.id, 'Approve')}
-                                style={[styles.actionButton, styles.approveButton]}
-                              >
-                                <CheckCircle color="#10b981" size={16} strokeWidth={1.5} />
-                                <Text style={[styles.actionButtonText, styles.approveButtonText]}>Approve</Text>
-                              </AnimatedPressable>
-                            </View>
-                          </View>
-                        </Animated.View>
-                      )}
-                    </Animated.View>
-                  );
-                })}
               </View>
             </Animated.View>
 
-            {/* Recent Activity Feed */}
-            {/* <Animated.View entering={FadeInUp.delay(2000)} style={styles.activitySection}>
-              <View style={styles.sectionTitleContainer}>
-                <Text style={styles.sectionTitle}>Recent Activity</Text>
-                <View style={styles.sectionTitleUnderline} />
-              </View>
-              
-              <View style={styles.activityCard}>
-                {recentActivity.map((activity, index) => {
-                  const ActivityIcon = getActivityIcon(activity.type);
-                  return (
-                    <Animated.View
-                      key={index}
-                      entering={FadeInRight.delay(2200 + index * 100)}
-                      style={[styles.activityItem, index === recentActivity.length - 1 && styles.activityItemLast]}
-                    >
-                      <View style={styles.activityIconContainer}>
-                        <ActivityIcon color="#3b82f6" size={16} strokeWidth={1.5} />
-                      </View>
-                      <View style={styles.activityContent}>
-                        <Text style={styles.activityText}>
-                          <Text style={styles.activityUser}>{activity.user}</Text>
-                          {activity.type === 'registration' && ' registered for '}
-                          {activity.type === 'event_created' && ' created '}
-                          {activity.type === 'feedback' && ' rated '}
-                          <Text style={styles.activityEvent}>{activity.event}</Text>
-                          {activity.rating && (
-                            <Text style={styles.activityRating}> ({activity.rating}⭐)</Text>
-                          )}
+            {/* Recent Activity */}
+            <Animated.View entering={FadeInUp.delay(1400)} style={styles.activitySection}>
+              <View style={styles.activityFeed}>
+                <View style={styles.activityHeader}>
+                  <Text style={styles.activityTitle}>Recent Activity</Text>
+                  <View style={styles.analyticsIcon}>
+                    <Pulse color="#3b82f6" size={20} strokeWidth={2} />
+                  </View>
+                </View>
+                
+                {recentActivity.map((activity, index) => (
+                  <Animated.View
+                    key={index}
+                    entering={FadeInLeft.delay(1600 + index * 100)}
+                    style={[styles.activityItem, index === recentActivity.length - 1 && styles.activityItemLast]}
+                  >
+                    <View style={[styles.activityIconContainer, { backgroundColor: `${activity.color}20`, borderWidth: 1, borderColor: activity.color }]}>
+                      <activity.icon color={activity.color} size={20} strokeWidth={2} />
+                    </View>
+                    <View style={styles.activityContent}>
+                      <Text style={styles.activityText}>
+                        <Text style={styles.activityUser}>{activity.user}</Text>
+                        {' '}
+                        <Text style={styles.activityAction}>{activity.action}</Text>
+                        {activity.detail && (
+                          <Text style={{ color: '#9ca3af' }}> • {activity.detail}</Text>
+                        )}
+                      </Text>
+                      <Text style={styles.activityTime}>{activity.time}</Text>
+                    </View>
+                    {activity.amount && (
+                      <View style={styles.activityValue}>
+                        <Text style={[styles.activityAmount, { color: activity.amount.startsWith('+') ? '#10b981' : '#ef4444' }]}>
+                          {activity.amount}
                         </Text>
-                        <Text style={styles.activityTime}>{activity.time}</Text>
                       </View>
-                    </Animated.View>
-                  );
-                })}
+                    )}
+                  </Animated.View>
+                ))}
               </View>
-            </Animated.View> */}
+            </Animated.View>
 
-            {/* 1337 School Footer */}
-            {/* <Animated.View entering={FadeInUp.delay(2400)} style={styles.schoolFooter}>
-              <View style={styles.schoolFooterHeader}>
-                <View style={styles.schoolLogo}>
-                  <Text style={styles.schoolLogoText}>1337</Text>
+            {/* Footer */}
+            <Animated.View entering={FadeInUp.delay(1800)} style={styles.footerSection}>
+              <View style={styles.footerCard}>
+                <View style={styles.footerLogo}>
+                  <View style={styles.footerLogoIcon}>
+                    <Shield color="#ffffff" size={20} strokeWidth={2} />
+                  </View>
+                  <Text style={styles.footerLogoText}>1337 Admin</Text>
                 </View>
-                <View style={styles.schoolInfo}>
-                  <Text style={styles.schoolName}>1337 Coding School</Text>
-                  <Text style={styles.schoolTagline}>42 Network • Rabat, Morocco</Text>
+                <Text style={styles.footerText}>
+                  Professional event management system for the 1337 coding school community.
+                  Built with modern technologies and best practices.
+                </Text>
+                <View style={styles.footerInfo}>
+                  <View style={styles.footerItem}>
+                    <Text style={styles.footerItemValue}>v2.1.0</Text>
+                    <Text style={styles.footerItemLabel}>Version</Text>
+                  </View>
+                  <View style={styles.footerItem}>
+                    <Text style={styles.footerItemValue}>Rabat</Text>
+                    <Text style={styles.footerItemLabel}>Location</Text>
+                  </View>
+                  <View style={styles.footerItem}>
+                    <Text style={styles.footerItemValue}>24/7</Text>
+                    <Text style={styles.footerItemLabel}>Support</Text>
+                  </View>
                 </View>
               </View>
-              
-              <Text style={styles.schoolMessage}>
-                Empowering the next generation of software engineers through peer-to-peer learning and innovative projects.
-              </Text>
-              
-              <View style={styles.schoolFooterBottom}>
-                <Text style={styles.schoolCopyright}>© 2025 WeDesign Club • 1337 School</Text>
-                <Text style={styles.schoolVersion}>Admin Panel v1.0</Text>
-              </View>
-            </Animated.View> */}
+            </Animated.View>
 
             <View style={styles.bottomSpacer} />
           </ScrollView>
