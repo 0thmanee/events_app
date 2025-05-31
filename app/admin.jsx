@@ -66,7 +66,8 @@ import {
   Zap as Lightning,
   Globe,
   Cpu,
-  Activity as Pulse
+  Activity as Pulse,
+  ArrowLeft
 } from 'lucide-react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -272,6 +273,19 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   
+  // Back button
+  backButton: {
+    width: 48,
+    height: 48,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  
   // Status indicators
   statusContainer: {
     alignItems: 'flex-end',
@@ -353,9 +367,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
   },
   statValue: {
     fontSize: 28,
@@ -732,6 +747,7 @@ const styles = StyleSheet.create({
 });
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   
   // Animation values
@@ -765,6 +781,18 @@ export default function AdminDashboard() {
     setRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     setRefreshing(false);
+  };
+
+  const handleNavigation = (route) => {
+    console.log('Navigating to:', route); // Debug log
+    if (route) {
+      try {
+        router.push(route);
+      } catch (error) {
+        console.error('Navigation error:', error);
+        Alert.alert('Navigation Error', `Could not navigate to ${route}`);
+      }
+    }
   };
 
   // Enhanced data based on new README features
@@ -811,6 +839,7 @@ export default function AdminDashboard() {
       color: '#3b82f6',
       gradient: ['#3b82f6', '#1d4ed8'],
       badge: 6,
+      route: 'manage-events',
     },
     {
       title: 'Shop Requests',
@@ -819,6 +848,7 @@ export default function AdminDashboard() {
       color: '#f59e0b',
       gradient: ['#f59e0b', '#d97706'],
       badge: 3,
+      route: 'manage-shop',
     },
     {
       title: 'Wallet System',
@@ -826,6 +856,7 @@ export default function AdminDashboard() {
       icon: Wallet,
       color: '#10b981',
       gradient: ['#10b981', '#059669'],
+      route: 'manage-wallet',
     },
     {
       title: 'Leaderboard',
@@ -833,6 +864,7 @@ export default function AdminDashboard() {
       icon: Medal,
       color: '#8b5cf6',
       gradient: ['#8b5cf6', '#7c3aed'],
+      route: 'manage-leaderboard',
     },
     {
       title: 'Volunteers',
@@ -840,6 +872,7 @@ export default function AdminDashboard() {
       icon: HeartHandshake,
       color: '#ef4444',
       gradient: ['#ef4444', '#dc2626'],
+      route: 'manage-volunteers',
     },
     {
       title: 'Analytics',
@@ -847,6 +880,7 @@ export default function AdminDashboard() {
       icon: BarChart3,
       color: '#06b6d4',
       gradient: ['#06b6d4', '#0891b2'],
+      route: 'manage-analytics',
     },
   ];
 
@@ -914,6 +948,13 @@ export default function AdminDashboard() {
                 style={styles.headerBackground}
               />
               <View style={styles.headerContent}>
+                <Pressable 
+                  style={styles.backButton}
+                  onPress={() => router.back()}
+                >
+                  <ArrowLeft color="#3b82f6" size={20} strokeWidth={2} />
+                </Pressable>
+                
                 <View style={styles.headerTop}>
                   <View style={styles.brandContainer}>
                     <View style={styles.logoRow}>
@@ -993,7 +1034,18 @@ export default function AdminDashboard() {
                     key={module.title}
                     entering={FadeInRight.delay(1000 + index * 100)}
                   >
-                    <Pressable style={styles.managementCard}>
+                    <Pressable 
+                      style={styles.managementCard}
+                      onPress={() => {
+                        console.log('Card pressed:', module.title);
+                        console.log('Route:', module.route);
+                        if (module.route) {
+                          handleNavigation(module.route);
+                        } else {
+                          Alert.alert('Info', `${module.title} feature coming soon!`);
+                        }
+                      }}
+                    >
                       <LinearGradient
                         colors={module.gradient}
                         style={styles.managementCardGradient}

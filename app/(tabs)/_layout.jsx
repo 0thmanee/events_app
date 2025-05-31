@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { Platform } from 'react-native';
-import { Home, Search, User, Settings, Shield, BarChart3 } from 'lucide-react-native';
+import { Home, Search, User, Settings, Shield, BarChart3, Calendar } from 'lucide-react-native';
 
 export default function TabsLayout() {
   // For demo purposes, always show admin interface
@@ -9,7 +9,7 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      initialRouteName="admin"
+      initialRouteName="index"
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -70,21 +70,20 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="event-management"
+        options={{
+          title: 'Events',
+          tabBarIcon: ({ color, size }) => (
+            <Calendar color={color} size={size} strokeWidth={2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
             <User color={color} size={size} strokeWidth={2} />
-          ),
-        }}
-      />
-      {/* Admin Dashboard - always visible for demo */}
-      <Tabs.Screen
-        name="admin"
-        options={{
-          title: 'Admin',
-          tabBarIcon: ({ color, size }) => (
-            <Shield color={color} size={size} strokeWidth={2} />
           ),
         }}
       />

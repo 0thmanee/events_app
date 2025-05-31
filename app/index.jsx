@@ -1,39 +1,45 @@
-import { View, Text, Pressable, ScrollView, Dimensions, StatusBar } from 'react-native';
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { View, Text, ScrollView, Pressable, Dimensions, StatusBar, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
+  FadeInDown, 
+  FadeInUp, 
+  FadeInLeft, 
+  FadeInRight,
   useSharedValue, 
   useAnimatedStyle, 
   withTiming, 
-  withSpring,
-  withDelay,
-  withSequence,
   withRepeat,
+  withSequence,
+  withDelay,
   interpolate,
-  Easing,
   runOnJS,
+  Easing
 } from 'react-native-reanimated';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'expo-router';
 import { 
+  Calendar,
+  Users,
+  Trophy,
+  Sparkles,
+  ArrowRight,
+  Code,
+  BookOpen,
+  Coffee,
+  Zap,
+  Star,
+  Heart,
+  Rocket,
+  Target,
+  Award,
+  Coins,
   ChevronRight,
   Shield,
-  Eye,
-  Zap,
-  Layers,
-  Code2,
-  Network,
-  Database,
-  Cpu,
-  Lock,
-  ArrowUpRight,
-  Minus,
-  Plus
+  ArrowUpRight
 } from 'lucide-react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 // Advanced geometric grid system
 const GridPattern = () => {
@@ -194,6 +200,7 @@ const FloatingElements = () => {
 };
 
 export default function WelcomeScreen() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [currentMetric, setCurrentMetric] = useState(0);
   const [loadingText, setLoadingText] = useState('INITIALIZING');
@@ -221,28 +228,28 @@ export default function WelcomeScreen() {
 
   const metrics = [
     {
-      icon: Code2,
+      icon: Code,
       value: '1,337+',
       label: 'Active Developers',
       description: 'Elite coders building the future of technology',
       accent: '#3b82f6',
     },
     {
-      icon: Network,
+      icon: Users,
       value: '42+',
       label: 'Global Campuses',
       description: 'Worldwide network of innovation hubs',
       accent: '#06b6d4',
     },
     {
-      icon: Database,
+      icon: BookOpen,
       value: '10K+',
       label: 'Events Hosted',
       description: 'Premium experiences delivered',
       accent: '#10b981',
     },
     {
-      icon: Cpu,
+      icon: Coffee,
       value: '99.9%',
       label: 'Uptime SLA',
       description: 'Enterprise-grade reliability',
@@ -258,7 +265,7 @@ export default function WelcomeScreen() {
       const sequence = async () => {
         // Phase 1: Grid and logo appearance
         loadingGridOpacity.value = withTiming(0.1, { duration: 800 });
-        loadingLogoScale.value = withDelay(400, withSpring(1, { damping: 15, stiffness: 200 }));
+        loadingLogoScale.value = withDelay(400, withTiming(1, { damping: 15, stiffness: 200 }));
         
         // Phase 2: Corner expansion and glow
         loadingCornerExpand.value = withDelay(800, withTiming(1, { duration: 1000 }));
@@ -315,11 +322,11 @@ export default function WelcomeScreen() {
       // Welcome screen entrance sequence
       const sequence = async () => {
         masterOpacity.value = withTiming(1, { duration: 800, easing: Easing.out(Easing.quad) });
-        heroTranslate.value = withDelay(200, withSpring(0, { damping: 25, stiffness: 200 }));
-        logoScale.value = withDelay(400, withSpring(1, { damping: 20, stiffness: 150 }));
+        heroTranslate.value = withDelay(200, withTiming(0, { damping: 25, stiffness: 200 }));
+        logoScale.value = withDelay(400, withTiming(1, { damping: 20, stiffness: 150 }));
         titleOpacity.value = withDelay(600, withTiming(1, { duration: 600 }));
-        subtitleSlide.value = withDelay(800, withSpring(0, { damping: 25, stiffness: 200 }));
-        ctaScale.value = withDelay(1200, withSpring(1, { damping: 20, stiffness: 150 }));
+        subtitleSlide.value = withDelay(800, withTiming(0, { damping: 25, stiffness: 200 }));
+        ctaScale.value = withDelay(1200, withTiming(1, { damping: 20, stiffness: 150 }));
       };
 
       sequence();
@@ -878,7 +885,7 @@ export default function WelcomeScreen() {
              <Animated.View style={[ctaStyle, { gap: 20 }]}>
                
                {/* Primary Authentication */}
-               <AnimatedPressable onPress={handleAuth}>
+               <Pressable onPress={handleAuth}>
                  <View style={{
                    backgroundColor: '#0a0a0a',
                    borderWidth: 1,
@@ -935,14 +942,14 @@ export default function WelcomeScreen() {
                            fontWeight: '500',
                          }}>
                            Connect with 42 Network
-                         </Text>
+            </Text>
                        </View>
                      </View>
                      
                      <ArrowUpRight color="#3b82f6" size={24} strokeWidth={2} />
                    </View>
                  </View>
-               </AnimatedPressable>
+          </Pressable>
              </Animated.View>
 
              {/* Enterprise Footer */}
@@ -985,7 +992,7 @@ export default function WelcomeScreen() {
                }}>
                  Enterprise Platform © 2025 WeDesign Club{'\n'}
                  Advanced Event Management System
-            </Text>
+               </Text>
              </View>
 
            </ScrollView>
