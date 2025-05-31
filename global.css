@@ -2,23 +2,232 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom utilities for mobile-specific styles */
-.glass-effect {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+/* 1337 Event Management - Global Styles */
+
+/* Base Layer - Typography & Fundamentals */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Disable text selection on mobile for better UX */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
 }
 
-.dark-glass-effect {
-  background-color: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Components Layer - Reusable UI Patterns */
+@layer components {
+  
+  /* 1337 Glass Effect - Premium Look */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .glass-effect-strong {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Dark Glass Effects */
+  .dark-glass-effect {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .dark-glass-effect-strong {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Gradient Backgrounds */
+  .gradient-1337 {
+    background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #8b5cf6 100%);
+  }
+  
+  .gradient-1337-dark {
+    background: linear-gradient(135deg, #0c4a6e 0%, #1e3a8a 50%, #581c87 100%);
+  }
+  
+  .gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  }
+  
+  .gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  }
+  
+  .gradient-error {
+    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  }
+  
+  /* Shimmer Effect for Loading States */
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  
+  .dark-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  
+  /* Modern Card Styles */
+  .card-modern {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+  
+  .card-modern-dark {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Interactive Elements */
+  .btn-primary {
+    @apply bg-primary-500 text-white font-semibold px-6 py-3 rounded-xl;
+    @apply shadow-medium hover:shadow-strong;
+    @apply transition-all duration-300 ease-out;
+    @apply active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-500 text-white font-semibold px-6 py-3 rounded-xl;
+    @apply shadow-medium hover:shadow-glow-purple;
+    @apply transition-all duration-300 ease-out;
+    @apply active:scale-95;
+  }
+  
+  .btn-ghost {
+    @apply bg-transparent text-primary-600 font-semibold px-6 py-3 rounded-xl;
+    @apply border border-primary-200 hover:bg-primary-50;
+    @apply transition-all duration-300 ease-out;
+    @apply active:scale-95;
+  }
+  
+  /* Level Badge Styles */
+  .level-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-gradient-to-r from-accent-500 to-accent-400 text-white;
+    @apply shadow-medium;
+  }
+  
+  /* Wallet Balance Styles */
+  .wallet-balance {
+    @apply text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600;
+    @apply bg-clip-text text-transparent;
+  }
+  
+  /* Event Status Indicators */
+  .status-live {
+    @apply bg-accent-500 text-white;
+  }
+  
+  .status-upcoming {
+    @apply bg-primary-500 text-white;
+  }
+  
+  .status-ended {
+    @apply bg-neutral-400 text-white;
+  }
+  
+  .status-cancelled {
+    @apply bg-error-500 text-white;
+  }
+  
+  /* Notification Styles */
+  .notification-success {
+    @apply bg-accent-50 border border-accent-200 text-accent-800;
+  }
+  
+  .notification-warning {
+    @apply bg-warning-50 border border-warning-200 text-warning-800;
+  }
+  
+  .notification-error {
+    @apply bg-error-50 border border-error-200 text-error-800;
+  }
+  
+  .notification-info {
+    @apply bg-primary-50 border border-primary-200 text-primary-800;
+  }
 }
 
-.card-shadow {
-  shadow-color: #000;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.1;
-  shadow-radius: 8px;
-  elevation: 5;
+/* Utilities Layer - Custom Utilities */
+@layer utilities {
+  
+  /* Text Gradients */
+  .text-gradient-1337 {
+    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-success {
+    @apply bg-gradient-to-r from-accent-600 to-accent-400 bg-clip-text text-transparent;
+  }
+  
+  /* Scroll Styling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Safe Area Handling */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 44px);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 34px);
+  }
+  
+  /* Backdrop Blur Support */
+  .backdrop-blur-supported {
+    @supports (backdrop-filter: blur(20px)) {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+  }
+  
+  /* Mobile-specific utilities */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .prevent-zoom {
+    touch-action: pan-x pan-y;
+  }
 } 
