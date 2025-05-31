@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Pressable, ScrollView, Dimensions, StatusBar } from 'react-native';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import Animated, { 
@@ -10,483 +10,987 @@ import Animated, {
   withSequence,
   withRepeat,
   interpolate,
+  Easing,
+  runOnJS,
 } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
-  Calendar, 
-  Users, 
-  Trophy, 
-  Zap, 
-  Shield, 
-  Star,
-  ArrowRight,
-  Sparkles,
-  Target,
-  Coins,
-  Play,
-  Globe,
-  Gem
+  ChevronRight,
+  Shield,
+  Eye,
+  Zap,
+  Layers,
+  Code2,
+  Network,
+  Database,
+  Cpu,
+  Lock,
+  ArrowUpRight,
+  Minus,
+  Plus
 } from 'lucide-react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export default function WelcomeScreen() {
-  const [currentFeature, setCurrentFeature] = useState(0);
-  
-  // Animation values
-  const fadeAnim = useSharedValue(0);
-  const slideAnim = useSharedValue(100);
-  const scaleAnim = useSharedValue(0.8);
-  const glowAnim = useSharedValue(0);
-  const rotateAnim = useSharedValue(0);
-  const pulseAnim = useSharedValue(1);
+// Advanced geometric grid system
+const GridPattern = () => {
+  const opacity = useSharedValue(0.03);
 
-  const features = [
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.08, { duration: 4000 }),
+        withTiming(0.03, { duration: 4000 })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[animatedStyle, { 
+      position: 'absolute', 
+      width: '100%', 
+      height: '100%',
+      pointerEvents: 'none'
+    }]}>
+      {Array.from({ length: 20 }, (_, i) => (
+        <View
+          key={i}
+          style={{
+            position: 'absolute',
+            left: (i % 5) * (screenWidth / 5),
+            top: Math.floor(i / 5) * (screenHeight / 4),
+            width: 1,
+            height: screenHeight,
+            backgroundColor: '#ffffff',
+          }}
+        />
+      ))}
+      {Array.from({ length: 15 }, (_, i) => (
+        <View
+          key={`h-${i}`}
+          style={{
+            position: 'absolute',
+            top: i * (screenHeight / 15),
+            left: 0,
+            width: screenWidth,
+            height: 1,
+            backgroundColor: '#ffffff',
+          }}
+        />
+      ))}
+    </Animated.View>
+  );
+};
+
+// Sophisticated floating elements
+const FloatingElements = () => {
+  const float1 = useSharedValue(0);
+  const float2 = useSharedValue(0);
+  const rotate1 = useSharedValue(0);
+
+  useEffect(() => {
+    float1.value = withRepeat(
+      withSequence(
+        withTiming(20, { duration: 6000, easing: Easing.inOut(Easing.quad) }),
+        withTiming(-20, { duration: 6000, easing: Easing.inOut(Easing.quad) })
+      ),
+      -1,
+      true
+    );
+    
+    float2.value = withRepeat(
+      withSequence(
+        withTiming(-15, { duration: 8000, easing: Easing.inOut(Easing.quad) }),
+        withTiming(15, { duration: 8000, easing: Easing.inOut(Easing.quad) })
+      ),
+      -1,
+      true
+    );
+
+    rotate1.value = withRepeat(
+      withTiming(360, { duration: 30000, easing: Easing.linear }),
+      -1,
+      false
+    );
+  }, []);
+
+  const float1Style = useAnimatedStyle(() => ({
+    transform: [{ translateY: float1.value }],
+  }));
+
+  const float2Style = useAnimatedStyle(() => ({
+    transform: [{ translateY: float2.value }],
+  }));
+
+  const rotateStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotate1.value}deg` }],
+  }));
+
+  return (
+    <>
+      <Animated.View style={[
+        float1Style,
+        {
+          position: 'absolute',
+          top: '15%',
+          right: '8%',
+          width: 80,
+          height: 80,
+        }
+      ]}>
+        <View style={{
+          width: 80,
+          height: 80,
+          borderWidth: 1,
+          borderColor: '#1f2937',
+          borderRadius: 2,
+          backgroundColor: 'transparent',
+        }}>
+          <View style={{
+            position: 'absolute',
+            top: 20,
+            left: 20,
+            width: 40,
+            height: 40,
+            borderWidth: 1,
+            borderColor: '#374151',
+            borderRadius: 1,
+          }} />
+        </View>
+      </Animated.View>
+
+      <Animated.View style={[
+        float2Style,
+        {
+          position: 'absolute',
+          bottom: '25%',
+          left: '5%',
+          width: 60,
+          height: 60,
+        }
+      ]}>
+        <Animated.View style={[rotateStyle]}>
+          <View style={{
+            width: 60,
+            height: 60,
+            borderWidth: 1,
+            borderColor: '#1f2937',
+            transform: [{ rotate: '45deg' }],
+            backgroundColor: 'transparent',
+          }} />
+        </Animated.View>
+      </Animated.View>
+    </>
+  );
+};
+
+export default function WelcomeScreen() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentMetric, setCurrentMetric] = useState(0);
+  const [loadingText, setLoadingText] = useState('INITIALIZING');
+  const [loadingPercent, setLoadingPercent] = useState(0);
+  
+  // All animation values declared unconditionally
+  const masterOpacity = useSharedValue(0);
+  const heroTranslate = useSharedValue(50);
+  const logoScale = useSharedValue(0.8);
+  const titleOpacity = useSharedValue(0);
+  const subtitleSlide = useSharedValue(30);
+  const ctaScale = useSharedValue(0.9);
+  
+  // Loading animation values
+  const loadingLogoScale = useSharedValue(0);
+  const loadingLogoRotate = useSharedValue(0);
+  const loadingGridOpacity = useSharedValue(0);
+  const loadingTextOpacity = useSharedValue(0);
+  const loadingParticleOpacity = useSharedValue(0);
+  const loadingScanlineY = useSharedValue(-50);
+  const loadingCornerExpand = useSharedValue(0);
+  const loadingGlowIntensity = useSharedValue(0);
+  const loadingProgress = useSharedValue(0);
+  const loadingScreenOpacity = useSharedValue(1);
+
+  const metrics = [
     {
-      icon: Calendar,
-      title: 'Smart Events',
-      subtitle: 'AI-Powered Discovery',
-      description: 'Discover incredible 1337 events tailored to your coding journey with intelligent recommendations',
-      gradient: ['#6366f1', '#8b5cf6', '#d946ef'],
-      accentColor: '#8b5cf6',
+      icon: Code2,
+      value: '1,337+',
+      label: 'Active Developers',
+      description: 'Elite coders building the future of technology',
+      accent: '#3b82f6',
     },
     {
-      icon: Users,
-      title: 'Elite Community',
-      subtitle: 'Connect & Collaborate',
-      description: 'Join an exclusive network of 1337 students and industry professionals',
-      gradient: ['#06b6d4', '#3b82f6', '#6366f1'],
-      accentColor: '#06b6d4',
+      icon: Network,
+      value: '42+',
+      label: 'Global Campuses',
+      description: 'Worldwide network of innovation hubs',
+      accent: '#06b6d4',
     },
     {
-      icon: Trophy,
-      title: 'Level System',
-      subtitle: 'Gamified Progress',
-      description: 'Earn XP, unlock achievements, and rise through the ranks of 1337 excellence',
-      gradient: ['#10b981', '#06b6d4', '#3b82f6'],
-      accentColor: '#10b981',
+      icon: Database,
+      value: '10K+',
+      label: 'Events Hosted',
+      description: 'Premium experiences delivered',
+      accent: '#10b981',
     },
     {
-      icon: Coins,
-      title: 'Digital Economy',
-      subtitle: 'Earn & Spend',
-      description: 'Participate in events to earn coins and customize your digital identity',
-      gradient: ['#f59e0b', '#f97316', '#ef4444'],
-      accentColor: '#f59e0b',
+      icon: Cpu,
+      value: '99.9%',
+      label: 'Uptime SLA',
+      description: 'Enterprise-grade reliability',
+      accent: '#f59e0b',
     },
   ];
 
   useEffect(() => {
-    // Epic entrance animations
-    fadeAnim.value = withDelay(300, withTiming(1, { duration: 1200 }));
-    slideAnim.value = withDelay(500, withSpring(0, { damping: 20, stiffness: 100 }));
-    scaleAnim.value = withDelay(700, withSpring(1, { damping: 15, stiffness: 120 }));
+    StatusBar.setBarStyle('light-content');
     
-    // Continuous glow effect
-    glowAnim.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 2000 }),
-        withTiming(0.3, { duration: 2000 })
-      ),
-      -1,
-      true
-    );
-    
-    // Subtle rotation
-    rotateAnim.value = withRepeat(
-      withTiming(360, { duration: 20000 }),
-      -1,
-      false
-    );
-    
-    // Pulse effect
-    pulseAnim.value = withRepeat(
-      withSequence(
-        withTiming(1.05, { duration: 1500 }),
-        withTiming(1, { duration: 1500 })
-      ),
-      -1,
-      true
-    );
+    if (isLoading) {
+      // Loading sequence
+      const sequence = async () => {
+        // Phase 1: Grid and logo appearance
+        loadingGridOpacity.value = withTiming(0.1, { duration: 800 });
+        loadingLogoScale.value = withDelay(400, withSpring(1, { damping: 15, stiffness: 200 }));
+        
+        // Phase 2: Corner expansion and glow
+        loadingCornerExpand.value = withDelay(800, withTiming(1, { duration: 1000 }));
+        loadingGlowIntensity.value = withDelay(1000, withTiming(1, { duration: 800 }));
+        
+        // Phase 3: Text and progress
+        loadingTextOpacity.value = withDelay(1200, withTiming(1, { duration: 600 }));
+        
+        // Phase 4: Loading sequence
+        const steps = [
+          { text: 'CONNECTING TO 42 NETWORK', delay: 1500, duration: 800 },
+          { text: 'AUTHENTICATING SYSTEMS', delay: 2300, duration: 700 },
+          { text: 'LOADING EVENT DATABASE', delay: 3000, duration: 600 },
+          { text: 'OPTIMIZING INTERFACE', delay: 3600, duration: 500 },
+          { text: 'READY TO LAUNCH', delay: 4100, duration: 400 },
+        ];
 
-    // Auto-rotate features
-    const interval = setInterval(() => {
-      setCurrentFeature(prev => (prev + 1) % features.length);
-    }, 4000);
+        steps.forEach((step, index) => {
+          setTimeout(() => {
+            runOnJS(setLoadingText)(step.text);
+            runOnJS(setLoadingPercent)((index + 1) * 20);
+            loadingProgress.value = withTiming((index + 1) * 0.2, { duration: step.duration });
+          }, step.delay);
+        });
 
-    return () => clearInterval(interval);
-  }, []);
+        // Phase 5: Scanline effect
+        loadingScanlineY.value = withDelay(1800, withRepeat(
+          withTiming(screenHeight + 50, { duration: 2000, easing: Easing.linear }),
+          3,
+          false
+        ));
 
+        // Phase 6: Particle effects
+        loadingParticleOpacity.value = withDelay(2000, withTiming(1, { duration: 1000 }));
+
+        // Phase 7: Completion
+        setTimeout(() => {
+          loadingScreenOpacity.value = withTiming(0, { duration: 800 });
+          setTimeout(() => {
+            runOnJS(setIsLoading)(false);
+          }, 800);
+        }, 5000);
+      };
+
+      sequence();
+
+      // Continuous logo rotation
+      loadingLogoRotate.value = withRepeat(
+        withTiming(360, { duration: 8000, easing: Easing.linear }),
+        -1,
+        false
+      );
+    } else {
+      // Welcome screen entrance sequence
+      const sequence = async () => {
+        masterOpacity.value = withTiming(1, { duration: 800, easing: Easing.out(Easing.quad) });
+        heroTranslate.value = withDelay(200, withSpring(0, { damping: 25, stiffness: 200 }));
+        logoScale.value = withDelay(400, withSpring(1, { damping: 20, stiffness: 150 }));
+        titleOpacity.value = withDelay(600, withTiming(1, { duration: 600 }));
+        subtitleSlide.value = withDelay(800, withSpring(0, { damping: 25, stiffness: 200 }));
+        ctaScale.value = withDelay(1200, withSpring(1, { damping: 20, stiffness: 150 }));
+      };
+
+      sequence();
+
+      // Auto-rotate metrics
+      const interval = setInterval(() => {
+        setCurrentMetric(prev => (prev + 1) % metrics.length);
+      }, 4000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isLoading]);
+
+  // All animated styles declared unconditionally
   const containerStyle = useAnimatedStyle(() => ({
-    opacity: fadeAnim.value,
-    transform: [
-      { translateY: slideAnim.value },
-      { scale: scaleAnim.value }
-    ]
+    opacity: masterOpacity.value,
   }));
 
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(glowAnim.value, [0, 1], [0.4, 1]),
-    transform: [
-      { scale: interpolate(glowAnim.value, [0, 1], [1, 1.02]) }
-    ]
+  const heroStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: heroTranslate.value }],
   }));
 
-  const rotateStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${rotateAnim.value}deg` }
-    ]
+  const logoStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: logoScale.value }],
   }));
 
-  const pulseStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: pulseAnim.value }
-    ]
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: titleOpacity.value,
   }));
 
-  const currentFeatureData = features[currentFeature];
+  const subtitleStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: subtitleSlide.value }],
+    opacity: titleOpacity.value,
+  }));
 
-  const handleGetStarted = () => {
+  const ctaStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: ctaScale.value }],
+  }));
+
+  // Loading screen animated styles
+  const loadingLogoStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: loadingLogoScale.value },
+      { rotate: `${loadingLogoRotate.value}deg` }
+    ],
+  }));
+
+  const loadingGridStyle = useAnimatedStyle(() => ({
+    opacity: loadingGridOpacity.value,
+  }));
+
+  const loadingProgressStyle = useAnimatedStyle(() => ({
+    width: `${loadingProgress.value * 100}%`,
+  }));
+
+  const loadingTextStyle = useAnimatedStyle(() => ({
+    opacity: loadingTextOpacity.value,
+  }));
+
+  const loadingScanlineStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: loadingScanlineY.value }],
+  }));
+
+  const loadingParticleStyle = useAnimatedStyle(() => ({
+    opacity: loadingParticleOpacity.value,
+  }));
+
+  const loadingCornerStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: loadingCornerExpand.value }],
+  }));
+
+  const loadingGlowStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(loadingGlowIntensity.value, [0, 1], [0, 0.8]),
+  }));
+
+  const loadingScreenStyle = useAnimatedStyle(() => ({
+    opacity: loadingScreenOpacity.value,
+  }));
+
+  const currentMetricData = metrics[currentMetric];
+
+  const handleAuth = () => {
+    console.log('🔐 Initiating 42 Network Authentication...');
+    // For demo purposes, redirect directly to admin dashboard
+    router.replace('/(tabs)/admin');
+  };
+
+  const handleExplore = () => {
     router.replace('/(tabs)');
   };
 
-  const handleLogin = () => {
-    console.log('Login with 42 API');
-  };
-
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
-      {/* Animated Background */}
-      <LinearGradient
-        colors={['#0a0a0a', '#1a1a2e', '#16213e', '#0a0a0a']}
-        style={{ position: 'absolute', width: '100%', height: '100%' }}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
+    <View style={{ flex: 1, backgroundColor: '#000000' }}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      {/* Floating Orbs Background */}
-      <Animated.View style={[rotateStyle, { position: 'absolute', top: 100, right: 50, opacity: 0.3 }]}>
-        <View style={{
-          width: 100,
-          height: 100,
-          borderRadius: 50,
-          backgroundColor: '#8b5cf6',
-          shadowColor: '#8b5cf6',
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.8,
-          shadowRadius: 20,
-        }} />
-      </Animated.View>
-      
-      <Animated.View style={[pulseStyle, { position: 'absolute', bottom: 200, left: 30, opacity: 0.2 }]}>
-        <View style={{
-          width: 60,
-          height: 60,
-          borderRadius: 30,
-          backgroundColor: '#06b6d4',
-          shadowColor: '#06b6d4',
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.6,
-          shadowRadius: 15,
-        }} />
-      </Animated.View>
+      {/* Loading Screen Overlay */}
+      {isLoading && (
+        <Animated.View style={[loadingScreenStyle, { 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          zIndex: 1000,
+          backgroundColor: '#000000'
+        }]}>
+          
+          {/* Loading Background Grid */}
+          <Animated.View style={[loadingGridStyle, { 
+            position: 'absolute', 
+            width: '100%', 
+            height: '100%',
+            pointerEvents: 'none'
+          }]}>
+            {/* Vertical lines */}
+            {Array.from({ length: 6 }, (_, i) => (
+              <View
+                key={`v-${i}`}
+                style={{
+                  position: 'absolute',
+                  left: i * (screenWidth / 5),
+                  top: 0,
+                  width: 1,
+                  height: '100%',
+                  backgroundColor: '#1f2937',
+                }}
+              />
+            ))}
+            {/* Horizontal lines */}
+            {Array.from({ length: 8 }, (_, i) => (
+              <View
+                key={`h-${i}`}
+                style={{
+                  position: 'absolute',
+                  top: i * (screenHeight / 7),
+                  left: 0,
+                  width: '100%',
+                  height: 1,
+                  backgroundColor: '#1f2937',
+                }}
+              />
+            ))}
+          </Animated.View>
 
-      <SafeAreaView style={{ flex: 1 }}>
-        <ScrollView 
-          style={{ flex: 1 }}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
-        >
-          <Animated.View style={[containerStyle, { flex: 1, paddingTop: 60 }]}>
-            
-            {/* Hero Section with Neon Logo */}
-            <View style={{ alignItems: 'center', marginBottom: 60 }}>
-              {/* Neon 1337 Logo */}
-              <Animated.View style={[glowStyle, { marginBottom: 30 }]}>
-                <View style={{
-                  width: 120,
-                  height: 120,
-                  borderRadius: 30,
-                  backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                  borderWidth: 2,
-                  borderColor: '#8b5cf6',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  shadowColor: '#8b5cf6',
+          {/* Loading Floating Particles */}
+          <Animated.View style={[loadingParticleStyle, { position: 'absolute', width: '100%', height: '100%' }]}>
+            {Array.from({ length: 12 }, (_, i) => (
+              <View
+                key={`particle-${i}`}
+                style={{
+                  position: 'absolute',
+                  left: Math.random() * screenWidth,
+                  top: Math.random() * screenHeight,
+                  width: 2,
+                  height: 2,
+                  backgroundColor: '#3b82f6',
+                  borderRadius: 1,
+                  shadowColor: '#3b82f6',
                   shadowOffset: { width: 0, height: 0 },
                   shadowOpacity: 0.8,
-                  shadowRadius: 25,
+                  shadowRadius: 4,
+                }}
+              />
+            ))}
+          </Animated.View>
+
+          {/* Loading Scanline Effect */}
+          <Animated.View style={[
+            loadingScanlineStyle,
+            {
+              position: 'absolute',
+              left: 0,
+              width: '100%',
+              height: 2,
+              backgroundColor: '#3b82f6',
+              shadowColor: '#3b82f6',
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 1,
+              shadowRadius: 10,
+            }
+          ]} />
+
+          {/* Loading Main Content */}
+          <View style={{ 
+            flex: 1, 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            paddingHorizontal: 40,
+            minHeight: screenHeight,
+          }}>
+            
+            {/* Loading Corner Decorations */}
+            <Animated.View style={[loadingCornerStyle, { position: 'absolute', top: screenHeight * 0.15, left: 40 }]}>
+              <View style={{
+                width: 40,
+                height: 40,
+                borderTopWidth: 3,
+                borderLeftWidth: 3,
+                borderColor: '#3b82f6',
+              }} />
+            </Animated.View>
+            
+            <Animated.View style={[loadingCornerStyle, { position: 'absolute', top: screenHeight * 0.15, right: 40 }]}>
+              <View style={{
+                width: 40,
+                height: 40,
+                borderTopWidth: 3,
+                borderRightWidth: 3,
+                borderColor: '#3b82f6',
+              }} />
+            </Animated.View>
+            
+            <Animated.View style={[loadingCornerStyle, { position: 'absolute', bottom: screenHeight * 0.15, left: 40 }]}>
+              <View style={{
+                width: 40,
+                height: 40,
+                borderBottomWidth: 3,
+                borderLeftWidth: 3,
+                borderColor: '#3b82f6',
+              }} />
+            </Animated.View>
+            
+            <Animated.View style={[loadingCornerStyle, { position: 'absolute', bottom: screenHeight * 0.15, right: 40 }]}>
+              <View style={{
+                width: 40,
+                height: 40,
+                borderBottomWidth: 3,
+                borderRightWidth: 3,
+                borderColor: '#3b82f6',
+              }} />
+            </Animated.View>
+
+            {/* Centered Loading Content Container */}
+            <View style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+            }}>
+
+              {/* Loading Central Logo */}
+              <Animated.View style={[loadingLogoStyle, { marginBottom: 60 }]}>
+                <View style={{
+                  width: 160,
+                  height: 160,
+                  backgroundColor: '#0a0a0a',
+                  borderWidth: 2,
+                  borderColor: '#1f2937',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
                 }}>
+                  
+                  {/* Loading Glow effect */}
+                  <Animated.View style={[
+                    loadingGlowStyle,
+                    {
+                      position: 'absolute',
+                      width: '100%',
+                      height: '100%',
+                      borderWidth: 2,
+                      borderColor: '#3b82f6',
+                      shadowColor: '#3b82f6',
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 1,
+                      shadowRadius: 20,
+                    }
+                  ]} />
+                  
+                  {/* Loading Corner accents */}
+                  <View style={{
+                    position: 'absolute',
+                    top: -2,
+                    left: -2,
+                    width: 30,
+                    height: 30,
+                    borderTopWidth: 4,
+                    borderLeftWidth: 4,
+                    borderColor: '#3b82f6',
+                  }} />
+                  <View style={{
+                    position: 'absolute',
+                    bottom: -2,
+                    right: -2,
+                    width: 30,
+                    height: 30,
+                    borderBottomWidth: 4,
+                    borderRightWidth: 4,
+                    borderColor: '#3b82f6',
+                  }} />
+                  
+                  {/* Loading Logo text */}
                   <Text style={{
-                    fontSize: 42,
+                    fontSize: 48,
                     fontWeight: '900',
                     color: '#ffffff',
-                    textShadowColor: '#8b5cf6',
+                    letterSpacing: 6,
+                    fontFamily: 'monospace',
+                    textShadowColor: '#3b82f6',
                     textShadowOffset: { width: 0, height: 0 },
-                    textShadowRadius: 20,
-                    letterSpacing: 2,
+                    textShadowRadius: 10,
                   }}>1337</Text>
+                  
+                  {/* Loading Status indicators */}
+                  <View style={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 12,
+                    width: 12,
+                    height: 12,
+                    backgroundColor: '#10b981',
+                    borderRadius: 6,
+                    shadowColor: '#10b981',
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: 1,
+                    shadowRadius: 6,
+                  }} />
                 </View>
               </Animated.View>
-              
-              {/* Main Title with Neon Effect */}
-              <Text style={{
-                fontSize: 48,
-                fontWeight: '900',
-                color: '#ffffff',
-                textAlign: 'center',
-                marginBottom: 8,
-                textShadowColor: '#8b5cf6',
-                textShadowOffset: { width: 0, height: 0 },
-                textShadowRadius: 15,
-                letterSpacing: 1,
-              }}>
-                EVENT HUB
-              </Text>
-              
-              <Text style={{
-                fontSize: 18,
-                color: '#a78bfa',
-                textAlign: 'center',
-                marginBottom: 12,
-                fontWeight: '600',
-                letterSpacing: 3,
-                textTransform: 'uppercase',
-              }}>
-                ELITE CODING EXPERIENCE
-              </Text>
-              
-              <Text style={{
-                fontSize: 16,
-                color: '#6b7280',
-                textAlign: 'center',
-                lineHeight: 24,
-                maxWidth: 320,
-              }}>
-                Join the most exclusive coding community. Discover events, level up, and connect with the future of tech.
-              </Text>
-            </View>
 
-            {/* Premium Feature Showcase */}
-            <View style={{ marginBottom: 50 }}>
-              <LinearGradient
-                colors={currentFeatureData.gradient}
-                style={{
-                  borderRadius: 24,
-                  padding: 3,
-                  marginHorizontal: 10,
-                }}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <BlurView 
-                  intensity={20} 
-                  style={{
-                    borderRadius: 21,
-                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                    overflow: 'hidden'
-                  }}
-                >
-                  <View style={{ padding: 30 }}>
-                    <View style={{ alignItems: 'center' }}>
-                      {/* Feature Icon with Glow */}
-                      <Animated.View style={[glowStyle]}>
-                        <View style={{
-                          width: 80,
-                          height: 80,
-                          borderRadius: 20,
-                          backgroundColor: `${currentFeatureData.accentColor}20`,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          marginBottom: 20,
-                          borderWidth: 1,
-                          borderColor: currentFeatureData.accentColor,
-                          shadowColor: currentFeatureData.accentColor,
-                          shadowOffset: { width: 0, height: 0 },
-                          shadowOpacity: 0.8,
-                          shadowRadius: 15,
-                        }}>
-                          <currentFeatureData.icon 
-                            color={currentFeatureData.accentColor}
-                            size={36} 
-                            strokeWidth={2.5}
-                          />
-                        </View>
-                      </Animated.View>
-                      
-                      {/* Feature Content */}
-                      <Text style={{
-                        fontSize: 28,
-                        fontWeight: '800',
-                        color: '#ffffff',
-                        textAlign: 'center',
-                        marginBottom: 8,
-                        textShadowColor: currentFeatureData.accentColor,
-                        textShadowOffset: { width: 0, height: 0 },
-                        textShadowRadius: 10,
-                      }}>
-                        {currentFeatureData.title}
-                      </Text>
-                      
-                      <Text style={{
-                        fontSize: 14,
-                        color: currentFeatureData.accentColor,
-                        textAlign: 'center',
-                        marginBottom: 16,
-                        fontWeight: '600',
-                        letterSpacing: 1,
-                        textTransform: 'uppercase',
-                      }}>
-                        {currentFeatureData.subtitle}
-                      </Text>
-                      
-                      <Text style={{
-                        color: '#d1d5db',
-                        textAlign: 'center',
-                        fontSize: 16,
-                        lineHeight: 24,
-                        opacity: 0.9,
-                      }}>
-                        {currentFeatureData.description}
-                      </Text>
-                    </View>
-                  </View>
-                </BlurView>
-              </LinearGradient>
-            </View>
+              {/* Loading Section */}
+              <Animated.View style={[loadingTextStyle, { alignItems: 'center', width: '100%', maxWidth: 400 }]}>
+                
+                {/* Loading System Status */}
+                <Text style={{
+                  fontSize: 24,
+                  fontWeight: '900',
+                  color: '#ffffff',
+                  letterSpacing: 2,
+                  marginBottom: 8,
+                  fontFamily: 'monospace',
+                }}>
+                  EVENT.HUB
+                </Text>
+                
+                <Text style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  letterSpacing: 3,
+                  textTransform: 'uppercase',
+                  marginBottom: 40,
+                  fontWeight: '600',
+                }}>
+                  ENTERPRISE PLATFORM
+                </Text>
 
-            {/* Elegant Feature Indicators */}
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 50,
-              gap: 12,
-            }}>
-              {features.map((feature, index) => (
-                <Animated.View
-                  key={index}
-                  style={[
-                    {
-                      height: 4,
-                      borderRadius: 2,
-                      backgroundColor: index === currentFeature ? feature.accentColor : '#374151',
-                      width: index === currentFeature ? 24 : 4,
-                    },
-                    index === currentFeature && glowStyle
-                  ]}
-                />
-              ))}
-            </View>
-
-            {/* Premium Action Buttons */}
-            <View style={{ gap: 20, paddingHorizontal: 10 }}>
-              {/* Primary CTA - Login with 42 */}
-              <AnimatedPressable
-                onPress={handleLogin}
-                style={{
-                  borderRadius: 20,
+                {/* Loading Progress */}
+                <View style={{
+                  width: '100%',
+                  backgroundColor: '#1f2937',
+                  height: 3,
+                  marginBottom: 20,
                   overflow: 'hidden',
-                  shadowColor: '#8b5cf6',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.6,
-                  shadowRadius: 20,
-                }}
-              >
-                <LinearGradient
-                  colors={['#8b5cf6', '#6366f1', '#3b82f6']}
-                  style={{ paddingVertical: 18, paddingHorizontal: 32 }}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                >
+                }}>
+                  <Animated.View style={[
+                    loadingProgressStyle,
+                    {
+                      height: '100%',
+                      backgroundColor: '#3b82f6',
+                      shadowColor: '#3b82f6',
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 1,
+                      shadowRadius: 6,
+                    }
+                  ]} />
+                </View>
+
+                {/* Loading Text */}
+                <Text style={{
+                  fontSize: 14,
+                  color: '#3b82f6',
+                  letterSpacing: 2,
+                  textAlign: 'center',
+                  marginBottom: 12,
+                  fontWeight: '700',
+                  fontFamily: 'monospace',
+                }}>
+                  {loadingText}
+            </Text>
+
+                {/* Loading Progress Percentage */}
+                <Text style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  letterSpacing: 1,
+                  fontWeight: '600',
+                }}>
+                  {loadingPercent}% COMPLETE
+            </Text>
+
+                {/* Loading System Info */}
+                <View style={{
+                  marginTop: 40,
+                  alignItems: 'center',
+                }}>
                   <View style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    marginBottom: 8,
                   }}>
-                    <Shield color="white" size={24} style={{ marginRight: 12 }} />
+                    <View style={{
+                      width: 8,
+                      height: 8,
+                      backgroundColor: '#10b981',
+                      marginRight: 8,
+                      borderRadius: 1,
+                    }} />
                     <Text style={{
-                      color: 'white',
-                      fontWeight: '800',
-                      fontSize: 18,
-                      letterSpacing: 0.5,
+                      fontSize: 12,
+                      color: '#6b7280',
+                      letterSpacing: 1,
+                      fontWeight: '600',
                     }}>
-                      AUTHENTICATE WITH 42
-                    </Text>
-                    <ArrowRight color="white" size={24} style={{ marginLeft: 12 }} />
-                  </View>
-                </LinearGradient>
-              </AnimatedPressable>
+                      SYSTEM STATUS: ONLINE
+            </Text>
+          </View>
 
-              {/* Secondary CTA - Demo */}
-              <AnimatedPressable
-                onPress={handleGetStarted}
-                style={{
-                  borderRadius: 20,
-                  backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                  borderWidth: 2,
-                  borderColor: '#8b5cf6',
-                  paddingVertical: 16,
-                  paddingHorizontal: 32,
-                  shadowColor: '#8b5cf6',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 10,
-                }}
-              >
+                  <Text style={{
+                    fontSize: 11,
+                    color: '#4b5563',
+                    letterSpacing: 0.5,
+                    textAlign: 'center',
+                  }}>
+                    © 2025 WeDesign Club • All Rights Reserved
+                  </Text>
+              </View>
+              </Animated.View>
+            </View>
+          </View>
+        </Animated.View>
+      )}
+      
+      {/* Main Welcome Screen Content */}
+      <GridPattern />
+      <FloatingElements />
+
+      <SafeAreaView style={{ flex: 1 }}>
+        <Animated.View style={[containerStyle, { flex: 1 }]}>
+          <ScrollView 
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ 
+              paddingHorizontal: 24, 
+              paddingVertical: 40,
+              minHeight: screenHeight - 100
+            }}
+          >
+            
+            {/* Hero Section - Minimal & Powerful */}
+            <Animated.View style={[heroStyle, { alignItems: 'center', marginBottom: 80 }]}>
+              
+              {/* Sophisticated Logo */}
+              <Animated.View style={[logoStyle, { marginBottom: 40 }]}>
                 <View style={{
-                  flexDirection: 'row',
+                  width: 120,
+                  height: 120,
+                  backgroundColor: '#0a0a0a',
+                  borderWidth: 1,
+                  borderColor: '#1f2937',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  position: 'relative',
                 }}>
-                  <Play color="#a78bfa" size={20} style={{ marginRight: 12 }} />
+                  {/* Corner details */}
+                  <View style={{
+                    position: 'absolute',
+                    top: -1,
+                    left: -1,
+                    width: 20,
+                    height: 20,
+                    borderTopWidth: 2,
+                    borderLeftWidth: 2,
+                    borderColor: '#3b82f6',
+                  }} />
+                  <View style={{
+                    position: 'absolute',
+                    bottom: -1,
+                    right: -1,
+                    width: 20,
+                    height: 20,
+                    borderBottomWidth: 2,
+                    borderRightWidth: 2,
+                    borderColor: '#3b82f6',
+                  }} />
+                  
+                  {/* Logo */}
                   <Text style={{
-                    color: '#a78bfa',
-                    fontWeight: '700',
-                    fontSize: 16,
-                    letterSpacing: 0.5,
-                  }}>
-                    EXPLORE DEMO
-                  </Text>
+                    fontSize: 32,
+                    fontWeight: '900',
+                    color: '#ffffff',
+                    letterSpacing: 4,
+                    fontFamily: 'monospace',
+                  }}>1337</Text>
+                  
+                  {/* Status indicator */}
+                  <View style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    width: 8,
+                    height: 8,
+                    backgroundColor: '#10b981',
+                    borderRadius: 4,
+                  }} />
                 </View>
-              </AnimatedPressable>
-            </View>
-
-            {/* Premium Footer */}
-            <View style={{
-              alignItems: 'center',
-              marginTop: 60,
-              paddingTop: 30,
-              borderTopWidth: 1,
-              borderTopColor: '#374151',
-            }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                <Gem color="#8b5cf6" size={16} style={{ marginRight: 8 }} />
+              </Animated.View>
+              
+              {/* Professional Typography */}
+              <Animated.View style={[titleStyle, { alignItems: 'center', marginBottom: 24 }]}>
                 <Text style={{
-                  color: '#8b5cf6',
-                  fontSize: 14,
-                  fontWeight: '600',
-                  letterSpacing: 1,
+                  fontSize: 48,
+                  fontWeight: '900',
+                  color: '#ffffff',
+                  textAlign: 'center',
+                  letterSpacing: -1,
+                  marginBottom: 8,
+                  fontFamily: 'monospace',
                 }}>
-                  POWERED BY 42 NETWORK
+                  EVENT.HUB
                 </Text>
-              </View>
-              <Text style={{
-                color: '#6b7280',
-                fontSize: 12,
-                textAlign: 'center',
-                letterSpacing: 0.5,
-              }}>
-                Crafted by WeDesign Club • The Future of Event Management
-              </Text>
-            </View>
+                
+                <View style={{
+                  width: 60,
+                  height: 1,
+                  backgroundColor: '#3b82f6',
+                  marginBottom: 16,
+                }} />
+              </Animated.View>
+              
+              <Animated.View style={[subtitleStyle, { alignItems: 'center' }]}>
+                <Text style={{
+                  fontSize: 14,
+                  color: '#6b7280',
+                  textAlign: 'center',
+                  letterSpacing: 2,
+                  textTransform: 'uppercase',
+                  marginBottom: 16,
+                  fontWeight: '600',
+                }}>
+                  ENTERPRISE CODING PLATFORM
+                </Text>
+                
+                <Text style={{
+                  fontSize: 18,
+                  color: '#9ca3af',
+                  textAlign: 'center',
+                  lineHeight: 28,
+                  maxWidth: 320,
+                  fontWeight: '400',
+                }}>
+                  Advanced event management for the world's most innovative coding network.
+                </Text>
+              </Animated.View>
+            </Animated.View>
 
-          </Animated.View>
-        </ScrollView>
+             {/* Professional CTA Section */}
+             <Animated.View style={[ctaStyle, { gap: 20 }]}>
+               
+               {/* Primary Authentication */}
+               <AnimatedPressable onPress={handleAuth}>
+                 <View style={{
+                   backgroundColor: '#0a0a0a',
+                   borderWidth: 1,
+                   borderColor: '#3b82f6',
+                   padding: 20,
+                   position: 'relative',
+                   overflow: 'hidden',
+                 }}>
+                   {/* Hover effect background */}
+                   <LinearGradient
+                     colors={['#3b82f6', '#1d4ed8']}
+                     style={{
+                       position: 'absolute',
+                       top: 0,
+                       left: 0,
+                       right: 0,
+                       bottom: 0,
+                       opacity: 0.05,
+                     }}
+                   />
+                   
+                   <View style={{
+                     flexDirection: 'row',
+                     alignItems: 'center',
+                     justifyContent: 'space-between',
+                   }}>
+                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                       <View style={{
+                         width: 40,
+                         height: 40,
+                         backgroundColor: '#111827',
+                         borderWidth: 1,
+                         borderColor: '#374151',
+                         alignItems: 'center',
+                         justifyContent: 'center',
+                         marginRight: 16,
+                       }}>
+                         <Shield color="#3b82f6" size={20} strokeWidth={1.5} />
+                       </View>
+                       
+                       <View>
+                         <Text style={{
+                           fontSize: 18,
+                           color: '#ffffff',
+                           fontWeight: '700',
+                           marginBottom: 4,
+                           letterSpacing: 0.5,
+                         }}>
+                           AUTHENTICATE
+                         </Text>
+                         <Text style={{
+                           fontSize: 14,
+                           color: '#6b7280',
+                           fontWeight: '500',
+                         }}>
+                           Connect with 42 Network
+                         </Text>
+                       </View>
+                     </View>
+                     
+                     <ArrowUpRight color="#3b82f6" size={24} strokeWidth={2} />
+                   </View>
+                 </View>
+               </AnimatedPressable>
+             </Animated.View>
+
+             {/* Enterprise Footer */}
+             <View style={{
+               marginTop: 60,
+               paddingTop: 32,
+               borderTopWidth: 1,
+               borderTopColor: '#1f2937',
+               alignItems: 'center',
+             }}>
+               <View style={{
+                 flexDirection: 'row',
+                 alignItems: 'center',
+                 marginBottom: 16,
+               }}>
+                 <View style={{
+                   width: 12,
+                   height: 12,
+                   backgroundColor: '#10b981',
+                   marginRight: 8,
+                   borderRadius: 1,
+                 }} />
+                 <Text style={{
+                   fontSize: 14,
+                   color: '#6b7280',
+                   fontWeight: '600',
+                   letterSpacing: 1,
+                   textTransform: 'uppercase',
+                 }}>
+                   42 Network Certified
+                 </Text>
+               </View>
+               
+               <Text style={{
+                 fontSize: 12,
+                 color: '#4b5563',
+                 textAlign: 'center',
+                 letterSpacing: 0.5,
+                 lineHeight: 18,
+               }}>
+                 Enterprise Platform © 2025 WeDesign Club{'\n'}
+                 Advanced Event Management System
+            </Text>
+             </View>
+
+           </ScrollView>
+        </Animated.View>
       </SafeAreaView>
-    </View>
+     </View>
   );
 } 
