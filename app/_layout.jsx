@@ -24,6 +24,10 @@ export default function RootLayout() {
       >
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="manage-shop" />
+        <Stack.Screen name="manage-wallet" />
+        <Stack.Screen name="manage-leaderboard" />
+        <Stack.Screen name="manage-volunteers" />
       </Stack>
       <StatusBar style="auto" />
     </GestureHandlerRootView>

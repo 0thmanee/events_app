@@ -221,6 +221,124 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   
+  // Clean Professional Header
+  cleanHeader: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 24,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoSquare: {
+    width: 56,
+    height: 56,
+    backgroundColor: '#0a0a0a',
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    marginRight: 16,
+  },
+  logoCornerTL: {
+    position: 'absolute',
+    top: -1,
+    left: -1,
+    width: 16,
+    height: 16,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: '#3b82f6',
+  },
+  logoCornerBR: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 16,
+    height: 16,
+    borderBottomWidth: 2,
+    borderRightWidth: 2,
+    borderColor: '#3b82f6',
+  },
+  logoTextLines: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoNumber: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#ffffff',
+    letterSpacing: 1,
+    fontFamily: 'monospace',
+    textShadowColor: '#3b82f6',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+    lineHeight: 18,
+  },
+  logoStatus: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 8,
+    height: 8,
+    backgroundColor: '#10b981',
+    borderRadius: 4,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+  },
+  logoTextContainer: {
+    justifyContent: 'center',
+  },
+  logoTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#ffffff',
+    letterSpacing: 1.5,
+    fontFamily: 'monospace',
+    lineHeight: 20,
+  },
+  logoSubtitle: {
+    fontSize: 11,
+    color: '#6b7280',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  profileButton: {
+    position: 'relative',
+  },
+  profileAvatar: {
+    width: 44,
+    height: 44,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileDot: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    backgroundColor: '#10b981',
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#0a0a0a',
+  },
+  
   // Modern Header Layout
   headerTop: {
     flexDirection: 'row',
@@ -274,32 +392,41 @@ const styles = StyleSheet.create({
   
   // Status indicators
   statusContainer: {
-    alignItems: 'flex-end',
-  },
-  statusIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderWidth: 1,
-    borderColor: '#10b981',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginBottom: 12,
+  },
+  statusIndicator: {
+    position: 'relative',
+    marginRight: 12,
+  },
+  statusPulse: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#10b981',
+    opacity: 0.3,
   },
   statusDot: {
-    width: 8,
-    height: 8,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: '#10b981',
-    borderRadius: 4,
-    marginRight: 8,
+    margin: 4,
   },
   statusText: {
+    justifyContent: 'center',
+  },
+  statusTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 2,
+  },
+  statusSubtitle: {
     fontSize: 12,
     color: '#10b981',
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
+    fontWeight: '600',
   },
   timeInfo: {
     alignItems: 'flex-end',
@@ -387,6 +514,290 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginBottom: 32,
   },
+  
+  // Enhanced Management Header
+  managementHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 32,
+    paddingHorizontal: 8,
+  },
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIconContainer: {
+    width: 48,
+    height: 48,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  managementSectionTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#ffffff',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  managementSectionSubtitle: {
+    fontSize: 12,
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: '600',
+  },
+  managementBadgeContainer: {
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  managementBadgeText: {
+    fontSize: 12,
+    color: '#ffffff',
+    fontWeight: '900',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+
+  // Primary Cards (Top 2 - Larger)
+  primaryCardsRow: {
+    marginBottom: 24,
+  },
+  primaryCardWrapper: {
+    marginBottom: 20,
+  },
+  primaryManagementCard: {
+    backgroundColor: '#111827',
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    borderRadius: 24,
+    padding: 28,
+    position: 'relative',
+    overflow: 'hidden',
+    height: 140,
+  },
+  primaryCardGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.08,
+  },
+  primaryFloatingIcon: {
+    position: 'absolute',
+    top: -20,
+    right: -20,
+    opacity: 0.05,
+  },
+  primaryBadge: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minWidth: 32,
+    minHeight: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryBadgeGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 16,
+  },
+  primaryBadgeText: {
+    fontSize: 14,
+    color: '#ffffff',
+    fontWeight: '900',
+  },
+  primaryCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: '100%',
+  },
+  primaryIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 20,
+    borderWidth: 1,
+    position: 'relative',
+  },
+  primaryIconGlow: {
+    position: 'absolute',
+    top: -8,
+    left: -8,
+    right: -8,
+    bottom: -8,
+    borderRadius: 28,
+    opacity: 0.4,
+  },
+  primaryTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  primaryTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#ffffff',
+    marginBottom: 8,
+    letterSpacing: 0.3,
+  },
+  primaryDescription: {
+    fontSize: 14,
+    color: '#9ca3af',
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  primaryActionHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  primaryActionText: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginRight: 8,
+    letterSpacing: 0.5,
+  },
+  primaryActionArrow: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryActionArrowText: {
+    fontSize: 12,
+    color: '#ffffff',
+    fontWeight: '900',
+  },
+
+  // Secondary Cards (Bottom 4 - Grid)
+  secondaryCardsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+  },
+  secondaryCardWrapper: {
+    width: (screenWidth - 60) / 2,
+    marginBottom: 16,
+  },
+  secondaryManagementCard: {
+    backgroundColor: '#111827',
+    borderWidth: 1,
+    borderColor: '#1f2937',
+    borderRadius: 20,
+    padding: 20,
+    position: 'relative',
+    overflow: 'hidden',
+    height: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryCardGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.06,
+  },
+  secondaryFloatingIcon: {
+    position: 'absolute',
+    top: -10,
+    right: -10,
+    opacity: 0.08,
+  },
+  secondaryIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    borderWidth: 1,
+  },
+  secondaryTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 6,
+    textAlign: 'center',
+    letterSpacing: 0.2,
+  },
+  secondaryDescription: {
+    fontSize: 12,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  secondaryAccessIndicator: {
+    position: 'absolute',
+    bottom: 12,
+    left: '50%',
+    marginLeft: -12,
+    width: 24,
+    height: 3,
+    borderRadius: 2,
+  },
+
+  // System Status Footer
+  systemStatus: {
+    backgroundColor: 'rgba(17, 24, 39, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(31, 41, 55, 0.8)',
+    borderRadius: 20,
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  quickMetrics: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metric: {
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  metricValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#ffffff',
+    fontFamily: 'monospace',
+    marginBottom: 2,
+  },
+  metricLabel: {
+    fontSize: 10,
+    color: '#6b7280',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  metricDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: '#374151',
+  },
+
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -404,7 +815,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
     borderWidth: 1,
     borderColor: '#3b82f6',
     borderRadius: 12,
@@ -412,9 +823,8 @@ const styles = StyleSheet.create({
   viewAllText: {
     fontSize: 12,
     color: '#3b82f6',
-    fontWeight: '700',
+    fontWeight: '600',
     marginRight: 4,
-    letterSpacing: 0.5,
   },
   
   managementGrid: {
@@ -487,14 +897,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  managementBadgeText: {
-    fontSize: 12,
-    color: '#ffffff',
-    fontWeight: '900',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
   managementFloatingIcon: {
     position: 'absolute',
     bottom: -8,
@@ -529,7 +931,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   analyticsGrid: {
-    gap: 16,
+    marginTop: 0,
   },
   analyticsCard: {
     backgroundColor: '#111827',
@@ -537,7 +939,6 @@ const styles = StyleSheet.create({
     borderColor: '#1f2937',
     borderRadius: 20,
     padding: 24,
-    position: 'relative',
     overflow: 'hidden',
   },
   analyticsHeader: {
@@ -553,12 +954,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   analyticsIcon: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    width: 36,
+    height: 36,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
     borderWidth: 1,
     borderColor: '#3b82f6',
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -568,22 +969,8 @@ const styles = StyleSheet.create({
   },
   analyticsMetric: {
     alignItems: 'center',
+    flex: 1,
   },
-  metricValue: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#ffffff',
-    marginBottom: 4,
-    fontFamily: 'monospace',
-  },
-  metricLabel: {
-    fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  
-  // Recent Activity Feed
   activitySection: {
     paddingHorizontal: 24,
     marginBottom: 40,
@@ -741,6 +1128,8 @@ export default function AdminDashboard() {
   // Current time
   const [currentTime, setCurrentTime] = useState(new Date());
   
+  const router = useRouter();
+  
   useEffect(() => {
     StatusBar.setBarStyle('light-content');
     
@@ -767,23 +1156,27 @@ export default function AdminDashboard() {
     setRefreshing(false);
   };
 
+  const handleNavigation = (route) => {
+    router.push(route);
+  };
+
   // Enhanced data based on new README features
   const quickStats = [
     {
-      icon: Users,
-      value: '1,247',
-      label: 'Active Students',
-      trend: '+23 today',
-      color: '#3b82f6',
-      gradient: ['#3b82f6', '#1d4ed8'],
-    },
-    {
-      icon: Calendar,
+      icon: Clock,
       value: '18',
       label: 'Pending Events',
-      trend: '+5 this week',
+      trend: '+3 today',
       color: '#f59e0b',
       gradient: ['#f59e0b', '#d97706'],
+    },
+    {
+      icon: ShoppingBag,
+      value: '8',
+      label: 'Shop Requests',
+      trend: '+2 this week',
+      color: '#8b5cf6',
+      gradient: ['#8b5cf6', '#7c3aed'],
     },
     {
       icon: Coins,
@@ -795,11 +1188,11 @@ export default function AdminDashboard() {
     },
     {
       icon: Trophy,
-      value: '89%',
-      label: 'Engagement Rate',
-      trend: '+7% this month',
-      color: '#8b5cf6',
-      gradient: ['#8b5cf6', '#7c3aed'],
+      value: '247',
+      label: 'Active Rankings',
+      trend: '+12 this week',
+      color: '#ef4444',
+      gradient: ['#ef4444', '#dc2626'],
     },
   ];
 
@@ -811,6 +1204,7 @@ export default function AdminDashboard() {
       color: '#3b82f6',
       gradient: ['#3b82f6', '#1d4ed8'],
       badge: 6,
+      route: '/event-management',
     },
     {
       title: 'Shop Requests',
@@ -819,6 +1213,7 @@ export default function AdminDashboard() {
       color: '#f59e0b',
       gradient: ['#f59e0b', '#d97706'],
       badge: 3,
+      route: '/manage-shop',
     },
     {
       title: 'Wallet System',
@@ -826,27 +1221,15 @@ export default function AdminDashboard() {
       icon: Wallet,
       color: '#10b981',
       gradient: ['#10b981', '#059669'],
+      route: '/manage-wallet',
     },
     {
-      title: 'Leaderboard',
-      description: 'Student rankings',
-      icon: Medal,
-      color: '#8b5cf6',
-      gradient: ['#8b5cf6', '#7c3aed'],
-    },
-    {
-      title: 'Volunteers',
-      description: 'Manage applications',
-      icon: HeartHandshake,
+      title: 'Rankings',
+      description: 'Student leaderboards',
+      icon: Trophy,
       color: '#ef4444',
       gradient: ['#ef4444', '#dc2626'],
-    },
-    {
-      title: 'Analytics',
-      description: 'Platform insights',
-      icon: BarChart3,
-      color: '#06b6d4',
-      gradient: ['#06b6d4', '#0891b2'],
+      route: '/manage-ranking',
     },
   ];
 
@@ -882,13 +1265,13 @@ export default function AdminDashboard() {
       color: '#3b82f6',
     },
     {
-      type: 'volunteer_application',
-      user: 'Student #9012',
-      action: 'applied as volunteer',
-      detail: 'Career Day Tech Fair',
+      type: 'ranking_update',
+      user: 'Si Yhya',
+      action: 'reached new level',
+      detail: 'Level 12 - Master Rank',
       time: '2 hours ago',
-      amount: '',
-      icon: HeartHandshake,
+      amount: '+500 XP',
+      icon: Crown,
       color: '#8b5cf6',
     },
   ];
@@ -907,232 +1290,135 @@ export default function AdminDashboard() {
               <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
             }
           >
-            {/* Modern Header */}
-            <Animated.View entering={FadeInDown.delay(200)} style={styles.headerSection}>
-              <LinearGradient
-                colors={['rgba(59, 130, 246, 0.1)', 'transparent']}
-                style={styles.headerBackground}
-              />
-              <View style={styles.headerContent}>
-                <View style={styles.headerTop}>
-                  <View style={styles.brandContainer}>
-                    <View style={styles.logoRow}>
-                      <View style={styles.logoIcon}>
-                        <Shield color="#ffffff" size={24} strokeWidth={2} />
-                      </View>
-                      <Text style={styles.logoText}>1337</Text>
+            {/* Clean Professional Header */}
+            <Animated.View entering={FadeInDown.delay(200)} style={styles.cleanHeader}>
+              <View style={styles.headerRow}>
+                {/* Innovative Logo */}
+                <View style={styles.logoContainer}>
+                  <View style={styles.logoSquare}>
+                    {/* Corner Accents */}
+                    <View style={styles.logoCornerTL} />
+                    <View style={styles.logoCornerBR} />
+                    
+                    {/* Logo Text */}
+                    <View style={styles.logoTextLines}>
+                      <Text style={styles.logoNumber}>13</Text>
+                      <Text style={styles.logoNumber}>37</Text>
                     </View>
-                    <Text style={styles.headerTitle}>Admin Center</Text>
-                    <Text style={styles.headerSubtitle}>
-                      1337 Event Management System
-                    </Text>
                   </View>
                   
-                  <View style={styles.statusContainer}>
-                    <View style={styles.statusIndicator}>
-                      <View style={styles.statusDot} />
-                      <Text style={styles.statusText}>Online</Text>
-                    </View>
-                    <View style={styles.timeInfo}>
-                      <Text style={styles.currentTime}>
-                        {currentTime.toLocaleTimeString('en-US', { 
-                          hour: '2-digit', 
-                          minute: '2-digit',
-                          hour12: false 
-                        })}
-                      </Text>
-                      <Text style={styles.currentDate}>
-                        {currentTime.toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
-                      </Text>
-                    </View>
+                  <View style={styles.logoTextContainer}>
+                    <Text style={styles.logoTitle}>EVENT.HUB</Text>
+                    <Text style={styles.logoSubtitle}>Professional</Text>
                   </View>
                 </View>
-              </View>
-            </Animated.View>
 
-            {/* Quick Stats */}
-            <Animated.View entering={FadeInUp.delay(400)} style={styles.quickStatsSection}>
-              <View style={styles.statsGrid}>
-                {quickStats.map((stat, index) => (
-                  <Animated.View
-                    key={stat.label}
-                    entering={FadeInLeft.delay(600 + index * 100)}
-                    style={styles.statCard}
-                  >
-                    <LinearGradient
-                      colors={stat.gradient}
-                      style={styles.statCardGradient}
-                    />
-                    <View style={[styles.statIconContainer, { backgroundColor: `${stat.color}20`, borderWidth: 1, borderColor: stat.color }]}>
-                      <stat.icon color={stat.color} size={24} strokeWidth={2} />
-                    </View>
-                    <Text style={styles.statValue}>{stat.value}</Text>
-                    <Text style={styles.statLabel}>{stat.label}</Text>
-                    <Text style={[styles.statTrend, styles.trendPositive]}>{stat.trend}</Text>
-                  </Animated.View>
-                ))}
-              </View>
-            </Animated.View>
-
-            {/* Management Modules */}
-            <Animated.View entering={FadeInUp.delay(800)} style={styles.managementSection}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Management</Text>
-                <Pressable style={styles.viewAllButton}>
-                  <Text style={styles.viewAllText}>View All</Text>
-                  <ArrowUpRight color="#3b82f6" size={14} strokeWidth={2} />
+                {/* User Profile Icon */}
+                <Pressable style={styles.profileButton}>
+                  <View style={styles.profileAvatar}>
+                    <User color="#3b82f6" size={20} strokeWidth={2} />
+                  </View>
+                  <View style={styles.profileDot} />
                 </Pressable>
               </View>
+            </Animated.View>
+
+            {/* Management Modules - Enhanced Layout */}
+            <Animated.View entering={FadeInUp.delay(800)} style={styles.managementSection}>
               
-              <View style={styles.managementGrid}>
-                {managementModules.map((module, index) => (
+              {/* Section Title */}
+              {/* <Animated.View entering={FadeInDown.delay(900)} style={styles.managementHeader}>
+                <View style={styles.headerTitleContainer}>
+                  <View style={styles.headerIconContainer}>
+                    <Shield color="#3b82f6" size={24} strokeWidth={2} />
+                  </View>
+                  <View>
+                    <Text style={styles.managementSectionTitle}>Management Center</Text>
+                    <Text style={styles.managementSectionSubtitle}>Admin Dashboard • Full Control</Text>
+                  </View>
+                </View>
+              </Animated.View> */}
+
+              {/* Primary Cards Row */}
+              <View style={styles.primaryCardsRow}>
+                {managementModules.slice(0, 2).map((module, index) => (
                   <Animated.View
                     key={module.title}
-                    entering={FadeInRight.delay(1000 + index * 100)}
+                    entering={FadeInRight.delay(1000 + index * 150)}
+                    style={styles.primaryCardWrapper}
                   >
-                    <Pressable style={styles.managementCard}>
+                    <Pressable 
+                      style={styles.primaryManagementCard}
+                      onPress={() => handleNavigation(module.route)}
+                    >
                       <LinearGradient
                         colors={module.gradient}
-                        style={styles.managementCardGradient}
+                        style={styles.primaryCardGradient}
                       />
-                      {module.badge && (
-                        <PulsingBadge 
-                          style={styles.managementBadge}
-                          delay={1200 + index * 200}
-                        >
-                          <LinearGradient
-                            colors={['#ef4444', '#dc2626', '#b91c1c']}
-                            style={styles.managementBadgeGradient}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                          />
-                          <Text style={styles.managementBadgeText}>{module.badge}</Text>
-                        </PulsingBadge>
-                      )}
-                      <View style={[styles.managementIconContainer, { backgroundColor: `${module.color}20`, borderWidth: 1, borderColor: module.color }]}>
-                        <LinearGradient
-                          colors={[`${module.color}40`, `${module.color}20`]}
-                          style={styles.managementIconGlow}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                        />
-                        <module.icon color={module.color} size={26} strokeWidth={2} />
+                      
+                      {/* Floating Background Icon */}
+                      <View style={styles.primaryFloatingIcon}>
+                        <module.icon color={module.color} size={120} strokeWidth={0.3} />
                       </View>
-                      <Text style={styles.managementTitle} numberOfLines={1} ellipsizeMode="tail">{module.title}</Text>
-                      <Text style={styles.managementDesc} numberOfLines={2} ellipsizeMode="tail">{module.description}</Text>
-                      <View style={styles.managementFloatingIcon}>
-                        <module.icon color={module.color} size={60} strokeWidth={0.5} />
+                      
+                      <View style={styles.primaryCardContent}>
+                        <View style={[styles.primaryIconContainer, { backgroundColor: `${module.color}15`, borderColor: module.color }]}>
+                          <LinearGradient
+                            colors={[`${module.color}30`, `${module.color}10`]}
+                            style={styles.primaryIconGlow}
+                          />
+                          <module.icon color={module.color} size={32} strokeWidth={2} />
+                        </View>
+                        
+                        <View style={styles.primaryTextContainer}>
+                          <Text style={styles.primaryTitle}>{module.title}</Text>
+                          <Text style={styles.primaryDescription}>{module.description}</Text>
+                          
+                          <View style={styles.primaryActionHint}>
+                            <Text style={[styles.primaryActionText, { color: module.color }]}>Tap to manage</Text>
+                            <View style={[styles.primaryActionArrow, { backgroundColor: module.color }]}>
+                              <Text style={styles.primaryActionArrowText}>→</Text>
+                            </View>
+                          </View>
+                        </View>
                       </View>
                     </Pressable>
                   </Animated.View>
                 ))}
               </View>
-            </Animated.View>
 
-            {/* Analytics Overview */}
-            <Animated.View entering={FadeInUp.delay(1200)} style={styles.analyticsSection}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Platform Analytics</Text>
-              </View>
-              
-              <View style={styles.analyticsGrid}>
-                <View style={styles.analyticsCard}>
-                  <View style={styles.analyticsHeader}>
-                    <Text style={styles.analyticsTitle}>System Overview</Text>
-                    <View style={styles.analyticsIcon}>
-                      <Gauge color="#3b82f6" size={20} strokeWidth={2} />
-                    </View>
-                  </View>
-                  <View style={styles.analyticsMetrics}>
-                    <View style={styles.analyticsMetric}>
-                      <Text style={styles.metricValue}>99.8%</Text>
-                      <Text style={styles.metricLabel}>Uptime</Text>
-                    </View>
-                    <View style={styles.analyticsMetric}>
-                      <Text style={styles.metricValue}>2.1K</Text>
-                      <Text style={styles.metricLabel}>Daily Active</Text>
-                    </View>
-                    <View style={styles.analyticsMetric}>
-                      <Text style={styles.metricValue}>156ms</Text>
-                      <Text style={styles.metricLabel}>Response Time</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </Animated.View>
-
-            {/* Recent Activity */}
-            <Animated.View entering={FadeInUp.delay(1400)} style={styles.activitySection}>
-              <View style={styles.activityFeed}>
-                <View style={styles.activityHeader}>
-                  <Text style={styles.activityTitle}>Recent Activity</Text>
-                  <View style={styles.analyticsIcon}>
-                    <Pulse color="#3b82f6" size={20} strokeWidth={2} />
-                  </View>
-                </View>
-                
-                {recentActivity.map((activity, index) => (
+              {/* Secondary Cards Grid */}
+              <View style={styles.secondaryCardsGrid}>
+                {managementModules.slice(2).map((module, index) => (
                   <Animated.View
-                    key={index}
-                    entering={FadeInLeft.delay(1600 + index * 100)}
-                    style={[styles.activityItem, index === recentActivity.length - 1 && styles.activityItemLast]}
+                    key={module.title}
+                    entering={FadeInUp.delay(1300 + index * 120)}
+                    style={styles.secondaryCardWrapper}
                   >
-                    <View style={[styles.activityIconContainer, { backgroundColor: `${activity.color}20`, borderWidth: 1, borderColor: activity.color }]}>
-                      <activity.icon color={activity.color} size={20} strokeWidth={2} />
-                    </View>
-                    <View style={styles.activityContent}>
-                      <Text style={styles.activityText}>
-                        <Text style={styles.activityUser}>{activity.user}</Text>
-                        {' '}
-                        <Text style={styles.activityAction}>{activity.action}</Text>
-                        {activity.detail && (
-                          <Text style={{ color: '#9ca3af' }}> • {activity.detail}</Text>
-                        )}
-                      </Text>
-                      <Text style={styles.activityTime}>{activity.time}</Text>
-                    </View>
-                    {activity.amount && (
-                      <View style={styles.activityValue}>
-                        <Text style={[styles.activityAmount, { color: activity.amount.startsWith('+') ? '#10b981' : '#ef4444' }]}>
-                          {activity.amount}
-                        </Text>
+                    <Pressable 
+                      style={styles.secondaryManagementCard}
+                      onPress={() => handleNavigation(module.route)}
+                    >
+                      <LinearGradient
+                        colors={[...module.gradient, 'transparent']}
+                        style={styles.secondaryCardGradient}
+                      />
+                      
+                      <View style={styles.secondaryFloatingIcon}>
+                        <module.icon color={module.color} size={80} strokeWidth={0.4} />
                       </View>
-                    )}
+                      
+                      <View style={[styles.secondaryIconContainer, { backgroundColor: `${module.color}20`, borderColor: module.color }]}>
+                        <module.icon color={module.color} size={24} strokeWidth={2} />
+                      </View>
+                      
+                      <Text style={styles.secondaryTitle}>{module.title}</Text>
+                      <Text style={styles.secondaryDescription}>{module.description}</Text>
+                      
+                      {/* <View style={[styles.secondaryAccessIndicator, { backgroundColor: module.color }]} /> */}
+                    </Pressable>
                   </Animated.View>
                 ))}
-              </View>
-            </Animated.View>
-
-            {/* Footer */}
-            <Animated.View entering={FadeInUp.delay(1800)} style={styles.footerSection}>
-              <View style={styles.footerCard}>
-                <View style={styles.footerLogo}>
-                  <View style={styles.footerLogoIcon}>
-                    <Shield color="#ffffff" size={20} strokeWidth={2} />
-                  </View>
-                  <Text style={styles.footerLogoText}>1337 Admin</Text>
-                </View>
-                <Text style={styles.footerText}>
-                  Professional event management system for the 1337 coding school community.
-                  Built with modern technologies and best practices.
-                </Text>
-                <View style={styles.footerInfo}>
-                  <View style={styles.footerItem}>
-                    <Text style={styles.footerItemValue}>v2.1.0</Text>
-                    <Text style={styles.footerItemLabel}>Version</Text>
-                  </View>
-                  <View style={styles.footerItem}>
-                    <Text style={styles.footerItemValue}>Rabat</Text>
-                    <Text style={styles.footerItemLabel}>Location</Text>
-                  </View>
-                  <View style={styles.footerItem}>
-                    <Text style={styles.footerItemValue}>24/7</Text>
-                    <Text style={styles.footerItemLabel}>Support</Text>
-                  </View>
-                </View>
               </View>
             </Animated.View>
 

@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Dimensions, StatusBar, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, Dimensions, StatusBar, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
@@ -9,6 +9,7 @@ import Animated, {
   useSharedValue, 
   useAnimatedStyle, 
   withTiming, 
+  withSpring,
   withRepeat,
   withSequence,
   withDelay,
@@ -36,8 +37,12 @@ import {
   Coins,
   ChevronRight,
   Shield,
-  ArrowUpRight
+  ArrowUpRight,
+  User,
+  Settings,
+  X
 } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -199,12 +204,143 @@ const FloatingElements = () => {
   );
 };
 
+// Role Selection Modal Component
+const RoleSelectionModal = ({ visible, onSelectRole, onClose }) => {
+  const modalOpacity = useSharedValue(0);
+  const modalScale = useSharedValue(0.9);
+  const backdropOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    if (visible) {
+      backdropOpacity.value = withTiming(1, { duration: 300 });
+      modalOpacity.value = withTiming(1, { duration: 400 });
+      modalScale.value = withSpring(1, { damping: 20, stiffness: 300 });
+    } else {
+      backdropOpacity.value = withTiming(0, { duration: 200 });
+      modalOpacity.value = withTiming(0, { duration: 200 });
+      modalScale.value = withTiming(0.9, { duration: 200 });
+    }
+  }, [visible]);
+
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }));
+
+  const modalStyle = useAnimatedStyle(() => ({
+    opacity: modalOpacity.value,
+    transform: [{ scale: modalScale.value }],
+  }));
+
+  const roles = [
+    {
+      id: 'staff',
+      title: 'Staff Access',
+      subtitle: 'Admin Dashboard & Event Management',
+      description: 'Access to create events, manage users, view analytics',
+      icon: Shield,
+      color: '#ef4444',
+      gradient: ['#ef4444', '#dc2626'],
+      route: '/(tabs)/admin'
+    },
+    {
+      id: 'student',
+      title: 'Student Access',
+      subtitle: 'Student Dashboard & Event Discovery',
+      description: 'View events, earn coins, compete in leaderboards',
+      icon: User,
+      color: '#3b82f6',
+      gradient: ['#3b82f6', '#1d4ed8'],
+      route: '/(tabs)'
+    }
+  ];
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="none"
+      statusBarTranslucent={true}
+    >
+      <Animated.View style={[modalStyles.backdrop, backdropStyle]}>
+        <Pressable 
+          style={modalStyles.backdropPress} 
+          onPress={onClose}
+        />
+        
+        <Animated.View style={[modalStyles.modalContainer, modalStyle]}>
+          <LinearGradient
+            colors={['#111827', '#1f2937', '#111827']}
+            style={modalStyles.modalGradient}
+          >
+            {/* Close Button */}
+            <Pressable style={modalStyles.closeButton} onPress={onClose}>
+              <X color="#6b7280" size={20} strokeWidth={2} />
+            </Pressable>
+
+            {/* Header */}
+            <View style={modalStyles.header}>
+              <View style={modalStyles.logoContainer}>
+                <View style={modalStyles.logoSquare}>
+                  <Text style={modalStyles.logoText}>1337</Text>
+                </View>
+              </View>
+              
+              <Text style={modalStyles.title}>Choose Access Level</Text>
+              <Text style={modalStyles.subtitle}>
+                Select your role for frontend testing purposes
+              </Text>
+              <Text style={modalStyles.note}>
+                (This will be removed in production)
+              </Text>
+            </View>
+
+            {/* Role Options */}
+            <View style={modalStyles.rolesContainer}>
+              {roles.map((role, index) => (
+                <Animated.View
+                  key={role.id}
+                  entering={FadeInUp.delay(index * 200)}
+                >
+                  <Pressable
+                    style={modalStyles.roleCard}
+                    onPress={() => onSelectRole(role.id)}
+                  >
+                    <LinearGradient
+                      colors={[`${role.color}15`, 'transparent']}
+                      style={modalStyles.roleGradient}
+                    />
+                    
+                    <View style={[modalStyles.roleIcon, { backgroundColor: `${role.color}20`, borderColor: role.color }]}>
+                      <role.icon color={role.color} size={24} strokeWidth={2} />
+                    </View>
+                    
+                    <View style={modalStyles.roleContent}>
+                      <Text style={modalStyles.roleTitle}>{role.title}</Text>
+                      <Text style={modalStyles.roleSubtitle}>{role.subtitle}</Text>
+                      <Text style={modalStyles.roleDescription}>{role.description}</Text>
+                    </View>
+                    
+                    <View style={modalStyles.roleArrow}>
+                      <ChevronRight color="#6b7280" size={20} strokeWidth={2} />
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+          </LinearGradient>
+        </Animated.View>
+      </Animated.View>
+    </Modal>
+  );
+};
+
 export default function WelcomeScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [currentMetric, setCurrentMetric] = useState(0);
   const [loadingText, setLoadingText] = useState('INITIALIZING');
   const [loadingPercent, setLoadingPercent] = useState(0);
+  const [showRoleModal, setShowRoleModal] = useState(false);
   
   // All animation values declared unconditionally
   const masterOpacity = useSharedValue(0);
@@ -410,8 +546,30 @@ export default function WelcomeScreen() {
 
   const handleAuth = () => {
     console.log('🔐 Initiating 42 Network Authentication...');
-    // For demo purposes, redirect directly to admin dashboard
-    router.replace('/(tabs)/admin');
+    // Show role selection modal after authentication
+    setShowRoleModal(true);
+  };
+
+  const handleRoleSelection = async (role) => {
+    try {
+      await AsyncStorage.setItem('userRole', role);
+      setShowRoleModal(false);
+      
+      // Navigate based on role
+      if (role === 'staff') {
+        router.push('/(tabs)/admin');
+      } else {
+        router.push('/(tabs)/');
+      }
+    } catch (error) {
+      console.error('Error saving user role:', error);
+      // Fallback navigation
+      router.push('/(tabs)/');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowRoleModal(false);
   };
 
   const handleExplore = () => {
@@ -421,6 +579,13 @@ export default function WelcomeScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      
+      {/* Role Selection Modal */}
+      <RoleSelectionModal
+        visible={showRoleModal}
+        onSelectRole={handleRoleSelection}
+        onClose={handleCloseModal}
+      />
       
       {/* Loading Screen Overlay */}
       {isLoading && (
@@ -704,7 +869,7 @@ export default function WelcomeScreen() {
                   fontFamily: 'monospace',
                 }}>
                   {loadingText}
-            </Text>
+                </Text>
 
                 {/* Loading Progress Percentage */}
                 <Text style={{
@@ -714,7 +879,7 @@ export default function WelcomeScreen() {
                   fontWeight: '600',
                 }}>
                   {loadingPercent}% COMPLETE
-            </Text>
+                </Text>
 
                 {/* Loading System Info */}
                 <View style={{
@@ -740,8 +905,8 @@ export default function WelcomeScreen() {
                       fontWeight: '600',
                     }}>
                       SYSTEM STATUS: ONLINE
-            </Text>
-          </View>
+                    </Text>
+                  </View>
 
                   <Text style={{
                     fontSize: 11,
@@ -751,7 +916,7 @@ export default function WelcomeScreen() {
                   }}>
                     © 2025 WeDesign Club • All Rights Reserved
                   </Text>
-              </View>
+                </View>
               </Animated.View>
             </View>
           </View>
@@ -942,14 +1107,14 @@ export default function WelcomeScreen() {
                            fontWeight: '500',
                          }}>
                            Connect with 42 Network
-            </Text>
+                         </Text>
                        </View>
                      </View>
                      
                      <ArrowUpRight color="#3b82f6" size={24} strokeWidth={2} />
                    </View>
                  </View>
-          </Pressable>
+               </Pressable>
              </Animated.View>
 
              {/* Enterprise Footer */}
@@ -1000,4 +1165,142 @@ export default function WelcomeScreen() {
       </SafeAreaView>
      </View>
   );
-} 
+}
+
+// Modal Styles
+const modalStyles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  backdropPress: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalContainer: {
+    width: '100%',
+    maxWidth: 400,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  modalGradient: {
+    padding: 24,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(31, 41, 55, 0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  logoContainer: {
+    marginBottom: 16,
+  },
+  logoSquare: {
+    width: 60,
+    height: 60,
+    backgroundColor: '#0a0a0a',
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoText: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#ffffff',
+    fontFamily: 'monospace',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#ffffff',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#9ca3af',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  note: {
+    fontSize: 12,
+    color: '#6b7280',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  rolesContainer: {
+    gap: 16,
+  },
+  roleCard: {
+    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(31, 41, 55, 0.4)',
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  roleGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  roleIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  roleContent: {
+    flex: 1,
+  },
+  roleTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  roleSubtitle: {
+    fontSize: 13,
+    color: '#9ca3af',
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  roleDescription: {
+    fontSize: 12,
+    color: '#6b7280',
+    lineHeight: 16,
+  },
+  roleArrow: {
+    marginLeft: 12,
+  },
+}); 

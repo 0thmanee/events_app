@@ -10,7 +10,6 @@ import Animated, {
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { 
-  ArrowLeft,
   Wallet,
   Coins,
   TrendingUp,
@@ -40,6 +39,7 @@ import {
   Activity,
   BarChart3
 } from 'lucide-react-native';
+import AdminHeader from '../../components/AdminHeader';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -78,71 +78,6 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-  },
-  
-  // Header Section
-  headerSection: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 30,
-    position: 'relative',
-  },
-  headerBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 160,
-    opacity: 0.1,
-  },
-  headerContent: {
-    position: 'relative',
-    zIndex: 2,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  backButton: {
-    width: 48,
-    height: 48,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderWidth: 1,
-    borderColor: '#10b981',
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  headerTitleContainer: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#ffffff',
-    marginBottom: 4,
-    letterSpacing: -0.5,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  headerActionButton: {
-    width: 44,
-    height: 44,
-    backgroundColor: 'rgba(31, 41, 55, 0.8)',
-    borderWidth: 1,
-    borderColor: '#374151',
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   
   // Wallet Overview Section
@@ -554,36 +489,7 @@ export default function WalletSystem() {
           }
         >
           {/* Header */}
-          <Animated.View entering={FadeInDown.delay(200)} style={styles.headerSection}>
-            <LinearGradient
-              colors={['rgba(16, 185, 129, 0.1)', 'transparent']}
-              style={styles.headerBackground}
-            />
-            <View style={styles.headerContent}>
-              <View style={styles.headerTop}>
-                <Pressable 
-                  style={styles.backButton}
-                  onPress={() => router.back()}
-                >
-                  <ArrowLeft color="#10b981" size={20} strokeWidth={2} />
-                </Pressable>
-                
-                <View style={styles.headerTitleContainer}>
-                  <Text style={styles.headerTitle}>Wallet System</Text>
-                  <Text style={styles.headerSubtitle}>Monitor and manage coin transactions</Text>
-                </View>
-                
-                <View style={styles.headerActions}>
-                  <Pressable style={styles.headerActionButton}>
-                    <Bell color="#9ca3af" size={18} strokeWidth={2} />
-                  </Pressable>
-                  <Pressable style={styles.headerActionButton}>
-                    <Settings color="#9ca3af" size={18} strokeWidth={2} />
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-          </Animated.View>
+          <AdminHeader />
 
           {/* Wallet Overview */}
           <Animated.View entering={FadeInUp.delay(400)} style={styles.overviewSection}>
