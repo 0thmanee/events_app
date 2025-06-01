@@ -34,6 +34,26 @@ import {
 
 const { width: screenWidth } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Student Header Component
 const StudentHeader = ({ onBack }) => {
   return (
@@ -41,7 +61,7 @@ const StudentHeader = ({ onBack }) => {
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>
           <Pressable style={styles.backButton} onPress={onBack}>
-            <ArrowLeft color="#9ca3af" size={20} strokeWidth={1.5} />
+            <ArrowLeft color={colors.secondaryText} size={20} strokeWidth={1.5} />
           </Pressable>
           <View style={styles.headerTitleContainer}>
             <Text style={styles.headerGreeting}>Your</Text>
@@ -50,10 +70,10 @@ const StudentHeader = ({ onBack }) => {
         </View>
         <View style={styles.headerRight}>
           <Pressable style={styles.headerButton}>
-            <Filter color="#9ca3af" size={20} strokeWidth={1.5} />
+            <Filter color={colors.secondaryText} size={20} strokeWidth={1.5} />
           </Pressable>
           <Pressable style={styles.headerButton}>
-            <MoreHorizontal color="#9ca3af" size={20} strokeWidth={1.5} />
+            <MoreHorizontal color={colors.secondaryText} size={20} strokeWidth={1.5} />
           </Pressable>
         </View>
       </View>
@@ -93,7 +113,7 @@ const NotificationCard = ({ notification, index, onPress, onMarkRead, onDelete }
           </View>
           <View style={styles.notificationMeta}>
             <View style={styles.notificationTimestamp}>
-              <Clock color="#6b7280" size={12} strokeWidth={1.5} />
+              <Clock color={colors.muted} size={12} strokeWidth={1.5} />
               <Text style={styles.timestampText}>{notification.timestamp}</Text>
             </View>
             {!notification.read && <View style={styles.unreadDot} />}
@@ -171,7 +191,7 @@ export default function Notifications() {
   const [userEvents, setUserEvents] = useState([]);
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
     loadNotifications();
   }, []);
 
@@ -503,7 +523,7 @@ export default function Notifications() {
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -515,7 +535,13 @@ const styles = {
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    backgroundColor: colors.white,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -531,9 +557,9 @@ const styles = {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -542,14 +568,14 @@ const styles = {
   },
   headerGreeting: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 4,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -0.5,
   },
   headerRight: {
@@ -560,9 +586,9 @@ const styles = {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -571,7 +597,8 @@ const styles = {
   filterTabs: {
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    backgroundColor: colors.white,
   },
   tabsContainer: {
     paddingHorizontal: 20,
@@ -580,28 +607,28 @@ const styles = {
   filterTab: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 8,
     gap: 8,
   },
   filterTabActive: {
-    backgroundColor: '#1a2332',
-    borderColor: '#334155',
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   filterTabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: colors.secondaryText,
   },
   filterTabTextActive: {
-    color: '#ffffff',
+    color: colors.white,
   },
   filterBadge: {
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderRadius: 10,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -609,15 +636,15 @@ const styles = {
     alignItems: 'center',
   },
   filterBadgeActive: {
-    backgroundColor: '#6366f1',
+    backgroundColor: colors.white,
   },
   filterBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#9ca3af',
+    color: colors.secondaryText,
   },
   filterBadgeTextActive: {
-    color: '#ffffff',
+    color: colors.accent,
   },
 
   scrollContent: {
@@ -631,13 +658,13 @@ const styles = {
     gap: 12,
   },
   notificationCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1a2332',
-    shadowColor: '#000',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 6,
     overflow: 'hidden',
@@ -663,12 +690,12 @@ const styles = {
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   notificationIconBackdrop: {
     position: 'absolute',
@@ -689,24 +716,24 @@ const styles = {
   },
   timestampText: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#6366f1',
+    backgroundColor: colors.accent,
   },
   notificationTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   notificationMessage: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -716,11 +743,11 @@ const styles = {
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#1a2332',
+    borderTopColor: colors.cardBorder,
   },
   actionText: {
     fontSize: 12,
-    color: '#f59e0b',
+    color: colors.warning,
     fontWeight: '600',
   },
   actionButtons: {
@@ -731,9 +758,9 @@ const styles = {
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -749,13 +776,13 @@ const styles = {
   emptyStateTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyStateText: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     textAlign: 'center',
     lineHeight: 20,
   },

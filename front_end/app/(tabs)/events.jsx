@@ -52,26 +52,46 @@ import usePageTransition from '../../hooks/usePageTransition';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Student Header Component
 const StudentHeader = () => {
   const router = useRouter();
 
   return (
-    <View style={styles.studentHeader}>
+    <View style={[styles.studentHeader, { backgroundColor: colors.white }]}>
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerGreeting}>Discover</Text>
-          <Text style={styles.headerTitle}>Events</Text>
+          <Text style={[styles.headerGreeting, { color: colors.secondaryText }]}>Discover</Text>
+          <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Events</Text>
         </View>
         <View style={styles.headerRight}>
-          <Pressable style={styles.headerButton} onPress={() => router.push('/create-event')}>
-            <Plus color="#9ca3af" size={20} strokeWidth={1.5} />
+          <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => router.push('/create-event')}>
+            <Plus color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
-          <Pressable style={styles.headerButton} onPress={() => router.push('/notifications')}>
-            <Bell color="#9ca3af" size={20} strokeWidth={1.5} />
+          <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => router.push('/notifications')}>
+            <Bell color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
-          <Pressable style={styles.headerButton} onPress={() => router.push('/settings')}>
-            <Settings color="#9ca3af" size={20} strokeWidth={1.5} />
+          <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => router.push('/settings')}>
+            <Settings color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
         </View>
       </View>
@@ -84,18 +104,24 @@ const SearchFilterSection = ({ searchQuery, setSearchQuery, selectedCategory, se
   return (
     <Animated.View entering={FadeInDown.delay(200)} style={styles.searchSection}>
       <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <Search color="#9ca3af" size={18} strokeWidth={1.5} />
+        <View style={[styles.searchInputContainer, {
+          backgroundColor: colors.white,
+          borderColor: colors.cardBorder
+        }]}>
+          <Search color={colors.secondaryText} size={18} strokeWidth={1.5} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.primaryText }]}
             placeholder="Search events..."
-            placeholderTextColor="#6b7280"
+            placeholderTextColor={colors.secondaryText}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
-        <Pressable style={styles.filterButton}>
-          <Filter color="#9ca3af" size={18} strokeWidth={1.5} />
+        <Pressable style={[styles.filterButton, {
+          backgroundColor: colors.white,
+          borderColor: colors.cardBorder
+        }]}>
+          <Filter color={colors.secondaryText} size={18} strokeWidth={1.5} />
         </Pressable>
       </View>
     </Animated.View>
@@ -123,7 +149,7 @@ const CategoryFilter = ({ categories, selectedCategory, onSelect }) => {
             <View style={styles.categoryIconContainer}>
               <View style={[styles.categoryIconBackdrop, { backgroundColor: category.color + '10' }]} />
               <category.icon 
-                color={selectedCategory === category.id ? '#ffffff' : category.color} 
+                color={selectedCategory === category.id ? colors.white : category.color} 
                 size={16} 
                 strokeWidth={2} 
               />
@@ -162,18 +188,18 @@ const ProfessionalEventCard = ({ event, index, onPress }) => {
 
   const getStatusConfig = (status) => {
     switch (status) {
-      case 'enrolled':
-        return { color: '#059669', bg: '#ecfdf5', icon: CheckCircle, text: 'Registered', border: '#059669' };
+      case 'registered':
+        return { color: colors.success, bg: '#ecfdf5', icon: CheckCircle, text: 'Registered', border: colors.success };
       case 'available':
-        return { color: '#2563eb', bg: '#eff6ff', icon: Clock, text: 'Available', border: '#2563eb' };
+        return { color: colors.info, bg: '#eff6ff', icon: Clock, text: 'Available', border: colors.info };
       case 'waitlist':
-        return { color: '#d97706', bg: '#fef3c7', icon: AlertCircle, text: 'Waitlist', border: '#d97706' };
+        return { color: colors.warning, bg: '#fef3c7', icon: AlertCircle, text: 'Waitlist', border: colors.warning };
       case 'full':
-        return { color: '#dc2626', bg: '#fef2f2', icon: XCircle, text: 'Full', border: '#dc2626' };
-      case 'past':
-        return { color: '#6b7280', bg: '#f9fafb', icon: Clock, text: 'Ended', border: '#6b7280' };
+        return { color: colors.error, bg: '#fef2f2', icon: XCircle, text: 'Full', border: colors.error };
+      case 'ended':
+        return { color: colors.muted, bg: '#f9fafb', icon: Clock, text: 'Ended', border: colors.muted };
       default:
-        return { color: '#6b7280', bg: '#f9fafb', icon: Eye, text: 'Unknown', border: '#6b7280' };
+        return { color: colors.muted, bg: '#f9fafb', icon: Eye, text: 'Unknown', border: colors.muted };
     }
   };
 
@@ -211,15 +237,15 @@ const ProfessionalEventCard = ({ event, index, onPress }) => {
 
         <View style={styles.eventDetails}>
           <View style={styles.eventDetailItem}>
-            <Clock color="#9ca3af" size={14} strokeWidth={1.5} />
+            <Clock color={colors.muted} size={14} strokeWidth={1.5} />
             <Text style={styles.eventDetailText}>{event.time}</Text>
           </View>
           <View style={styles.eventDetailItem}>
-            <MapPin color="#9ca3af" size={14} strokeWidth={1.5} />
+            <MapPin color={colors.muted} size={14} strokeWidth={1.5} />
             <Text style={styles.eventDetailText}>{event.location}</Text>
           </View>
           <View style={styles.eventDetailItem}>
-            <Users color="#9ca3af" size={14} strokeWidth={1.5} />
+            <Users color={colors.muted} size={14} strokeWidth={1.5} />
             <Text style={styles.eventDetailText}>{event.enrolled}/{event.capacity}</Text>
           </View>
         </View>
@@ -232,7 +258,7 @@ const ProfessionalEventCard = ({ event, index, onPress }) => {
             {event.status === 'enrolled' && (
               <Text style={styles.registrationText}>✓ Registered</Text>
             )}
-            <ChevronRight color="#9ca3af" size={16} strokeWidth={1.5} />
+            <ChevronRight color={colors.muted} size={16} strokeWidth={1.5} />
           </View>
         </View>
       </Pressable>
@@ -254,7 +280,7 @@ const FeaturedEvent = ({ event, onPress }) => {
           
           <View style={styles.featuredHeader}>
             <View style={styles.featuredBadge}>
-              <Star color="#f59e0b" size={14} strokeWidth={1.5} />
+              <Star color={colors.warning} size={14} strokeWidth={1.5} />
               <Text style={styles.featuredBadgeText}>Featured</Text>
             </View>
             <Text style={styles.featuredCredits}>{event.credits} Credits</Text>
@@ -265,11 +291,11 @@ const FeaturedEvent = ({ event, onPress }) => {
 
           <View style={styles.featuredDetails}>
             <View style={styles.featuredDetailItem}>
-              <Calendar color="#6366f1" size={16} strokeWidth={1.5} />
+              <Calendar color={colors.info} size={16} strokeWidth={1.5} />
               <Text style={styles.featuredDetailText}>{event.date} • {event.time}</Text>
             </View>
             <View style={styles.featuredDetailItem}>
-              <MapPin color="#6366f1" size={16} strokeWidth={1.5} />
+              <MapPin color={colors.info} size={16} strokeWidth={1.5} />
               <Text style={styles.featuredDetailText}>{event.location}</Text>
             </View>
           </View>
@@ -394,8 +420,8 @@ export default function EventsDiscovery() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+    <View style={[styles.container, { backgroundColor: colors.primaryBg }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <ProfessionalBackground />
       
       <SafeAreaView style={styles.safeArea}>
@@ -407,7 +433,8 @@ export default function EventsDiscovery() {
             <RefreshControl 
               refreshing={refreshing} 
               onRefresh={handleRefresh}
-              tintColor="#9ca3af"
+              tintColor={colors.accent}
+              colors={[colors.accent]}
             />
           }
           contentContainerStyle={styles.scrollContent}
@@ -460,7 +487,7 @@ export default function EventsDiscovery() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -472,7 +499,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    backgroundColor: colors.white,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -484,14 +517,14 @@ const styles = StyleSheet.create({
   },
   headerGreeting: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 4,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -0.5,
   },
   headerRight: {
@@ -502,9 +535,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
-    borderWidth: 1,
-    borderColor: '#1a2332',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -537,29 +568,39 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     paddingHorizontal: 16,
     height: 48,
     gap: 12,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.primaryText,
     fontWeight: '500',
   },
   filterButton: {
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
 
   // Categories Section
@@ -573,24 +614,29 @@ const styles = StyleSheet.create({
   categoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 8,
     minWidth: 120,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   categoryButtonActive: {
-    backgroundColor: '#1a2332',
-    borderColor: '#334155',
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   categoryIconContainer: {
     width: 24,
     height: 24,
     borderRadius: 8,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -605,11 +651,11 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: colors.secondaryText,
     flex: 1,
   },
   categoryTextActive: {
-    color: '#ffffff',
+    color: colors.white,
   },
   categoryBadge: {
     borderRadius: 8,
@@ -621,7 +667,7 @@ const styles = StyleSheet.create({
   categoryBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.white,
   },
 
   // Featured Section
@@ -632,17 +678,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 16,
   },
   featuredCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#1a2332',
-    shadowColor: '#000',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 20,
     elevation: 12,
     overflow: 'hidden',
@@ -669,7 +715,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(245, 158, 11, 0.1)',
     borderWidth: 1,
-    borderColor: '#f59e0b',
+    borderColor: colors.warning,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
@@ -678,7 +724,7 @@ const styles = StyleSheet.create({
   featuredBadgeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#f59e0b',
+    color: colors.warning,
   },
   featuredCredits: {
     fontSize: 14,
@@ -688,13 +734,13 @@ const styles = StyleSheet.create({
   featuredTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 8,
     lineHeight: 28,
   },
   featuredDescription: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
     marginBottom: 20,
   },
@@ -709,31 +755,31 @@ const styles = StyleSheet.create({
   },
   featuredDetailText: {
     fontSize: 14,
-    color: '#cbd5e1',
+    color: colors.primaryText,
     fontWeight: '500',
   },
   featuredFooter: {
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#1a2332',
+    borderTopColor: colors.cardBorder,
   },
   featuredProgress: {
     gap: 8,
   },
   featuredProgressBar: {
     height: 6,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderRadius: 3,
     overflow: 'hidden',
   },
   featuredProgressFill: {
     height: '100%',
-    backgroundColor: '#6366f1',
+    backgroundColor: colors.info,
     borderRadius: 3,
   },
   featuredProgressText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
 
@@ -748,11 +794,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginTop: 4,
   },
@@ -760,15 +806,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   eventCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -789,14 +835,14 @@ const styles = StyleSheet.create({
   eventCategory: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: colors.accent,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   eventDate: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   eventStatus: {
@@ -814,13 +860,13 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 6,
     lineHeight: 22,
   },
   eventDescription: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -840,7 +886,7 @@ const styles = StyleSheet.create({
   },
   eventDetailText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     textAlign: 'center',
   },
@@ -850,24 +896,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#1a2332',
+    borderTopColor: colors.cardBorder,
   },
   eventCredits: {
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: colors.accent,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
-    shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowColor: colors.accent,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   creditsText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#10b981',
+    color: colors.accent,
     letterSpacing: 0.5,
   },
   registrationIndicator: {
@@ -878,11 +925,26 @@ const styles = StyleSheet.create({
   registrationText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#059669',
+    color: colors.success,
     letterSpacing: 0.3,
   },
 
   bottomSpacer: {
     height: 40,
+  },
+
+  featuredAccentBorder: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+    borderColor: colors.success,
+  },
+  featuredStarIcon: {
+    color: colors.warning,
+  },
+  featuredBadgeText: {
+    color: colors.accent,
   },
 }); 

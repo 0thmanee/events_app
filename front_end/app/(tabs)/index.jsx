@@ -63,20 +63,41 @@ import usePageTransition from '../../hooks/usePageTransition';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Student Header Component
 const StudentHeader = ({ navigateWithTransition }) => {
   return (
-    <View style={styles.studentHeader}>
+    <View style={[styles.studentHeader, { backgroundColor: colors.white }]}>
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Dashboard</Text>
+          <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Dashboard</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.secondaryText }]}>Welcome back to your event hub</Text>
         </View>
         <View style={styles.headerRight}>
-          <Pressable style={styles.headerButton} onPress={() => navigateWithTransition('/notifications', 'Loading notifications...')}>
-            <Bell color="#9ca3af" size={20} strokeWidth={1.5} />
+          <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => navigateWithTransition('/notifications', 'Loading notifications...')}>
+            <Bell color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
-          <Pressable style={styles.headerButton} onPress={() => navigateWithTransition('/settings', 'Loading settings...')}>
-            <Settings color="#9ca3af" size={20} strokeWidth={1.5} />
+          <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => navigateWithTransition('/settings', 'Loading settings...')}>
+            <Settings color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
         </View>
       </View>
@@ -97,49 +118,52 @@ const ExecutiveSummaryCard = ({ data }) => {
   }));
 
   return (
-    <Animated.View style={[styles.summaryCard, cardStyle]}>
+    <Animated.View style={[styles.summaryCard, cardStyle, { 
+      backgroundColor: colors.white,
+      borderColor: colors.cardBorder,
+      shadowColor: colors.primaryText
+    }]}>
       <View style={styles.summaryHeader}>
         <View style={styles.userProfile}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarInitial}>{data.name.charAt(0)}</Text>
+          <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
+            <Text style={[styles.avatarInitial, { color: colors.white }]}>{data.name.charAt(0)}</Text>
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>{data.name}</Text>
-            <Text style={styles.userRole}>Student • {data.program}</Text>
+            <Text style={[styles.userName, { color: colors.primaryText }]}>{data.name}</Text>
+            <Text style={[styles.userRole, { color: colors.secondaryText }]}>Student • {data.program}</Text>
           </View>
-        </View>
-        <View style={styles.statusBadge}>
-          <View style={styles.statusDot} />
-          <Text style={styles.statusText}>Active</Text>
         </View>
       </View>
 
       <View style={styles.summaryMetrics}>
         <View style={styles.metricGroup}>
-          <Text style={styles.metricValue}>{data.currentLevel}</Text>
-          <Text style={styles.metricLabel}>Current Level</Text>
+          <Text style={[styles.metricValue, { color: colors.primaryText }]}>{data.currentLevel}</Text>
+          <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Current Level</Text>
         </View>
-        <View style={styles.metricDivider} />
+        <View style={[styles.metricDivider, { backgroundColor: colors.cardBorder }]} />
         <View style={styles.metricGroup}>
-          <Text style={styles.metricValue}>{data.totalCredits}</Text>
-          <Text style={styles.metricLabel}>Total Credits</Text>
+          <Text style={[styles.metricValue, { color: colors.primaryText }]}>{data.totalCredits}</Text>
+          <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Total Credits</Text>
         </View>
-        <View style={styles.metricDivider} />
+        <View style={[styles.metricDivider, { backgroundColor: colors.cardBorder }]} />
         <View style={styles.metricGroup}>
-          <Text style={styles.metricValue}>#{data.ranking}</Text>
-          <Text style={styles.metricLabel}>Ranking</Text>
+          <Text style={[styles.metricValue, { color: colors.primaryText }]}>#{data.ranking}</Text>
+          <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Ranking</Text>
         </View>
       </View>
 
       <View style={styles.progressSection}>
         <View style={styles.progressHeader}>
-          <Text style={styles.progressTitle}>Level Progress</Text>
-          <Text style={styles.progressPercentage}>{data.progressPercentage}%</Text>
+          <Text style={[styles.progressTitle, { color: colors.primaryText }]}>Level Progress</Text>
+          <Text style={[styles.progressPercentage, { color: colors.accent }]}>{data.progressPercentage}%</Text>
         </View>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${data.progressPercentage}%` }]} />
+        <View style={[styles.progressBar, { backgroundColor: colors.secondaryBg }]}>
+          <View style={[styles.progressFill, { 
+            width: `${data.progressPercentage}%`,
+            backgroundColor: colors.accent
+          }]} />
         </View>
-        <Text style={styles.progressSubtext}>
+        <Text style={[styles.progressSubtext, { color: colors.secondaryText }]}>
           {data.creditsToNext} credits needed for Level {data.currentLevel + 1}
         </Text>
       </View>
@@ -167,28 +191,34 @@ const BusinessMetricCard = ({ metric, index }) => {
   }));
 
   const TrendIcon = metric.trend === 'up' ? TrendingUp : TrendingDown;
-  const trendColor = metric.trend === 'up' ? '#10b981' : '#ef4444';
+  const trendColor = metric.trend === 'up' ? colors.success : colors.error;
 
   return (
-    <Animated.View style={[styles.metricCard, cardStyle]}>
+    <Animated.View style={[styles.metricCard, cardStyle, {
+      backgroundColor: colors.white,
+      borderColor: colors.cardBorder,
+      shadowColor: colors.primaryText
+    }]}>
       {/* Subtle gradient overlay */}
       <LinearGradient
-        colors={['rgba(255, 255, 255, 0.02)', 'transparent', 'rgba(0, 0, 0, 0.1)']}
+        colors={[colors.lightAccent, 'transparent', colors.lightHighlight]}
         style={styles.cardGradientOverlay}
         locations={[0, 0.5, 1]}
       />
       
       <View style={styles.metricHeader}>
-        <View style={styles.metricIconContainer}>
-          <View style={[styles.iconBackdrop, { backgroundColor: metric.iconColor + '10' }]} />
+        <View style={[styles.metricIconContainer, {
+          backgroundColor: colors.secondaryBg,
+          borderColor: colors.cardBorder
+        }]}>
+          <View style={[styles.iconBackdrop, { backgroundColor: metric.iconColor + '15' }]} />
           <metric.icon color={metric.iconColor} size={20} strokeWidth={1.8} />
         </View>
-        {/* <MoreHorizontal color="#4b5563" size={16} strokeWidth={1.5} /> */}
       </View>
       
       <View style={styles.metricContent}>
-        <Text style={styles.metricValue}>{metric.value}</Text>
-        <Text style={styles.metricLabel}>{metric.label}</Text>
+        <Text style={[styles.metricValue, { color: colors.primaryText }]}>{metric.value}</Text>
+        <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>{metric.label}</Text>
       </View>
 
       <View style={styles.metricFooter}>
@@ -198,7 +228,7 @@ const BusinessMetricCard = ({ metric, index }) => {
             {metric.change}
           </Text>
         </View>
-        <Text style={styles.periodText}>{metric.period}</Text>
+        <Text style={[styles.periodText, { color: colors.muted }]}>{metric.period}</Text>
       </View>
     </Animated.View>
   );
@@ -223,17 +253,17 @@ const ProfessionalEventCard = ({ event, index, onPress }) => {
   const getStatusConfig = (status) => {
     switch (status) {
       case 'enrolled':
-        return { color: '#059669', bg: '#ecfdf5', icon: CheckCircle2, text: 'Registered', border: '#059669' };
+        return { color: colors.success, bg: colors.success + '15', icon: CheckCircle2, text: 'Registered', border: colors.success };
       case 'available':
-        return { color: '#2563eb', bg: '#eff6ff', icon: Clock, text: 'Available', border: '#2563eb' };
+        return { color: colors.info, bg: colors.info + '15', icon: Clock, text: 'Available', border: colors.info };
       case 'waitlist':
-        return { color: '#d97706', bg: '#fef3c7', icon: AlertTriangle, text: 'Waitlist', border: '#d97706' };
+        return { color: colors.warning, bg: colors.warning + '15', icon: AlertTriangle, text: 'Waitlist', border: colors.warning };
       case 'full':
-        return { color: '#dc2626', bg: '#fef2f2', icon: Info, text: 'Full', border: '#dc2626' };
+        return { color: colors.error, bg: colors.error + '15', icon: Info, text: 'Full', border: colors.error };
       case 'past':
-        return { color: '#6b7280', bg: '#f9fafb', icon: Clock, text: 'Ended', border: '#6b7280' };
+        return { color: colors.muted, bg: colors.muted + '15', icon: Clock, text: 'Ended', border: colors.muted };
       default:
-        return { color: '#6b7280', bg: '#f9fafb', icon: Info, text: 'Unknown', border: '#6b7280' };
+        return { color: colors.muted, bg: colors.muted + '15', icon: Info, text: 'Unknown', border: colors.muted };
     }
   };
 
@@ -243,16 +273,20 @@ const ProfessionalEventCard = ({ event, index, onPress }) => {
   // Add a subtle border color for registered events
   const cardBorderStyle = event.status === 'enrolled' ? {
     borderLeftWidth: 3,
-    borderLeftColor: '#059669'
+    borderLeftColor: colors.success
   } : {};
 
   return (
-    <Animated.View style={[styles.eventCard, cardStyle, cardBorderStyle]}>
+    <Animated.View style={[styles.eventCard, cardStyle, cardBorderStyle, {
+      backgroundColor: colors.white,
+      borderColor: colors.cardBorder,
+      shadowColor: colors.primaryText
+    }]}>
       <Pressable style={styles.eventCardContent} onPress={() => onPress(event)}>
         <View style={styles.eventHeader}>
           <View style={styles.eventMeta}>
-            <Text style={styles.eventCategory}>{event.category}</Text>
-            <Text style={styles.eventDate}>{event.date}</Text>
+            <Text style={[styles.eventCategory, { color: colors.accent }]}>{event.category}</Text>
+            <Text style={[styles.eventDate, { color: colors.secondaryText }]}>{event.date}</Text>
           </View>
           <View style={[styles.eventStatus, { 
             backgroundColor: statusConfig.bg,
@@ -266,33 +300,36 @@ const ProfessionalEventCard = ({ event, index, onPress }) => {
           </View>
         </View>
 
-        <Text style={styles.eventTitle}>{event.title}</Text>
-        <Text style={styles.eventDescription}>{event.description}</Text>
+        <Text style={[styles.eventTitle, { color: colors.primaryText }]}>{event.title}</Text>
+        <Text style={[styles.eventDescription, { color: colors.secondaryText }]}>{event.description}</Text>
 
         <View style={styles.eventDetails}>
           <View style={styles.eventDetailItem}>
-            <Clock color="#9ca3af" size={14} strokeWidth={1.5} />
-            <Text style={styles.eventDetailText}>{event.time}</Text>
+            <Clock color={colors.muted} size={14} strokeWidth={1.5} />
+            <Text style={[styles.eventDetailText, { color: colors.secondaryText }]}>{event.time}</Text>
           </View>
           <View style={styles.eventDetailItem}>
-            <MapPin color="#9ca3af" size={14} strokeWidth={1.5} />
-            <Text style={styles.eventDetailText}>{event.location}</Text>
+            <MapPin color={colors.muted} size={14} strokeWidth={1.5} />
+            <Text style={[styles.eventDetailText, { color: colors.secondaryText }]}>{event.location}</Text>
           </View>
           <View style={styles.eventDetailItem}>
-            <Users color="#9ca3af" size={14} strokeWidth={1.5} />
-            <Text style={styles.eventDetailText}>{event.enrolled}/{event.capacity}</Text>
+            <Users color={colors.muted} size={14} strokeWidth={1.5} />
+            <Text style={[styles.eventDetailText, { color: colors.secondaryText }]}>{event.enrolled}/{event.capacity}</Text>
           </View>
         </View>
 
-        <View style={styles.eventFooter}>
-          <View style={styles.eventCredits}>
-            <Text style={styles.creditsText}>{event.credits} Credits</Text>
+        <View style={[styles.eventFooter, { borderTopColor: colors.cardBorder }]}>
+          <View style={[styles.eventCredits, {
+            backgroundColor: colors.lightAccent,
+            borderColor: colors.accent
+          }]}>
+            <Text style={[styles.creditsText, { color: colors.accent }]}>{event.credits} Credits</Text>
           </View>
           <View style={styles.registrationIndicator}>
             {event.status === 'enrolled' && (
-              <Text style={styles.registrationText}>✓ Registered</Text>
+              <Text style={[styles.registrationText, { color: colors.success }]}>✓ Registered</Text>
             )}
-            <ChevronRight color="#9ca3af" size={16} strokeWidth={1.5} />
+            <ChevronRight color={colors.secondaryText} size={16} strokeWidth={1.5} />
           </View>
         </View>
       </Pressable>
@@ -318,18 +355,26 @@ const QuickActionButton = ({ action, onPress, delay = 0 }) => {
 
   return (
     <Animated.View style={buttonStyle}>
-      <Pressable style={styles.actionButton} onPress={onPress}>
-        {/* Subtle gradient overlay */}
+      <Pressable style={[styles.actionButton, {
+        backgroundColor: colors.white,
+        borderColor: colors.cardBorder,
+        shadowColor: colors.primaryText
+      }]} onPress={onPress}>
+        {/* Enhanced gradient overlay */}
         <LinearGradient
-          colors={['rgba(255, 255, 255, 0.02)', 'transparent']}
+          colors={[colors.lightAccent, 'transparent', colors.lightHighlight]}
           style={styles.actionGradientOverlay}
+          locations={[0, 0.3, 1]}
         />
         
-        <View style={styles.actionIconContainer}>
-          <View style={[styles.actionIconBackdrop, { backgroundColor: action.iconColor + '08' }]} />
+        <View style={[styles.actionIconContainer, {
+          backgroundColor: colors.secondaryBg,
+          borderColor: colors.cardBorder
+        }]}>
+          <View style={[styles.actionIconBackdrop, { backgroundColor: action.iconColor + '20' }]} />
           <action.icon color={action.iconColor} size={18} strokeWidth={1.8} />
         </View>
-        <Text style={styles.actionText}>{action.label}</Text>
+        <Text style={[styles.actionText, { color: colors.primaryText }]}>{action.label}</Text>
       </Pressable>
     </Animated.View>
   );
@@ -357,8 +402,8 @@ const RecommendedEventsSection = ({ navigateWithTransition }) => {
 
   if (loading) {
     return (
-      <View style={styles.recommendationsSection}>
-        <Text style={styles.sectionTitle}>Recommended for You</Text>
+      <View style={[styles.recommendationsSection, { paddingHorizontal: 20 }]}>
+        <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>Recommended for You</Text>
         <EventCardSkeleton />
       </View>
     );
@@ -372,12 +417,12 @@ const RecommendedEventsSection = ({ navigateWithTransition }) => {
     <Animated.View entering={FadeInUp.delay(600)} style={styles.recommendationsSection}>
       <View style={styles.sectionHeader}>
         <View style={styles.recommendationHeader}>
-          <Sparkles color="#f59e0b" size={20} strokeWidth={1.5} />
-          <Text style={styles.sectionTitle}>Recommended for You</Text>
+          <Sparkles color={colors.highlight} size={20} strokeWidth={1.5} />
+          <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>Recommended for You</Text>
         </View>
         <Pressable style={styles.viewAllButton}>
-          <Text style={styles.viewAllText}>View All</Text>
-          <ArrowUpRight color="#9ca3af" size={14} strokeWidth={1.5} />
+          <Text style={[styles.viewAllText, { color: colors.secondaryText }]}>View All</Text>
+          <ArrowUpRight color={colors.secondaryText} size={14} strokeWidth={1.5} />
         </Pressable>
       </View>
 
@@ -389,38 +434,49 @@ const RecommendedEventsSection = ({ navigateWithTransition }) => {
         {recommendations.map((event, index) => (
           <Pressable
             key={event.id}
-            style={styles.recommendationCard}
+            style={[styles.recommendationCard, {
+              backgroundColor: colors.white,
+              shadowColor: colors.primaryText,
+              borderColor: colors.cardBorder
+            }]}
             onPress={() => navigateWithTransition(`/event-details?id=${event.id}`, 'Loading event details...')}
           >
             <LinearGradient
-              colors={['rgba(99, 102, 241, 0.1)', 'transparent']}
+              colors={[colors.lightAccent, 'transparent', colors.lightHighlight]}
               style={styles.recommendationGradient}
+              locations={[0, 0.5, 1]}
             />
             
             <View style={styles.recommendationContent}>
-              <View style={styles.recommendationScore}>
-                <Heart color="#ef4444" size={12} strokeWidth={1.5} />
-                <Text style={styles.scoreText}>{Math.round(event.score * 100)}% match</Text>
+              <View style={[styles.recommendationScore, {
+                backgroundColor: colors.lightHighlight,
+                borderColor: colors.highlight
+              }]}>
+                <Heart color={colors.accent} size={12} strokeWidth={1.5} />
+                <Text style={[styles.scoreText, { color: colors.accent }]}>{Math.round(event.score * 100)}% match</Text>
               </View>
               
-              <Text style={styles.recommendationTitle}>{event.title}</Text>
-              <Text style={styles.recommendationCategory}>{event.category}</Text>
+              <Text style={[styles.recommendationTitle, { color: colors.primaryText }]}>{event.title}</Text>
+              <Text style={[styles.recommendationCategory, { color: colors.accent }]}>{event.category}</Text>
               
               <View style={styles.recommendationDetails}>
                 <View style={styles.recommendationDetail}>
-                  <Clock color="#9ca3af" size={12} strokeWidth={1.5} />
-                  <Text style={styles.recommendationDetailText}>{event.time}</Text>
+                  <Clock color={colors.muted} size={12} strokeWidth={1.5} />
+                  <Text style={[styles.recommendationDetailText, { color: colors.secondaryText }]}>{event.time}</Text>
                 </View>
                 <View style={styles.recommendationDetail}>
-                  <MapPin color="#9ca3af" size={12} strokeWidth={1.5} />
-                  <Text style={styles.recommendationDetailText}>{event.location}</Text>
+                  <MapPin color={colors.muted} size={12} strokeWidth={1.5} />
+                  <Text style={[styles.recommendationDetailText, { color: colors.secondaryText }]}>{event.location}</Text>
                 </View>
               </View>
 
               <View style={styles.recommendationTags}>
                 {event.reasons?.slice(0, 2).map((reason, idx) => (
-                  <View key={idx} style={styles.reasonTag}>
-                    <Text style={styles.reasonText}>{reason}</Text>
+                  <View key={idx} style={[styles.reasonTag, {
+                    backgroundColor: colors.lightAccent,
+                    borderColor: colors.accent
+                  }]}>
+                    <Text style={[styles.reasonText, { color: colors.accent }]}>{reason}</Text>
                   </View>
                 ))}
               </View>
@@ -500,6 +556,119 @@ const QuickAccessFeatures = ({ navigateWithTransition }) => {
   );
 };
 
+// Enhanced Business Metrics Section with better layout
+const BusinessMetricsSection = ({ businessMetrics, navigateWithTransition }) => {
+  if (!businessMetrics || businessMetrics.length === 0) {
+    return null;
+  }
+
+  return (
+    <Animated.View entering={FadeInUp.delay(300)} style={styles.metricsSection}>
+      <View style={styles.sectionHeader}>
+        <View style={styles.metricsHeaderContainer}>
+          <BarChart3 color={colors.accent} size={20} strokeWidth={1.5} />
+          <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>Academic Overview</Text>
+        </View>
+        <Pressable style={styles.viewAllButton} onPress={() => navigateWithTransition('/leaderboard', 'Loading analytics...')}>
+          <Text style={[styles.viewAllText, { color: colors.secondaryText }]}>Details</Text>
+          <ArrowUpRight color={colors.secondaryText} size={14} strokeWidth={1.5} />
+        </Pressable>
+      </View>
+
+      <View style={styles.metricsGrid}>
+        {businessMetrics.slice(0, 4).map((metric, index) => (
+          <BusinessMetricCard
+            key={metric.label}
+            metric={metric}
+            index={index}
+          />
+        ))}
+      </View>
+    </Animated.View>
+  );
+};
+
+// Floating Action Button for Quick Actions
+const FloatingActionButton = ({ navigateWithTransition }) => {
+  const fabOpacity = useSharedValue(0);
+  const fabScale = useSharedValue(0.8);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fabOpacity.value = withSpring(1, { damping: 15, stiffness: 300 });
+      fabScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const fabStyle = useAnimatedStyle(() => ({
+    opacity: fabOpacity.value,
+    transform: [{ scale: fabScale.value }],
+  }));
+
+  return (
+    <Animated.View style={[styles.floatingActionButton, fabStyle]}>
+      <Pressable 
+        style={[styles.fabButton, {
+          backgroundColor: colors.accent,
+          shadowColor: colors.primaryText
+        }]}
+        onPress={() => navigateWithTransition('/events?mode=quick-register', 'Finding available events...')}
+      >
+        <LinearGradient
+          colors={[colors.accent, colors.success]}
+          style={styles.fabGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
+        <Plus color={colors.white} size={24} strokeWidth={2.5} />
+      </Pressable>
+    </Animated.View>
+  );
+};
+
+// Enhanced Stats Overview Component
+const StatsOverviewCard = ({ data }) => {
+  const statsData = [
+    { label: 'Events Attended', value: data?.eventsAttended || 0, icon: Calendar, color: colors.accent },
+    { label: 'Coins Earned', value: data?.coinsEarned || 0, icon: Coins, color: colors.warning },
+    { label: 'Volunteering', value: data?.volunteerHours || 0, icon: Heart, color: colors.success },
+    { label: 'Current Level', value: data?.currentLevel || 1, icon: Star, color: colors.info },
+  ];
+
+  return (
+    <Animated.View entering={FadeInUp.delay(500)} style={styles.statsOverviewSection}>
+      <View style={styles.sectionHeader}>
+        <View style={styles.statsHeaderContainer}>
+          <Activity color={colors.accent} size={20} strokeWidth={1.5} />
+          <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>Activity Overview</Text>
+        </View>
+      </View>
+
+      <View style={styles.statsGrid}>
+        {statsData.map((stat, index) => (
+          <Animated.View 
+            key={stat.label}
+            entering={FadeInDown.delay(600 + index * 100)}
+            style={[styles.statCard, {
+              backgroundColor: colors.white,
+              borderColor: colors.cardBorder,
+              shadowColor: colors.primaryText
+            }]}
+          >
+            <View style={[styles.statIconContainer, { backgroundColor: stat.color + '15' }]}>
+              <stat.icon color={stat.color} size={18} strokeWidth={1.5} />
+            </View>
+            <Text style={[styles.statValue, { color: colors.primaryText }]}>{stat.value}</Text>
+            <Text style={[styles.statLabel, { color: colors.secondaryText }]}>{stat.label}</Text>
+          </Animated.View>
+        ))}
+      </View>
+    </Animated.View>
+  );
+};
+
 // Main Student Dashboard
 export default function StudentDashboard() {
   const [refreshing, setRefreshing] = useState(false);
@@ -510,7 +679,7 @@ export default function StudentDashboard() {
   const { isNavigating, navigationMessage, navigateWithTransition } = usePageTransition();
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
     loadDashboardData();
   }, []);
 
@@ -536,8 +705,8 @@ export default function StudentDashboard() {
   // Show loading state
   if (loading && !dashboardData) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <View style={[styles.container, { backgroundColor: colors.primaryBg }]}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <DataLoadingOverlay 
           visible={true}
           message="Loading Dashboard"
@@ -551,8 +720,8 @@ export default function StudentDashboard() {
   // Show error state
   if (error && !dashboardData) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <View style={[styles.container, { backgroundColor: colors.primaryBg }]}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <IconLoadingState 
           icon={AlertTriangle}
           message="Unable to Load Dashboard"
@@ -639,9 +808,8 @@ export default function StudentDashboard() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      <ProfessionalBackground />
+    <View style={[styles.container, { backgroundColor: colors.primaryBg }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
       <SafeAreaView style={styles.safeArea}>
         <StudentHeader navigateWithTransition={navigateWithTransition} />
@@ -652,7 +820,8 @@ export default function StudentDashboard() {
             <RefreshControl 
               refreshing={refreshing} 
               onRefresh={handleRefresh}
-              tintColor="#9ca3af"
+              tintColor={colors.accent}
+              colors={[colors.accent]}
             />
           }
           contentContainerStyle={styles.scrollContent}
@@ -665,16 +834,22 @@ export default function StudentDashboard() {
           {/* Quick Access Features */}
           <QuickAccessFeatures navigateWithTransition={navigateWithTransition} />
 
+          {/* Business Metrics */}
+          {/* <BusinessMetricsSection businessMetrics={businessMetrics} navigateWithTransition={navigateWithTransition} /> */}
+
+          {/* Stats Overview */}
+          <StatsOverviewCard data={studentData} />
+
           {/* Recommended Events */}
           <RecommendedEventsSection navigateWithTransition={navigateWithTransition} />
 
           {/* Upcoming Events */}
           <Animated.View entering={FadeInUp.delay(800)} style={styles.eventsSection}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Upcoming Events</Text>
+              <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>Upcoming Events</Text>
               <Pressable style={styles.viewAllButton} onPress={() => navigateWithTransition('/events', 'Loading all events...')}>
-                <Text style={styles.viewAllText}>View All</Text>
-                <ArrowUpRight color="#9ca3af" size={14} strokeWidth={1.5} />
+                <Text style={[styles.viewAllText, { color: colors.secondaryText }]}>View All</Text>
+                <ArrowUpRight color={colors.secondaryText} size={14} strokeWidth={1.5} />
               </Pressable>
             </View>
 
@@ -694,6 +869,9 @@ export default function StudentDashboard() {
         </ScrollView>
       </SafeAreaView>
 
+      {/* Floating Action Button */}
+      <FloatingActionButton navigateWithTransition={navigateWithTransition} />
+
       {/* Page Transition Loading Overlay */}
       <PageTransitionLoading visible={isNavigating} message={navigationMessage} />
     </View>
@@ -703,19 +881,24 @@ export default function StudentDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
   },
 
-  // Student Header
+  // Header
   studentHeader: {
+    backgroundColor: colors.white,
     paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -725,17 +908,17 @@ const styles = StyleSheet.create({
   headerLeft: {
     flex: 1,
   },
-  headerGreeting: {
-    fontSize: 14,
-    color: '#9ca3af',
-    fontWeight: '500',
-    marginBottom: 4,
-  },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: colors.secondaryText,
+    fontWeight: '500',
   },
   headerRight: {
     flexDirection: 'row',
@@ -745,9 +928,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
-    borderWidth: 1,
-    borderColor: '#1a2332',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -763,16 +944,16 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   summaryCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 24,
     padding: 28,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.5,
-    shadowRadius: 24,
-    elevation: 16,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 8,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -791,21 +972,15 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#0f1419',
-    borderWidth: 2,
-    borderColor: '#f59e0b',
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
-    shadowColor: '#f59e0b',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
   },
   avatarInitial: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#f59e0b',
+    color: colors.white,
     letterSpacing: 0.5,
   },
   userInfo: {
@@ -814,35 +989,13 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 2,
   },
   userRole: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    borderWidth: 1,
-    borderColor: '#10b981',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    gap: 4,
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#10b981',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#10b981',
   },
   summaryMetrics: {
     flexDirection: 'row',
@@ -857,24 +1010,20 @@ const styles = StyleSheet.create({
   metricValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   metricLabel: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     textAlign: 'center',
   },
   metricDivider: {
     width: 1,
     height: 36,
-    backgroundColor: '#1a2332',
+    backgroundColor: colors.cardBorder,
     marginHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 1, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
   },
   progressSection: {
     gap: 8,
@@ -887,41 +1036,35 @@ const styles = StyleSheet.create({
   progressTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#d1d5db',
+    color: colors.primaryText,
   },
   progressPercentage: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#10b981',
+    color: colors.accent,
   },
   progressBar: {
     height: 10,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderRadius: 6,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#1a2332',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#10b981',
+    backgroundColor: colors.accent,
     borderRadius: 5,
-    shadowColor: '#10b981',
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 4,
   },
   progressSubtext: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
 
-  // Business Metrics
-  metricsSection: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
-  },
+  // Section Headers
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -931,7 +1074,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
   viewAllButton: {
     flexDirection: 'row',
@@ -941,7 +1084,18 @@ const styles = StyleSheet.create({
   viewAllText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#9ca3af',
+    color: colors.secondaryText,
+  },
+
+  // Bottom spacing
+  bottomSpacer: {
+    height: 40,
+  },
+
+  // Business Metrics
+  metricsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
   },
   metricsGrid: {
     flexDirection: 'row',
@@ -951,16 +1105,16 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     width: (screenWidth - 52) / 2,
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -983,12 +1137,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   iconBackdrop: {
     position: 'absolute',
@@ -1000,20 +1154,6 @@ const styles = StyleSheet.create({
   metricContent: {
     marginBottom: 16,
     zIndex: 1,
-  },
-  metricValue: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#ffffff',
-    marginBottom: 6,
-    letterSpacing: -0.5,
-  },
-  metricLabel: {
-    fontSize: 13,
-    color: '#8892b0',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
   },
   metricFooter: {
     flexDirection: 'row',
@@ -1033,7 +1173,7 @@ const styles = StyleSheet.create({
   },
   periodText: {
     fontSize: 11,
-    color: '#5a6475',
+    color: colors.muted,
     fontWeight: '500',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -1054,16 +1194,16 @@ const styles = StyleSheet.create({
     width: (screenWidth - 52) / 2,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 20,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -1079,13 +1219,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   actionIconBackdrop: {
     position: 'absolute',
@@ -1097,7 +1237,7 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#cbd5e1',
+    color: colors.primaryText,
     flex: 1,
     letterSpacing: 0.2,
   },
@@ -1111,15 +1251,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   eventCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -1140,14 +1280,14 @@ const styles = StyleSheet.create({
   eventCategory: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: colors.accent,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   eventDate: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   eventStatus: {
@@ -1165,13 +1305,13 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 6,
     lineHeight: 22,
   },
   eventDescription: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -1191,7 +1331,7 @@ const styles = StyleSheet.create({
   },
   eventDetailText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     textAlign: 'center',
   },
@@ -1201,16 +1341,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#1a2332',
+    borderTopColor: colors.cardBorder,
   },
   eventCredits: {
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: colors.accent,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
-    shadowColor: '#10b981',
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
@@ -1218,7 +1358,7 @@ const styles = StyleSheet.create({
   creditsText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#10b981',
+    color: colors.accent,
     letterSpacing: 0.5,
   },
   registrationIndicator: {
@@ -1229,12 +1369,8 @@ const styles = StyleSheet.create({
   registrationText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#059669',
+    color: colors.success,
     letterSpacing: 0.3,
-  },
-
-  bottomSpacer: {
-    height: 40,
   },
 
   // Recommended Events
@@ -1246,23 +1382,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 16,
   },
   recommendationsScroll: {
     gap: 12,
+    paddingVertical: 4,
+    marginBottom: 12,
   },
   recommendationCard: {
-    width: screenWidth - 40,
-    height: 120,
+    width: screenWidth * 0.8,
+    backgroundColor: colors.white,
     borderRadius: 20,
-    backgroundColor: '#0a0f1c',
-    shadowColor: '#000',
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
     position: 'relative',
     overflow: 'hidden',
+    marginRight: 16,
   },
   recommendationGradient: {
     position: 'absolute',
@@ -1273,37 +1412,48 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   recommendationContent: {
-    padding: 16,
+    padding: 20,
     position: 'relative',
     zIndex: 1,
   },
   recommendationScore: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 8,
+    gap: 6,
+    marginBottom: 12,
+    backgroundColor: colors.lightHighlight,
+    borderWidth: 1,
+    borderColor: colors.highlight,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
   },
   scoreText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: colors.accent,
   },
   recommendationTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
+    lineHeight: 22,
   },
   recommendationCategory: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.accent,
     fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 12,
   },
   recommendationDetails: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
+    gap: 16,
+    marginBottom: 12,
   },
   recommendationDetail: {
     flexDirection: 'row',
@@ -1312,24 +1462,28 @@ const styles = StyleSheet.create({
   },
   recommendationDetailText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   recommendationTags: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
+    flexWrap: 'wrap',
   },
   reasonTag: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-    borderRadius: 4,
+    backgroundColor: colors.lightAccent,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   reasonText: {
-    fontSize: 12,
-    color: '#10b981',
+    fontSize: 11,
+    color: colors.accent,
     fontWeight: '500',
+    letterSpacing: 0.3,
   },
 
   // Quick Access
@@ -1342,5 +1496,92 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: 12,
+  },
+
+  // Floating Action Button
+  floatingActionButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  fabButton: {
+    flex: 1,
+    borderRadius: 30,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fabGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 30,
+  },
+
+  // Stats Overview
+  statsOverviewSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  statsHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  metricsHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  statCard: {
+    width: (screenWidth - 52) / 2,
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+  },
+  statIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.primaryText,
+    marginBottom: 2,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: colors.secondaryText,
+    fontWeight: '500',
+    textAlign: 'center',
+    lineHeight: 14,
   },
 }); 

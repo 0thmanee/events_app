@@ -34,13 +34,28 @@ import {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30' // Soft Beige with opacity
+};
+
 // Enhanced Professional Background with animated particles
 export const ProfessionalBackground = () => {
   return (
     <View style={styles.backgroundContainer}>
       <LinearGradient
-        colors={['#000000', '#0a0a0a', '#111111']}
+        colors={[colors.primaryBg, colors.secondaryBg, colors.primaryBg]}
         style={styles.gradientBase}
+        locations={[0, 0.5, 1]}
       />
       {/* Animated floating particles */}
       <FloatingParticles />
@@ -203,11 +218,11 @@ export const DataLoadingOverlay = ({
         {/* Animated icon container */}
         <View style={styles.dataLoadingIconContainer}>
           <LinearGradient
-            colors={['rgba(59, 130, 246, 0.2)', 'rgba(139, 92, 246, 0.2)']}
+            colors={[colors.lightAccent, colors.lightHighlight]}
             style={styles.iconGradientBg}
           />
           <Animated.View style={[styles.dataLoadingIcon, iconStyle]}>
-            <Icon color="#3b82f6" size={40} strokeWidth={1.5} />
+            <Icon color={colors.accent} size={40} strokeWidth={1.5} />
           </Animated.View>
           
           {/* Pulsing rings */}
@@ -327,11 +342,11 @@ const AnimatedProgressBar = () => {
   }));
 
   return (
-    <View style={styles.progressBarContainer}>
+    <View style={styles.progressContainer}>
       <View style={styles.progressBarTrack}>
         <Animated.View style={[styles.progressBarFill, progressStyle]}>
           <LinearGradient
-            colors={['#3b82f6', '#8b5cf6', '#06b6d4']}
+            colors={[colors.accent, colors.highlight, colors.accent]}
             style={styles.progressBarGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -381,7 +396,7 @@ export const EnhancedEventCardSkeleton = ({ index = 0 }) => {
 
   return (
     <Animated.View style={[styles.skeletonCard, cardStyle]}>
-      <View style={styles.skeletonContent}>
+      <View style={styles.skeletonCardContent}>
         {/* Header */}
         <View style={styles.skeletonHeader}>
           <SkeletonElement width={80} height={12} />
@@ -396,8 +411,7 @@ export const EnhancedEventCardSkeleton = ({ index = 0 }) => {
         <SkeletonElement width="80%" height={14} marginBottom={16} />
 
         {/* Details */}
-        <View style={styles.skeletonDetails}>
-          <SkeletonElement width={60} height={12} />
+        <View style={styles.skeletonMetaRow}>
           <SkeletonElement width={60} height={12} />
           <SkeletonElement width={60} height={12} />
         </View>
@@ -538,7 +552,7 @@ const PageTransitionDot = ({ delay }) => {
 };
 
 const styles = StyleSheet.create({
-  // Background
+  // Professional Background
   backgroundContainer: {
     position: 'absolute',
     width: '100%',
@@ -551,17 +565,370 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    opacity: 0.02,
+    opacity: 0.03,
   },
   gridLine: {
     position: 'absolute',
-    backgroundColor: '#374151',
+    backgroundColor: colors.secondaryText,
   },
   gridLineMajor: {
-    backgroundColor: '#4b5563',
+    opacity: 0.1,
   },
   gridLineMinor: {
-    backgroundColor: '#1f2937',
+    opacity: 0.05,
+  },
+
+  // Data Loading Overlay
+  dataLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  dataLoadingContent: {
+    alignItems: 'center',
+    padding: 40,
+    borderRadius: 24,
+    backgroundColor: colors.white,
+    marginHorizontal: 20,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  dataLoadingIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: colors.white,
+    marginBottom: 32,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.accent,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  iconGradientBg: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderRadius: 60,
+  },
+  dataLoadingIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  dataLoadingText: {
+    marginBottom: 24,
+  },
+  dataLoadingTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primaryText,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  dataLoadingSubtitle: {
+    fontSize: 16,
+    color: colors.secondaryText,
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  loadingDotsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  loadingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.accent,
+  },
+  pulsingRing: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: colors.lightAccent,
+    backgroundColor: 'transparent',
+  },
+  progressContainer: {
+    marginTop: 20,
+  },
+  progressBarContainer: {
+    width: 200,
+    height: 4,
+    backgroundColor: colors.secondaryBg,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressBarTrack: {
+    flex: 1,
+    backgroundColor: colors.secondaryBg,
+    borderRadius: 2,
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: colors.accent,
+    borderRadius: 2,
+  },
+  progressBarGradient: {
+    flex: 1,
+  },
+  progressBarGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 2,
+    backgroundColor: colors.lightAccent,
+  },
+
+  // Enhanced Event Card Skeleton
+  skeletonCard: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.secondaryBg,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 6,
+    margin: 10,
+    overflow: 'hidden',
+  },
+  skeletonCardContent: {
+    padding: 20,
+  },
+  skeletonHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  skeletonBadge: {
+    height: 20,
+    width: 60,
+    borderRadius: 10,
+    backgroundColor: colors.secondaryBg,
+  },
+  skeletonTitle: {
+    height: 24,
+    width: '70%',
+    borderRadius: 8,
+    backgroundColor: colors.secondaryBg,
+    marginBottom: 8,
+  },
+  skeletonDescription: {
+    height: 16,
+    width: '90%',
+    borderRadius: 6,
+    backgroundColor: colors.secondaryBg,
+    marginBottom: 6,
+  },
+  skeletonDescriptionShort: {
+    height: 16,
+    width: '60%',
+    borderRadius: 6,
+    backgroundColor: colors.secondaryBg,
+    marginBottom: 16,
+  },
+  skeletonMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  skeletonMetaItem: {
+    height: 14,
+    width: 80,
+    borderRadius: 6,
+    backgroundColor: colors.secondaryBg,
+  },
+  skeletonFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.secondaryBg,
+  },
+  skeletonButton: {
+    height: 36,
+    width: 100,
+    borderRadius: 12,
+    backgroundColor: colors.secondaryBg,
+  },
+  skeletonProgress: {
+    flex: 1,
+    marginRight: 16,
+  },
+  skeletonProgressBar: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.secondaryBg,
+    marginBottom: 8,
+  },
+  skeletonProgressText: {
+    height: 12,
+    width: '60%',
+    borderRadius: 4,
+    backgroundColor: colors.secondaryBg,
+  },
+
+  // Page Transition Loading
+  pageTransitionLoading: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pageTransitionBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.95,
+  },
+  pageTransitionContent: {
+    alignItems: 'center',
+    padding: 40,
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    marginHorizontal: 20,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  pageTransitionIcon: {
+    marginBottom: 24,
+  },
+  pageTransitionText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.primaryText,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  pageTransitionDots: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  pageTransitionDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.accent,
+  },
+
+  // Floating Particles
+  particlesContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  particle: {
+    position: 'absolute',
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.lightAccent,
+  },
+
+  // Summary Card Skeleton
+  skeletonSummary: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.secondaryBg,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
+    margin: 10,
+    overflow: 'hidden',
+  },
+  skeletonSummaryContent: {
+    padding: 20,
+  },
+  skeletonProfileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  skeletonAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.secondaryBg,
+    marginRight: 12,
+  },
+  skeletonUserInfo: {
+    flex: 1,
+  },
+  skeletonUserName: {
+    height: 16,
+    width: '60%',
+    borderRadius: 6,
+    backgroundColor: colors.secondaryBg,
+    marginBottom: 6,
+  },
+  skeletonUserRole: {
+    height: 12,
+    width: '40%',
+    borderRadius: 4,
+    backgroundColor: colors.secondaryBg,
+  },
+  skeletonStatusBadge: {
+    height: 24,
+    width: 60,
+    borderRadius: 12,
+    backgroundColor: colors.secondaryBg,
+  },
+  skeletonMetrics: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  skeletonMetric: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  skeletonDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.secondaryBg,
+    marginHorizontal: 12,
+  },
+
+  // Enhanced Skeleton Elements
+  skeletonElement: {
+    backgroundColor: colors.secondaryBg,
   },
 
   // Page Loading Overlay
@@ -592,303 +959,6 @@ const styles = StyleSheet.create({
   loadingDots: {
     flexDirection: 'row',
     gap: 8,
-  },
-  loadingDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#3b82f6',
-  },
-
-  // Skeleton Components
-  skeletonCard: {
-    backgroundColor: '#0a0f1c',
-    borderRadius: 20,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#1a2332',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  skeletonContent: {
-    padding: 20,
-  },
-  skeletonHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  skeletonCategory: {
-    width: 80,
-    height: 12,
-    backgroundColor: '#1a2332',
-    borderRadius: 6,
-  },
-  skeletonStatus: {
-    width: 60,
-    height: 20,
-    backgroundColor: '#1a2332',
-    borderRadius: 10,
-  },
-  skeletonTitle: {
-    height: 16,
-    backgroundColor: '#1a2332',
-    borderRadius: 8,
-    marginBottom: 4,
-  },
-  skeletonDescription: {
-    height: 14,
-    backgroundColor: '#1a2332',
-    borderRadius: 7,
-    marginBottom: 16,
-    width: '80%',
-  },
-  skeletonDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  skeletonDetail: {
-    width: 60,
-    height: 12,
-    backgroundColor: '#1a2332',
-    borderRadius: 6,
-  },
-  skeletonFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#1a2332',
-  },
-  skeletonCredits: {
-    width: 80,
-    height: 24,
-    backgroundColor: '#1a2332',
-    borderRadius: 12,
-  },
-  skeletonArrow: {
-    width: 16,
-    height: 16,
-    backgroundColor: '#1a2332',
-    borderRadius: 8,
-  },
-  shimmerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: -100,
-    right: -100,
-    bottom: 0,
-  },
-  shimmerGradient: {
-    flex: 1,
-  },
-
-  // Summary Skeleton
-  skeletonSummary: {
-    backgroundColor: '#0a0f1c',
-    borderRadius: 24,
-    padding: 28,
-    borderWidth: 1,
-    borderColor: '#1a2332',
-  },
-  skeletonSummaryContent: {
-    gap: 16,
-  },
-  skeletonProfileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  skeletonAvatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#1a2332',
-    marginRight: 16,
-  },
-  skeletonUserInfo: {
-    flex: 1,
-    gap: 4,
-  },
-  skeletonUserName: {
-    width: 120,
-    height: 18,
-    backgroundColor: '#1a2332',
-    borderRadius: 9,
-  },
-  skeletonUserRole: {
-    width: 80,
-    height: 14,
-    backgroundColor: '#1a2332',
-    borderRadius: 7,
-  },
-  skeletonStatusBadge: {
-    width: 60,
-    height: 24,
-    backgroundColor: '#1a2332',
-    borderRadius: 12,
-  },
-  skeletonMetrics: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  skeletonMetric: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  skeletonDivider: {
-    width: 1,
-    height: 36,
-    backgroundColor: '#1a2332',
-  },
-  skeletonProgress: {
-    gap: 8,
-  },
-  skeletonProgressHeader: {
-    width: 120,
-    height: 14,
-    backgroundColor: '#1a2332',
-    borderRadius: 7,
-  },
-  skeletonProgressBar: {
-    height: 10,
-    backgroundColor: '#1a2332',
-    borderRadius: 5,
-  },
-  skeletonProgressText: {
-    width: 180,
-    height: 12,
-    backgroundColor: '#1a2332',
-    borderRadius: 6,
-  },
-
-  // Icon Loading State
-  iconLoadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconLoadingContent: {
-    alignItems: 'center',
-    padding: 40,
-  },
-  iconLoadingIcon: {
-    marginBottom: 32,
-    padding: 24,
-    borderRadius: 24,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
-  },
-  iconLoadingTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  iconLoadingSubtitle: {
-    fontSize: 16,
-    color: '#9ca3af',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-  },
-  progressContainer: {
-    width: 200,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: '#1a2332',
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#3b82f6',
-    borderRadius: 2,
-  },
-
-  // Navigation Loading
-  navigationLoading: {
-    position: 'absolute',
-    top: 100,
-    left: 20,
-    right: 20,
-    zIndex: 100,
-  },
-  navigationLoadingContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(10, 15, 28, 0.95)',
-    borderWidth: 1,
-    borderColor: '#1a2332',
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  navigationLoadingText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-
-  // Data Loading Overlay
-  dataLoadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dataLoadingContent: {
-    alignItems: 'center',
-    padding: 40,
-  },
-  dataLoadingIconContainer: {
-    marginBottom: 24,
-  },
-  iconGradientBg: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dataLoadingIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
-  },
-  dataLoadingText: {
-    marginBottom: 24,
-  },
-  dataLoadingTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  dataLoadingSubtitle: {
-    fontSize: 16,
-    color: '#9ca3af',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
   },
   loadingDotsContainer: {
     flexDirection: 'row',
@@ -930,69 +1000,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 2,
     backgroundColor: 'rgba(59, 130, 246, 0.3)',
-  },
-
-  // Page Transition Loading
-  pageTransitionLoading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pageTransitionBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.98,
-  },
-  pageTransitionContent: {
-    alignItems: 'center',
-    padding: 40,
-  },
-  pageTransitionIcon: {
-    marginBottom: 24,
-  },
-  pageTransitionText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  pageTransitionDots: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  pageTransitionDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#3b82f6',
-  },
-
-  // Floating Particles
-  particlesContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  particle: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(59, 130, 246, 0.4)',
-  },
-
-  // Enhanced Skeleton Elements
-  skeletonElement: {
-    backgroundColor: '#1a2332',
   },
 });
 

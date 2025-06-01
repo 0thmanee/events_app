@@ -32,30 +32,64 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Light theme colors
+const colors = {
+  primaryBg: '#F5F5F5',
+  secondaryBg: '#EAEAEA',
+  primaryText: '#333333',
+  secondaryText: '#555555',
+  accent: '#3EB489',
+  highlight: '#E1C3AD',
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',
+  cardBorder: '#E0E0E0',
+  shadow: '#00000015',
+  muted: '#9ca3af'
+};
+
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-// Custom Tab Bar Component
-function CustomTabBar({ state, descriptors, navigation }) {
+// Enhanced Custom Tab Bar Component
+function CustomTabBar({ state, descriptors, navigation, userRole }) {
+  // Filter routes based on user role
+  const isStaffOrAdmin = userRole === 'staff' || userRole === 'admin';
+  
+  const allowedRoutes = isStaffOrAdmin 
+    ? ['admin', 'event-management', 'manage-shop', 'manage-wallet', 'manage-ranking']
+    : ['index', 'events', 'wallet', 'leaderboard'];
+
+  // Filter state routes to only include allowed ones
+  const filteredRoutes = state.routes.filter(route => 
+    allowedRoutes.includes(route.name)
+  );
+
+  // Create filtered state
+  const filteredState = {
+    ...state,
+    routes: filteredRoutes,
+    index: Math.min(state.index, filteredRoutes.length - 1)
+  };
+
   return (
     <View
       style={{
         position: "absolute",
         bottom: 20,
-        left: 20,
-        right: 20,
-        height: 72,
-        borderRadius: 24,
+        left: 16,
+        right: 16,
+        height: 80,
+        borderRadius: 28,
         overflow: "hidden",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 12 },
+        shadowColor: colors.primaryText,
+        shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.15,
-        shadowRadius: 24,
+        shadowRadius: 20,
         elevation: 12,
       }}
     >
-      {/* Clean background */}
+      {/* Light theme background with blur */}
       <BlurView
-        intensity={80}
+        intensity={100}
         style={{
           position: "absolute",
           top: 0,
@@ -64,6 +98,8 @@ function CustomTabBar({ state, descriptors, navigation }) {
           bottom: 0,
         }}
       />
+      
+      {/* White background overlay */}
       <View
         style={{
           position: "absolute",
@@ -71,8 +107,22 @@ function CustomTabBar({ state, descriptors, navigation }) {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: "rgba(15, 23, 42, 0.85)",
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
         }}
+      />
+
+      {/* Gradient accent overlay */}
+      <LinearGradient
+        colors={[colors.lightAccent, 'transparent', colors.lightAccent]}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
       />
 
       {/* Subtle border */}
@@ -83,9 +133,9 @@ function CustomTabBar({ state, descriptors, navigation }) {
           left: 0,
           right: 0,
           bottom: 0,
-          borderRadius: 24,
-          borderWidth: 0.5,
-          borderColor: "rgba(148, 163, 184, 0.2)",
+          borderRadius: 28,
+          borderWidth: 1,
+          borderColor: colors.cardBorder,
         }}
       />
 
@@ -94,13 +144,14 @@ function CustomTabBar({ state, descriptors, navigation }) {
         style={{
           flexDirection: "row",
           flex: 1,
-          paddingHorizontal: 12,
+          paddingHorizontal: 16,
           paddingVertical: 12,
+          alignItems: 'center',
         }}
       >
-        {state.routes.map((route, index) => {
+        {filteredRoutes.map((route, index) => {
           const { options } = descriptors[route.key];
-          const isFocused = state.index === index;
+          const isFocused = state.routes.findIndex(r => r.key === route.key) === state.index;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -122,6 +173,7 @@ function CustomTabBar({ state, descriptors, navigation }) {
               isFocused={isFocused}
               onPress={onPress}
               index={index}
+              userRole={userRole}
             />
           );
         })}
@@ -130,24 +182,36 @@ function CustomTabBar({ state, descriptors, navigation }) {
   );
 }
 
-// Professional Tab Component
-function CustomTab({ route, options, isFocused, onPress, index }) {
+// Enhanced Professional Tab Component
+function CustomTab({ route, options, isFocused, onPress, index, userRole }) {
   const scale = useSharedValue(1);
   const iconOpacity = useSharedValue(isFocused ? 1 : 0.6);
   const textOpacity = useSharedValue(isFocused ? 1 : 0.7);
   const iconTranslateY = useSharedValue(0);
+  const backgroundOpacity = useSharedValue(isFocused ? 1 : 0);
+  const backgroundScale = useSharedValue(isFocused ? 1 : 0.8);
 
   useEffect(() => {
-    iconOpacity.value = withTiming(isFocused ? 1 : 0.6, { duration: 200 });
-    textOpacity.value = withTiming(isFocused ? 1 : 0.7, { duration: 200 });
-    iconTranslateY.value = withSpring(isFocused ? -1 : 0, {
+    iconOpacity.value = withTiming(isFocused ? 1 : 0.6, { duration: 250 });
+    textOpacity.value = withTiming(isFocused ? 1 : 0.7, { duration: 250 });
+    iconTranslateY.value = withSpring(isFocused ? -2 : 0, {
       damping: 20,
       stiffness: 300,
+    });
+    backgroundOpacity.value = withTiming(isFocused ? 1 : 0, { duration: 250 });
+    backgroundScale.value = withSpring(isFocused ? 1 : 0.8, {
+      damping: 15,
+      stiffness: 200,
     });
   }, [isFocused]);
 
   const tabStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+  }));
+
+  const backgroundStyle = useAnimatedStyle(() => ({
+    opacity: backgroundOpacity.value,
+    transform: [{ scale: backgroundScale.value }],
   }));
 
   const iconContainerStyle = useAnimatedStyle(() => ({
@@ -159,18 +223,41 @@ function CustomTab({ route, options, isFocused, onPress, index }) {
     opacity: textOpacity.value,
   }));
 
-  const getIcon = (routeName) => {
+  // Student tab icons
+  const getStudentIcon = (routeName) => {
     const iconProps = {
-      size: 22,
-      strokeWidth: 2,
-      color: isFocused ? "#3b82f6" : "#94a3b8",
+      size: isFocused ? 24 : 22,
+      strokeWidth: isFocused ? 2.5 : 2,
+      color: isFocused ? colors.accent : colors.secondaryText,
     };
 
     switch (routeName) {
-      case "event-management":
-        return <Calendar {...iconProps} />;
+      case "index":
+        return <Home {...iconProps} />;
+      case "events":
+        return <Search {...iconProps} />;
+      case "wallet":
+        return <Wallet {...iconProps} />;
+      case "leaderboard":
+        return <Trophy {...iconProps} />;
+      default:
+        return <Home {...iconProps} />;
+    }
+  };
+
+  // Staff/Admin tab icons
+  const getAdminIcon = (routeName) => {
+    const iconProps = {
+      size: isFocused ? 24 : 22,
+      strokeWidth: isFocused ? 2.5 : 2,
+      color: isFocused ? colors.accent : colors.secondaryText,
+    };
+
+    switch (routeName) {
       case "admin":
         return <Shield {...iconProps} />;
+      case "event-management":
+        return <Calendar {...iconProps} />;
       case "manage-shop":
         return <ShoppingBag {...iconProps} />;
       case "manage-wallet":
@@ -182,6 +269,12 @@ function CustomTab({ route, options, isFocused, onPress, index }) {
     }
   };
 
+  // Determine which icon set to use based on user role
+  const getIcon = (routeName) => {
+    const isStaffOrAdmin = userRole === 'staff' || userRole === 'admin';
+    return isStaffOrAdmin ? getAdminIcon(routeName) : getStudentIcon(routeName);
+  };
+
   return (
     <AnimatedPressable
       style={[
@@ -189,28 +282,69 @@ function CustomTab({ route, options, isFocused, onPress, index }) {
           flex: 1,
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: 16,
-          zIndex: 2,
-          paddingVertical: 6,
+          borderRadius: 20,
+          paddingVertical: 8,
+          paddingHorizontal: 4,
+          position: 'relative',
         },
         tabStyle,
       ]}
       onPress={onPress}
       onPressIn={() => {
-        scale.value = withSpring(0.96, { damping: 20, stiffness: 400 });
+        scale.value = withSpring(0.92, { damping: 20, stiffness: 400 });
       }}
       onPressOut={() => {
         scale.value = withSpring(1, { damping: 20, stiffness: 300 });
       }}
     >
+      {/* Active background with gradient */}
+      <Animated.View
+        style={[
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 18,
+            overflow: 'hidden',
+          },
+          backgroundStyle,
+        ]}
+      >
+        <LinearGradient
+          colors={[colors.accent + '20', colors.accent + '10']}
+          style={{
+            flex: 1,
+            borderRadius: 18,
+          }}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
+        {/* Subtle border for active state */}
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 18,
+            borderWidth: 1,
+            borderColor: colors.accent + '30',
+          }}
+        />
+      </Animated.View>
+
       {/* Icon Container */}
       <Animated.View
         style={[
           {
-            marginBottom: 3,
+            marginBottom: 4,
             alignItems: "center",
             justifyContent: "center",
             height: 28,
+            zIndex: 1,
           },
           iconContainerStyle,
         ]}
@@ -218,15 +352,16 @@ function CustomTab({ route, options, isFocused, onPress, index }) {
         {getIcon(route.name)}
       </Animated.View>
 
-      {/* Clean Label */}
+      {/* Enhanced Label */}
       <Animated.Text
         style={[
           {
-            fontSize: 10,
-            fontWeight: isFocused ? "600" : "500",
-            color: isFocused ? "#1e293b" : "#64748b",
-            letterSpacing: 0.2,
+            fontSize: 11,
+            fontWeight: isFocused ? "700" : "600",
+            color: isFocused ? colors.accent : colors.secondaryText,
+            letterSpacing: 0.3,
             textAlign: "center",
+            zIndex: 1,
           },
           textStyle,
         ]}
@@ -235,16 +370,21 @@ function CustomTab({ route, options, isFocused, onPress, index }) {
         {options.title}
       </Animated.Text>
 
-      {/* Minimal active indicator dot */}
+      {/* Modern active indicator - glowing dot */}
       {isFocused && (
-        <View
+        <Animated.View
           style={{
             position: "absolute",
-            bottom: 2,
-            width: 3,
-            height: 3,
-            borderRadius: 1.5,
-            backgroundColor: "#3b82f6",
+            top: 6,
+            width: 4,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: colors.accent,
+            shadowColor: colors.accent,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.8,
+            shadowRadius: 4,
+            elevation: 4,
           }}
         />
       )}
@@ -286,111 +426,41 @@ export default function TabLayout() {
     // Staff/Admin tab layout with management pages
     return (
       <>
-        <StatusBar style="light" backgroundColor="transparent" translucent />
+        <StatusBar style="dark" backgroundColor="transparent" translucent />
         <Tabs
+          tabBar={(props) => <CustomTabBar {...props} userRole={userRole} />}
           screenOptions={{
-            tabBarActiveTintColor: '#f59e0b',
-            tabBarInactiveTintColor: '#6b7280',
-            tabBarStyle: {
-              backgroundColor: 'rgba(10, 15, 28, 0.98)',
-              borderTopColor: 'rgba(26, 35, 50, 0.8)',
-              borderTopWidth: 1,
-              paddingTop: 12,
-              paddingBottom: Platform.OS === 'ios' ? 28 : 12,
-              height: Platform.OS === 'ios' ? 96 : 72,
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              elevation: 0,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 12,
-            },
-            tabBarLabelStyle: {
-              fontSize: 11,
-              fontWeight: '700',
-              letterSpacing: 0.5,
-              marginTop: 6,
-              textTransform: 'uppercase',
-            },
             headerShown: false,
-            tabBarItemStyle: {
-              paddingTop: 6,
-              borderRadius: 12,
-              marginHorizontal: 4,
-            },
           }}
         >
           <Tabs.Screen
             name="admin"
             options={{
               title: isStaff ? 'Staff Panel' : 'Admin Panel',
-              tabBarIcon: ({ color, size, focused }) => (
-                <Shield 
-                  color={color} 
-                  size={focused ? 24 : 22} 
-                  strokeWidth={focused ? 2.5 : 2}
-                  fill={focused ? color + '20' : 'transparent'}
-                />
-              ),
             }}
           />
           <Tabs.Screen
             name="event-management"
             options={{
               title: 'Events',
-              tabBarIcon: ({ color, size, focused }) => (
-                <Calendar 
-                  color={color} 
-                  size={focused ? 24 : 22} 
-                  strokeWidth={focused ? 2.5 : 2}
-                  fill={focused ? color + '20' : 'transparent'}
-                />
-              ),
             }}
           />
           <Tabs.Screen
             name="manage-shop"
             options={{
               title: 'Shop',
-              tabBarIcon: ({ color, size, focused }) => (
-                <ShoppingBag 
-                  color={color} 
-                  size={focused ? 24 : 22} 
-                  strokeWidth={focused ? 2.5 : 2}
-                  fill={focused ? color + '20' : 'transparent'}
-                />
-              ),
             }}
           />
           <Tabs.Screen
             name="manage-wallet"
             options={{
               title: 'Wallet',
-              tabBarIcon: ({ color, size, focused }) => (
-                <Wallet 
-                  color={color} 
-                  size={focused ? 24 : 22} 
-                  strokeWidth={focused ? 2.5 : 2}
-                  fill={focused ? color + '20' : 'transparent'}
-                />
-              ),
             }}
           />
           <Tabs.Screen
             name="manage-ranking"
             options={{
               title: 'Rankings',
-              tabBarIcon: ({ color, size, focused }) => (
-                <Trophy 
-                  color={color} 
-                  size={focused ? 24 : 22} 
-                  strokeWidth={focused ? 2.5 : 2}
-                  fill={focused ? color + '20' : 'transparent'}
-                />
-              ),
             }}
           />
 
@@ -410,95 +480,35 @@ export default function TabLayout() {
   // Student tab layout with their own pages
   return (
     <>
-      <StatusBar style="light" backgroundColor="transparent" translucent />
+      <StatusBar style="dark" backgroundColor="transparent" translucent />
       <Tabs
+        tabBar={(props) => <CustomTabBar {...props} userRole={userRole} />}
         screenOptions={{
-          tabBarActiveTintColor: '#10b981',
-          tabBarInactiveTintColor: '#6b7280',
-          tabBarStyle: {
-            backgroundColor: 'rgba(10, 15, 28, 0.98)',
-            borderTopColor: 'rgba(26, 35, 50, 0.8)',
-            borderTopWidth: 1,
-            paddingTop: 10,
-            paddingBottom: Platform.OS === 'ios' ? 26 : 10,
-            height: Platform.OS === 'ios' ? 92 : 68,
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            elevation: 0,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 12,
-          },
-          tabBarLabelStyle: {
-            fontSize: 10,
-            fontWeight: '600',
-            letterSpacing: 0.3,
-            marginTop: 4,
-          },
           headerShown: false,
-          tabBarItemStyle: {
-            paddingTop: 4,
-            borderRadius: 10,
-            marginHorizontal: 2,
-          },
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ color, size, focused }) => (
-              <Home 
-                color={color} 
-                size={focused ? 22 : 20} 
-                strokeWidth={focused ? 2.5 : 2} 
-                fill={focused ? color + '15' : 'transparent'}
-              />
-            ),
           }}
         />
         <Tabs.Screen
           name="events"
           options={{
             title: 'Events',
-            tabBarIcon: ({ color, size, focused }) => (
-              <Search 
-                color={color} 
-                size={focused ? 22 : 20} 
-                strokeWidth={focused ? 2.5 : 2}
-              />
-            ),
           }}
         />
         <Tabs.Screen
           name="wallet"
           options={{
             title: 'Wallet',
-            tabBarIcon: ({ color, size, focused }) => (
-              <Wallet 
-                color={color} 
-                size={focused ? 22 : 20} 
-                strokeWidth={focused ? 2.5 : 2}
-                fill={focused ? color + '15' : 'transparent'}
-              />
-            ),
           }}
         />
         <Tabs.Screen
           name="leaderboard"
           options={{
             title: 'Rankings',
-            tabBarIcon: ({ color, size, focused }) => (
-              <Trophy 
-                color={color} 
-                size={focused ? 22 : 20} 
-                strokeWidth={focused ? 2.5 : 2}
-                fill={focused ? color + '15' : 'transparent'}
-              />
-            ),
           }}
         />
 

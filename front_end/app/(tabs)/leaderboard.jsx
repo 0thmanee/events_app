@@ -56,6 +56,26 @@ import {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Student Header Component
 const StudentHeader = () => {
   const router = useRouter();
@@ -65,14 +85,13 @@ const StudentHeader = () => {
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerGreeting}>Leaderboard</Text>
-          <Text style={styles.headerTitle}>Compete with your peers and climb the ranks</Text>
         </View>
         <View style={styles.headerRight}>
           <Pressable style={styles.headerButton} onPress={() => router.push('/notifications')}>
-            <Bell color="#9ca3af" size={20} strokeWidth={1.5} />
+            <Bell color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
           <Pressable style={styles.headerButton} onPress={() => router.push('/settings')}>
-            <Settings color="#9ca3af" size={20} strokeWidth={1.5} />
+            <Settings color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
         </View>
       </View>
@@ -118,7 +137,7 @@ const AnimatedCrown = ({ size = 24, delay = 0 }) => {
 
   return (
     <Animated.View style={animatedStyle}>
-      <Crown color="#f59e0b" size={size} strokeWidth={2} />
+      <Crown color={colors.warning} size={size} strokeWidth={2} />
     </Animated.View>
   );
 };
@@ -144,10 +163,10 @@ const PodiumCard = ({ student, position, onPress }) => {
 
   const getPodiumColor = (pos) => {
     switch (pos) {
-      case 1: return { gradient: ['#f59e0b', '#d97706'], icon: Crown, bg: '#f59e0b' };
-      case 2: return { gradient: ['#6b7280', '#4b5563'], icon: Medal, bg: '#6b7280' };
-      case 3: return { gradient: ['#92400e', '#78350f'], icon: Award, bg: '#92400e' };
-      default: return { gradient: ['#3b82f6', '#1d4ed8'], icon: Trophy, bg: '#3b82f6' };
+      case 1: return { gradient: [colors.warning, colors.warning], icon: Crown, bg: colors.warning };
+      case 2: return { gradient: [colors.muted, colors.muted], icon: Medal, bg: colors.muted };
+      case 3: return { gradient: [colors.error, colors.error], icon: Award, bg: colors.error };
+      default: return { gradient: [colors.info, colors.info], icon: Trophy, bg: colors.info };
     }
   };
 
@@ -169,9 +188,9 @@ const PodiumCard = ({ student, position, onPress }) => {
         {/* Position Badge */}
         <View style={[styles.positionBadge, { backgroundColor: podiumMeta.bg }]}>
           {position === 1 ? (
-            <Crown color="#ffffff" size={16} strokeWidth={2} />
+            <Crown color={colors.white} size={16} strokeWidth={2} />
           ) : (
-            <PodiumIcon color="#ffffff" size={16} strokeWidth={2} />
+            <PodiumIcon color={colors.white} size={16} strokeWidth={2} />
           )}
           <Text style={styles.positionText}>{position}</Text>
         </View>
@@ -183,11 +202,11 @@ const PodiumCard = ({ student, position, onPress }) => {
         {/* Stats */}
         <View style={styles.podiumStats}>
           <View style={styles.podiumStat}>
-            <Star color="#f59e0b" size={12} strokeWidth={2} />
+            <Star color={colors.warning} size={12} strokeWidth={2} />
             <Text style={styles.podiumStatText}>{student.xp.toLocaleString()}</Text>
           </View>
           <View style={styles.podiumStat}>
-            <Trophy color="#8b5cf6" size={12} strokeWidth={2} />
+            <Trophy color={colors.info} size={12} strokeWidth={2} />
             <Text style={styles.podiumStatText}>Lv.{student.level}</Text>
           </View>
         </View>
@@ -224,16 +243,16 @@ const LeaderboardRow = ({ student, index, onPress }) => {
   }));
 
   const getRankIcon = (rank) => {
-    if (rank <= 10) return { icon: Trophy, color: '#f59e0b' };
-    if (rank <= 25) return { icon: Medal, color: '#6b7280' };
-    if (rank <= 50) return { icon: Award, color: '#92400e' };
-    return { icon: Target, color: '#6b7280' };
+    if (rank <= 10) return { icon: Trophy, color: colors.warning };
+    if (rank <= 25) return { icon: Medal, color: colors.muted };
+    if (rank <= 50) return { icon: Award, color: colors.error };
+    return { icon: Target, color: colors.muted };
   };
 
   const getRankChange = (change) => {
-    if (change > 0) return { icon: ArrowUp, color: '#10b981', text: `+${change}` };
-    if (change < 0) return { icon: ArrowDown, color: '#ef4444', text: change.toString() };
-    return { icon: Minus, color: '#6b7280', text: '0' };
+    if (change > 0) return { icon: ArrowUp, color: colors.success, text: `+${change}` };
+    if (change < 0) return { icon: ArrowDown, color: colors.error, text: change.toString() };
+    return { icon: Minus, color: colors.muted, text: '0' };
   };
 
   const rankMeta = getRankIcon(student.rank);
@@ -283,7 +302,7 @@ const LeaderboardRow = ({ student, index, onPress }) => {
           </Text>
         </View>
 
-        <ChevronRight color="#6b7280" size={16} strokeWidth={2} />
+        <ChevronRight color={colors.warning} size={16} strokeWidth={2} />
       </Pressable>
     </Animated.View>
   );
@@ -312,7 +331,7 @@ const CategoryFilter = ({ categories, selectedCategory, onSelect }) => {
             <View style={styles.categoryIconContainer}>
               <View style={[styles.categoryIconBackdrop, { backgroundColor: category.color + '10' }]} />
               <category.icon 
-                color={selectedCategory === category.id ? '#ffffff' : category.color} 
+                color={selectedCategory === category.id ? colors.white : category.color} 
                 size={16} 
                 strokeWidth={2} 
               />
@@ -364,7 +383,7 @@ const UserStatsCard = ({ userStats }) => {
           </View>
           <View style={styles.userRankBadge}>
             <Text style={styles.userRankText}>#{userStats.rank}</Text>
-            <ChevronRight color="#f59e0b" size={14} strokeWidth={1.5} />
+            <ChevronRight color={colors.warning} size={14} strokeWidth={1.5} />
           </View>
         </View>
 
@@ -410,7 +429,7 @@ export default function StudentLeaderboard() {
   const router = useRouter();
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
     loadLeaderboardData();
   }, [selectedCategory]);
 
@@ -505,7 +524,7 @@ export default function StudentLeaderboard() {
   if (loading && !userStats) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <DataLoadingOverlay 
           visible={true}
           message="Loading Leaderboard"
@@ -520,7 +539,7 @@ export default function StudentLeaderboard() {
   if (error && !userStats) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <IconLoadingState 
           icon={Trophy}
           message="Unable to Load Leaderboard"
@@ -531,10 +550,10 @@ export default function StudentLeaderboard() {
   }
 
   const categories = [
-    { id: 'all', name: 'All Time', icon: Trophy, color: '#f59e0b' },
-    { id: 'monthly', name: 'This Month', icon: Calendar, color: '#3b82f6' },
-    { id: 'weekly', name: 'This Week', icon: Zap, color: '#10b981' },
-    { id: 'daily', name: 'Today', icon: Target, color: '#ec4899' },
+    { id: 'all', name: 'All Time', icon: Trophy, color: colors.warning },
+    { id: 'monthly', name: 'This Month', icon: Calendar, color: colors.info },
+    { id: 'weekly', name: 'This Week', icon: Zap, color: colors.success },
+    { id: 'daily', name: 'Today', icon: Target, color: colors.error },
   ];
 
   // Get top 3 from leaderboard
@@ -554,7 +573,7 @@ export default function StudentLeaderboard() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <ProfessionalBackground />
       
       <SafeAreaView style={styles.safeArea}>
@@ -566,7 +585,8 @@ export default function StudentLeaderboard() {
             <RefreshControl 
               refreshing={refreshing} 
               onRefresh={handleRefresh}
-              tintColor="#9ca3af"
+              tintColor={colors.accent}
+              colors={[colors.accent]}
             />
           }
           contentContainerStyle={styles.scrollContent}
@@ -632,7 +652,7 @@ export default function StudentLeaderboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -644,7 +664,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    backgroundColor: colors.white,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -658,13 +684,13 @@ const styles = StyleSheet.create({
   headerGreeting: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -0.5,
     marginBottom: 4,
   },
   headerTitle: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     lineHeight: 20,
   },
@@ -676,9 +702,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -694,13 +720,13 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   userStatsCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#1a2332',
-    shadowColor: '#000',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 20,
     elevation: 12,
     overflow: 'hidden',
@@ -730,9 +756,9 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.lightAccent,
     borderWidth: 2,
-    borderColor: '#f59e0b',
+    borderColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -740,7 +766,7 @@ const styles = StyleSheet.create({
   userAvatarText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#f59e0b',
+    color: colors.accent,
   },
   userInfo: {
     flex: 1,
@@ -748,20 +774,20 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 2,
   },
   userLevel: {
     fontSize: 13,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   userRankBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#f59e0b',
+    borderColor: colors.accent,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
@@ -770,7 +796,7 @@ const styles = StyleSheet.create({
   userRankText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#f59e0b',
+    color: colors.accent,
   },
   statsMetrics: {
     flexDirection: 'row',
@@ -784,12 +810,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     lineHeight: 14,
   },
   statLabel: {
     fontSize: 9,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     textAlign: 'center',
     lineHeight: 10,
@@ -797,7 +823,7 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     height: 30,
-    backgroundColor: '#1a2332',
+    backgroundColor: colors.cardBorder,
     marginHorizontal: 16,
   },
   progressSection: {
@@ -811,29 +837,29 @@ const styles = StyleSheet.create({
   progressTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#d1d5db',
+    color: colors.primaryText,
   },
   progressPercent: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#10b981',
+    color: colors.success,
   },
   progressBar: {
     height: 8,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderRadius: 4,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#10b981',
+    backgroundColor: colors.success,
     borderRadius: 3,
   },
   progressSubtext: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
 
@@ -844,7 +870,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
     marginBottom: 16,
     paddingHorizontal: 24,
@@ -856,24 +882,29 @@ const styles = StyleSheet.create({
   categoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 8,
     minWidth: 120,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   categoryButtonActive: {
-    backgroundColor: '#1a2332',
-    borderColor: '#334155',
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   categoryIconContainer: {
     width: 24,
     height: 24,
     borderRadius: 8,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -887,11 +918,11 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 13,
-    color: '#d1d5db',
+    color: colors.primaryText,
     fontWeight: '600',
   },
   categoryTextActive: {
-    color: '#ffffff',
+    color: colors.white,
   },
 
   // Podium
@@ -936,19 +967,19 @@ const styles = StyleSheet.create({
   },
   positionText: {
     fontSize: 12,
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: '700',
   },
   podiumName: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     textAlign: 'center',
     marginBottom: 4,
   },
   podiumLogin: {
     fontSize: 10,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '600',
     marginBottom: 12,
   },
@@ -964,7 +995,7 @@ const styles = StyleSheet.create({
   },
   podiumStatText: {
     fontSize: 10,
-    color: '#d1d5db',
+    color: colors.primaryText,
     fontWeight: '600',
   },
   podiumBase: {
@@ -977,7 +1008,7 @@ const styles = StyleSheet.create({
   podiumPosition: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.white,
   },
 
   // Leaderboard
@@ -995,7 +1026,7 @@ const styles = StyleSheet.create({
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginTop: 4,
   },
@@ -1003,13 +1034,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   leaderboardRow: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 6,
     overflow: 'hidden',
@@ -1029,7 +1060,7 @@ const styles = StyleSheet.create({
   rankNumber: {
     fontSize: 14,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     fontFamily: 'monospace',
     marginBottom: 1,
   },
@@ -1050,16 +1081,16 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#3b82f6',
+    borderColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   studentAvatarText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#3b82f6',
+    color: colors.accent,
   },
   studentDetails: {
     flex: 1,
@@ -1067,12 +1098,12 @@ const styles = StyleSheet.create({
   studentName: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 1,
   },
   studentLogin: {
     fontSize: 10,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   studentStats: {

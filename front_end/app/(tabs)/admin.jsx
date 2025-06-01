@@ -77,6 +77,26 @@ import {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Pulsing Badge Component for enhanced visual appeal
 const PulsingBadge = ({ children, delay = 0, style }) => {
   const pulseScale = useSharedValue(1);
@@ -186,7 +206,7 @@ const FloatingBackground = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: colors.primaryBg,
   },
   scrollContainer: {
     flex: 1,
@@ -203,7 +223,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 4,
     height: 4,
-    backgroundColor: '#3b82f6',
+    backgroundColor: colors.accent,
     borderRadius: 2,
   },
   
@@ -232,6 +252,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 24,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerRow: {
     flexDirection: 'row',
@@ -245,33 +273,41 @@ const styles = StyleSheet.create({
   logoSquare: {
     width: 56,
     height: 56,
-    backgroundColor: '#0a0a0a',
-    borderWidth: 1,
-    borderColor: '#1f2937',
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     marginRight: 16,
+    borderRadius: 16,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   logoCornerTL: {
     position: 'absolute',
-    top: -1,
-    left: -1,
+    top: -2,
+    left: -2,
     width: 16,
     height: 16,
-    borderTopWidth: 2,
-    borderLeftWidth: 2,
-    borderColor: '#3b82f6',
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderColor: colors.accent,
+    borderTopLeftRadius: 8,
   },
   logoCornerBR: {
     position: 'absolute',
-    bottom: -1,
-    right: -1,
+    bottom: -2,
+    right: -2,
     width: 16,
     height: 16,
-    borderBottomWidth: 2,
-    borderRightWidth: 2,
-    borderColor: '#3b82f6',
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    borderColor: colors.accent,
+    borderBottomRightRadius: 8,
   },
   logoTextLines: {
     alignItems: 'center',
@@ -280,12 +316,9 @@ const styles = StyleSheet.create({
   logoNumber: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.accent,
     letterSpacing: 1,
     fontFamily: 'monospace',
-    textShadowColor: '#3b82f6',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
     lineHeight: 18,
   },
   logoStatus: {
@@ -294,9 +327,9 @@ const styles = StyleSheet.create({
     right: 6,
     width: 8,
     height: 8,
-    backgroundColor: '#10b981',
+    backgroundColor: colors.success,
     borderRadius: 4,
-    shadowColor: '#10b981',
+    shadowColor: colors.success,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 4,
@@ -307,14 +340,14 @@ const styles = StyleSheet.create({
   logoTitle: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 1.5,
     fontFamily: 'monospace',
     lineHeight: 20,
   },
   logoSubtitle: {
     fontSize: 11,
-    color: '#6b7280',
+    color: colors.secondaryText,
     letterSpacing: 2,
     textTransform: 'uppercase',
     fontWeight: '600',
@@ -326,12 +359,17 @@ const styles = StyleSheet.create({
   profileAvatar: {
     width: 44,
     height: 44,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderWidth: 1,
-    borderColor: '#3b82f6',
+    backgroundColor: colors.lightAccent,
+    borderWidth: 2,
+    borderColor: colors.accent,
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   profileDot: {
     position: 'absolute',
@@ -339,10 +377,10 @@ const styles = StyleSheet.create({
     right: 2,
     width: 12,
     height: 12,
-    backgroundColor: '#10b981',
+    backgroundColor: colors.success,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#0a0a0a',
+    borderColor: colors.white,
   },
   
   // Modern Header Layout
@@ -365,12 +403,12 @@ const styles = StyleSheet.create({
   logoIcon: {
     width: 48,
     height: 48,
-    backgroundColor: '#3b82f6',
+    backgroundColor: colors.accent,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
-    shadowColor: '#3b82f6',
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -378,20 +416,20 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     fontFamily: 'monospace',
     letterSpacing: 2,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
     letterSpacing: 0.5,
   },
@@ -410,14 +448,14 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#10b981',
+    backgroundColor: colors.success,
     opacity: 0.3,
   },
   statusDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#10b981',
+    backgroundColor: colors.success,
     margin: 4,
   },
   statusText: {
@@ -426,12 +464,12 @@ const styles = StyleSheet.create({
   statusTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 2,
   },
   statusSubtitle: {
     fontSize: 12,
-    color: '#10b981',
+    color: colors.success,
     fontWeight: '600',
   },
   timeInfo: {
@@ -439,13 +477,13 @@ const styles = StyleSheet.create({
   },
   currentTime: {
     fontSize: 18,
-    color: '#ffffff',
+    color: colors.primaryText,
     fontWeight: '700',
     fontFamily: 'monospace',
   },
   currentDate: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginTop: 2,
   },
@@ -462,14 +500,19 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: (screenWidth - 60) / 2,
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   statCardGradient: {
     position: 'absolute',
@@ -493,13 +536,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 28,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
     fontFamily: 'monospace',
   },
   statLabel: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
     marginBottom: 8,
   },
@@ -509,10 +552,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   trendPositive: {
-    color: '#10b981',
+    color: colors.success,
   },
   trendNeutral: {
-    color: '#6b7280',
+    color: colors.secondaryText,
   },
   
   // Management Grid - Professional Layout
@@ -536,9 +579,9 @@ const styles = StyleSheet.create({
   headerIconContainer: {
     width: 48,
     height: 48,
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#3b82f6',
+    borderColor: colors.accent,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
@@ -547,32 +590,29 @@ const styles = StyleSheet.create({
   managementSectionTitle: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   managementSectionSubtitle: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontWeight: '600',
   },
   managementBadgeContainer: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#3b82f6',
+    borderColor: colors.accent,
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   managementBadgeText: {
     fontSize: 12,
-    color: '#ffffff',
+    color: colors.primaryText,
     fontWeight: '900',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
 
   // Primary Cards (Top 2 - Larger)
@@ -583,14 +623,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   primaryManagementCard: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 24,
     padding: 28,
     position: 'relative',
     overflow: 'hidden',
     height: 140,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 12,
   },
   primaryCardGradient: {
     position: 'absolute',
@@ -628,7 +673,7 @@ const styles = StyleSheet.create({
   },
   primaryBadgeText: {
     fontSize: 14,
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: '900',
   },
   primaryCardContent: {
@@ -662,13 +707,13 @@ const styles = StyleSheet.create({
   primaryTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 8,
     letterSpacing: 0.3,
   },
   primaryDescription: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -691,7 +736,7 @@ const styles = StyleSheet.create({
   },
   primaryActionArrowText: {
     fontSize: 12,
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: '900',
   },
 
@@ -707,9 +752,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   secondaryManagementCard: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     padding: 20,
     position: 'relative',
@@ -717,6 +762,11 @@ const styles = StyleSheet.create({
     height: 140,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   secondaryCardGradient: {
     position: 'absolute',
@@ -744,14 +794,14 @@ const styles = StyleSheet.create({
   secondaryTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 6,
     textAlign: 'center',
     letterSpacing: 0.2,
   },
   secondaryDescription: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     textAlign: 'center',
     lineHeight: 16,
   },
@@ -767,14 +817,19 @@ const styles = StyleSheet.create({
 
   // System Status Footer
   systemStatus: {
-    backgroundColor: 'rgba(17, 24, 39, 0.8)',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.8)',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     padding: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   quickMetrics: {
     flexDirection: 'row',
@@ -787,13 +842,13 @@ const styles = StyleSheet.create({
   metricValue: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     fontFamily: 'monospace',
     marginBottom: 2,
   },
   metricLabel: {
     fontSize: 10,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -801,7 +856,7 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1,
     height: 32,
-    backgroundColor: '#374151',
+    backgroundColor: colors.cardBorder,
   },
 
   sectionHeader: {
@@ -813,7 +868,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
   },
   viewAllButton: {
@@ -821,14 +876,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#3b82f6',
+    borderColor: colors.accent,
     borderRadius: 12,
   },
   viewAllText: {
     fontSize: 12,
-    color: '#3b82f6',
+    color: colors.accent,
     fontWeight: '600',
     marginRight: 4,
   },
@@ -840,15 +895,20 @@ const styles = StyleSheet.create({
   },
   managementCard: {
     width: (screenWidth - 60) / 2,
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     padding: 24,
     marginBottom: 16,
     position: 'relative',
     overflow: 'hidden',
     height: 160,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   managementCardGradient: {
     position: 'absolute',
@@ -873,14 +933,14 @@ const styles = StyleSheet.create({
   managementTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 6,
     letterSpacing: 0.5,
     numberOfLines: 1,
   },
   managementDesc: {
     fontSize: 13,
-    color: '#6b7280',
+    color: colors.secondaryText,
     lineHeight: 18,
     marginBottom: 12,
     numberOfLines: 2,
@@ -897,7 +957,7 @@ const styles = StyleSheet.create({
     minHeight: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#ef4444',
+    shadowColor: colors.error,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.6,
     shadowRadius: 8,
@@ -940,12 +1000,17 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   analyticsCard: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     padding: 24,
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   analyticsHeader: {
     flexDirection: 'row',
@@ -956,15 +1021,15 @@ const styles = StyleSheet.create({
   analyticsTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
   },
   analyticsIcon: {
     width: 36,
     height: 36,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#3b82f6',
+    borderColor: colors.accent,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -982,11 +1047,16 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   activityFeed: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   activityHeader: {
     flexDirection: 'row',
@@ -994,12 +1064,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#1f2937',
+    borderBottomColor: colors.cardBorder,
   },
   activityTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
   },
   activityItem: {
@@ -1007,7 +1077,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(31, 41, 55, 0.5)',
+    borderBottomColor: colors.cardBorder,
   },
   activityItemLast: {
     borderBottomWidth: 0,
@@ -1025,21 +1095,21 @@ const styles = StyleSheet.create({
   },
   activityText: {
     fontSize: 14,
-    color: '#d1d5db',
+    color: colors.primaryText,
     lineHeight: 20,
     marginBottom: 4,
   },
   activityUser: {
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
   activityAction: {
     fontWeight: '600',
-    color: '#3b82f6',
+    color: colors.accent,
   },
   activityTime: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   activityValue: {
@@ -1048,7 +1118,7 @@ const styles = StyleSheet.create({
   activityAmount: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#f59e0b',
+    color: colors.warning,
     marginBottom: 2,
   },
   activityChange: {
@@ -1062,12 +1132,17 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   footerCard: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   footerLogo: {
     flexDirection: 'row',
@@ -1077,7 +1152,7 @@ const styles = StyleSheet.create({
   footerLogoIcon: {
     width: 40,
     height: 40,
-    backgroundColor: '#3b82f6',
+    backgroundColor: colors.accent,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1086,12 +1161,12 @@ const styles = StyleSheet.create({
   footerLogoText: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     fontFamily: 'monospace',
   },
   footerText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: colors.secondaryText,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 16,
@@ -1101,7 +1176,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(31, 41, 55, 0.5)',
+    borderTopColor: colors.cardBorder,
     paddingTop: 16,
   },
   footerItem: {
@@ -1110,12 +1185,12 @@ const styles = StyleSheet.create({
   footerItemValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   footerItemLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   
@@ -1137,7 +1212,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
     
     // Entrance animations
     masterOpacity.value = withTiming(1, { duration: 1000 });
@@ -1284,7 +1359,7 @@ export default function AdminDashboard() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <FloatingBackground />
       
       <SafeAreaView style={styles.container}>
@@ -1322,7 +1397,7 @@ export default function AdminDashboard() {
                 {/* User Profile Icon */}
                 <Pressable style={styles.profileButton}>
                   <View style={styles.profileAvatar}>
-                    <User color="#3b82f6" size={20} strokeWidth={2} />
+                    <User color={colors.accent} size={20} strokeWidth={2} />
                   </View>
                   <View style={styles.profileDot} />
                 </Pressable>

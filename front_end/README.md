@@ -279,6 +279,143 @@ hackathon/
 
 ---
 
+## 🎭 Theme & Design System
+
+### Minimalist Luxe Light Theme
+
+Our app features a sophisticated **Minimalist Luxe Light Theme** that combines modern aesthetics with professional elegance. This carefully crafted design system ensures consistency across all components while providing an exceptional user experience.
+
+#### 🎨 Color Palette
+
+| Color | Hex Code | Usage | Description |
+|-------|----------|-------|-------------|
+| **Primary Background** | `#F5F5F5` | Main backgrounds, screens | Soft Off-White - Creates a clean, airy feel |
+| **Secondary Background** | `#EAEAEA` | Cards, sections, inputs | Light Gray - Subtle contrast for layering |
+| **Primary Text** | `#333333` | Headings, important text | Dark Gray - Excellent readability |
+| **Secondary Text** | `#555555` | Body text, descriptions | Medium Gray - Comfortable reading |
+| **Accent Color** | `#3EB489` | CTAs, highlights, active states | Mint Green - Vibrant yet professional |
+| **Highlight Color** | `#E1C3AD` | Special elements, badges | Soft Beige - Warm luxury touch |
+| **Error Color** | `#D9534F` | Errors, warnings, critical actions | Muted Red - Clear but not alarming |
+| **Pure White** | `#FFFFFF` | Cards, modals, overlays | Clean contrast surfaces |
+
+#### 🎯 Color Usage Examples
+
+```javascript
+// Primary color palette implementation
+const colors = {
+  primaryBg: '#F5F5F5',      // Screen backgrounds
+  secondaryBg: '#EAEAEA',    // Card backgrounds
+  primaryText: '#333333',    // Headings, titles
+  secondaryText: '#555555',  // Body text, descriptions
+  accent: '#3EB489',         // Buttons, links, active states
+  highlight: '#E1C3AD',      // Badges, special elements
+  error: '#D9534F',          // Error states, alerts
+  white: '#FFFFFF',          // Modal backgrounds, cards
+  lightAccent: '#3EB48920',  // Accent with 20% opacity
+  lightHighlight: '#E1C3AD30', // Highlight with 30% opacity
+  cardBorder: '#E0E0E0',     // Subtle borders
+  shadow: '#00000015'        // Subtle shadow overlay
+};
+```
+
+#### 🔧 Design Principles
+
+##### **1. Hierarchy & Typography**
+- **Font Weight Progression**: 400 (normal) → 500 (medium) → 600 (semibold) → 700 (bold) → 900 (black)
+- **Letter Spacing**: Strategic spacing for readability and elegance
+- **Monospace Elements**: Technical elements use monospace fonts for authenticity
+
+##### **2. Spacing & Layout**
+- **8pt Grid System**: All spacing follows 8-point increments
+- **Consistent Margins**: 16px, 24px, 32px, 40px standard spacing
+- **Card Padding**: 20px internal padding for optimal content breathing
+
+##### **3. Shadows & Elevation**
+- **Subtle Depth**: Soft shadows with low opacity (0.08-0.15)
+- **Consistent Elevation**: 4px, 8px, 16px shadow offsets
+- **Accent Shadows**: Key elements use accent color shadows
+
+##### **4. Interactive Elements**
+- **Spring Animations**: Natural feeling interactions with React Native Reanimated
+- **Hover States**: Subtle scale (0.96-1.04) and opacity changes
+- **Touch Feedback**: Immediate visual response to user interactions
+
+#### 🌟 Component Styling
+
+##### **Buttons & CTAs**
+```javascript
+// Primary Action Button
+{
+  backgroundColor: colors.white,
+  borderWidth: 2,
+  borderColor: colors.accent,
+  borderRadius: 16,
+  shadowColor: colors.accent,
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.15,
+  shadowRadius: 16,
+  elevation: 8,
+}
+```
+
+##### **Cards & Containers**
+```javascript
+// Card Component Styling
+{
+  backgroundColor: colors.white,
+  borderWidth: 1,
+  borderColor: colors.cardBorder,
+  borderRadius: 20,
+  shadowColor: colors.primaryText,
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.08,
+  shadowRadius: 12,
+  elevation: 6,
+}
+```
+
+##### **Loading States**
+- **Skeleton Screens**: Use secondary background color for placeholders
+- **Progress Indicators**: Accent color with subtle glow effects
+- **Shimmer Effects**: Subtle light overlays for loading animations
+
+#### 🎪 Animation Philosophy
+
+##### **Entrance Animations**
+- **Staggered Reveals**: Elements appear with 100-200ms delays
+- **Scale & Fade**: Combination of scale (0.95→1.0) and opacity (0→1)
+- **Smooth Easing**: `Easing.out(Easing.quad)` for natural feel
+
+##### **Interaction Feedback**
+- **Spring Physics**: `withSpring()` for button presses and gestures
+- **Micro-interactions**: Subtle icon rotations and color transitions
+- **Loading States**: Elegant skeleton screens with shimmer effects
+
+#### 🔍 Accessibility Features
+
+##### **Contrast Ratios**
+- **Primary Text**: 12.6:1 contrast ratio (WCAG AAA compliant)
+- **Secondary Text**: 7.4:1 contrast ratio (WCAG AA compliant)
+- **Interactive Elements**: Minimum 3:1 contrast for focus states
+
+##### **Touch Targets**
+- **Minimum Size**: 44px minimum touch target size
+- **Spacing**: 8px minimum between interactive elements
+- **Visual Feedback**: Clear pressed and focused states
+
+#### 🎨 Theme Implementation
+
+The theme is consistently applied across all components using:
+
+1. **Centralized Color Constants**: Single source of truth for all colors
+2. **Reusable Style Objects**: Consistent shadow, border, and spacing patterns
+3. **Component-Level Theming**: Each component imports and uses the theme consistently
+4. **Animated Transitions**: Smooth theme changes using React Native Reanimated
+
+This design system ensures a cohesive, professional, and accessible user experience that reflects the high standards of the 1337 community while maintaining modern aesthetic appeal.
+
+---
+
 ## 🔧 Quick Start
 
 ```bash

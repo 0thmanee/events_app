@@ -46,6 +46,26 @@ import {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Ranking Card Component
 const RankingCard = ({ student, index, onViewProfile }) => {
   const cardOpacity = useSharedValue(0);
@@ -69,18 +89,18 @@ const RankingCard = ({ student, index, onViewProfile }) => {
   };
 
   const getRankIcon = (rank) => {
-    if (rank === 1) return <Crown color="#fbbf24" size={20} strokeWidth={2} />;
-    if (rank === 2) return <Medal color="#d1d5db" size={20} strokeWidth={2} />;
-    if (rank === 3) return <Medal color="#f87171" size={20} strokeWidth={2} />;
+    if (rank === 1) return <Crown color={colors.warning} size={20} strokeWidth={2} />;
+    if (rank === 2) return <Medal color={colors.muted} size={20} strokeWidth={2} />;
+    if (rank === 3) return <Medal color={colors.error} size={20} strokeWidth={2} />;
     return <Text style={styles.rankNumber}>#{rank}</Text>;
   };
 
   const getLevelColor = (level) => {
-    if (level >= 10) return '#8b5cf6';
-    if (level >= 7) return '#3b82f6';
-    if (level >= 5) return '#10b981';
-    if (level >= 3) return '#f59e0b';
-    return '#6b7280';
+    if (level >= 10) return colors.highlight;
+    if (level >= 7) return colors.info;
+    if (level >= 5) return colors.success;
+    if (level >= 3) return colors.warning;
+    return colors.muted;
   };
 
   return (
@@ -105,11 +125,11 @@ const RankingCard = ({ student, index, onViewProfile }) => {
           
           <View style={styles.studentStats}>
             <View style={styles.statItem}>
-              <Calendar color="#6b7280" size={14} strokeWidth={2} />
+              <Calendar color={colors.secondaryText} size={14} strokeWidth={2} />
               <Text style={styles.statText}>{student.eventsAttended} events</Text>
             </View>
             <View style={styles.statItem}>
-              <Coins color="#6b7280" size={14} strokeWidth={2} />
+              <Coins color={colors.secondaryText} size={14} strokeWidth={2} />
               <Text style={styles.statText}>{student.totalCoins} coins</Text>
             </View>
           </View>
@@ -123,7 +143,7 @@ const RankingCard = ({ student, index, onViewProfile }) => {
         </View>
 
         <View style={styles.arrowContainer}>
-          <ChevronRight color="#6b7280" size={16} strokeWidth={2} />
+          <ChevronRight color={colors.secondaryText} size={16} strokeWidth={2} />
         </View>
       </Pressable>
     </Animated.View>
@@ -140,7 +160,7 @@ export default function ManageRanking() {
   const router = useRouter();
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
   }, []);
 
   const handleRefresh = async () => {
@@ -292,7 +312,7 @@ export default function ManageRanking() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <ProfessionalBackground />
       
       <SafeAreaView style={styles.safeArea}>
@@ -310,12 +330,12 @@ export default function ManageRanking() {
           <Animated.View entering={FadeInUp.delay(300)} style={styles.actionsContainer}>
             <View style={styles.actionButtons}>
               <Pressable style={styles.actionButton} onPress={handleExportData}>
-                <Download color="#3b82f6" size={16} strokeWidth={2} />
+                <Download color={colors.info} size={16} strokeWidth={2} />
                 <Text style={styles.actionButtonText}>Export</Text>
               </Pressable>
               <Pressable style={styles.actionButton} onPress={handleResetRankings}>
-                <RefreshCw color="#ef4444" size={16} strokeWidth={2} />
-                <Text style={[styles.actionButtonText, { color: '#ef4444' }]}>Reset</Text>
+                <RefreshCw color={colors.error} size={16} strokeWidth={2} />
+                <Text style={[styles.actionButtonText, { color: colors.error }]}>Reset</Text>
               </Pressable>
             </View>
           </Animated.View>
@@ -323,11 +343,11 @@ export default function ManageRanking() {
           {/* Search */}
           <Animated.View entering={FadeInUp.delay(400)} style={styles.searchSection}>
             <View style={styles.searchBar}>
-              <Search color="#6b7280" size={20} strokeWidth={2} />
+              <Search color={colors.secondaryText} size={20} strokeWidth={2} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search students..."
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.secondaryText}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
@@ -335,7 +355,7 @@ export default function ManageRanking() {
                 style={styles.filterButton}
                 onPress={() => setShowFilters(!showFilters)}
               >
-                <Filter color="#6b7280" size={18} strokeWidth={2} />
+                <Filter color={colors.secondaryText} size={18} strokeWidth={2} />
               </Pressable>
             </View>
 
@@ -386,7 +406,7 @@ export default function ManageRanking() {
 
             {filteredStudents.length === 0 && (
               <View style={styles.emptyState}>
-                <Trophy color="#6b7280" size={48} strokeWidth={1.5} />
+                <Trophy color={colors.secondaryText} size={48} strokeWidth={1.5} />
                 <Text style={styles.emptyStateTitle}>No Students Found</Text>
                 <Text style={styles.emptyStateText}>
                   Try adjusting your search criteria
@@ -405,7 +425,7 @@ export default function ManageRanking() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -424,13 +444,18 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.4)',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
     minHeight: 85,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   statIcon: {
     width: 32,
@@ -444,13 +469,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 2,
     fontFamily: 'monospace',
   },
   statLabel: {
     fontSize: 10,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -467,17 +492,22 @@ const styles = StyleSheet.create({
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.4)',
+    borderColor: colors.cardBorder,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
     gap: 8,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   actionButtonText: {
     fontSize: 12,
-    color: '#3b82f6',
+    color: colors.info,
     fontWeight: '600',
   },
 
@@ -489,18 +519,23 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.4)',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 12,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.primaryText,
     fontWeight: '500',
   },
   filterButton: {
@@ -512,24 +547,24 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   filterChip: {
-    backgroundColor: 'rgba(31, 41, 55, 0.6)',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: colors.cardBorder,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   filterChipActive: {
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    borderColor: '#3b82f6',
+    backgroundColor: colors.lightAccent,
+    borderColor: colors.accent,
   },
   filterChipText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
   },
   filterChipTextActive: {
-    color: '#3b82f6',
+    color: colors.accent,
   },
 
   // Rankings Section
@@ -543,7 +578,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
 
   // Ranking Cards
@@ -551,9 +586,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.4)',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   rankingCardPressable: {
     flexDirection: 'row',
@@ -570,7 +610,7 @@ const styles = StyleSheet.create({
   rankNumber: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontFamily: 'monospace',
   },
   studentInfo: {
@@ -583,11 +623,11 @@ const styles = StyleSheet.create({
   studentName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
   studentLogin: {
     fontSize: 13,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 8,
   },
@@ -602,7 +642,7 @@ const styles = StyleSheet.create({
   },
   statText: {
     fontSize: 12,
-    color: '#d1d5db',
+    color: colors.muted,
     fontWeight: '500',
   },
   scoreContainer: {
@@ -612,12 +652,12 @@ const styles = StyleSheet.create({
   scoreValue: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#3b82f6',
+    color: colors.info,
     fontFamily: 'monospace',
   },
   scoreLabel: {
     fontSize: 10,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '600',
   },
 
@@ -636,13 +676,13 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyStateText: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     textAlign: 'center',
   },
 

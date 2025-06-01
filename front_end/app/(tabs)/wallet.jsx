@@ -60,6 +60,27 @@ import {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af',          // Muted text
+  gold: '#f59e0b'            // Gold for coins
+};
+
 // Animated Coin Component
 const AnimatedCoin = ({ size = 24, delay = 0 }) => {
   const rotation = useSharedValue(0);
@@ -94,7 +115,7 @@ const AnimatedCoin = ({ size = 24, delay = 0 }) => {
 
   return (
     <Animated.View style={animatedStyle}>
-      <Coins color="#f59e0b" size={size} strokeWidth={2} />
+      <Coins color={colors.gold} size={size} strokeWidth={2} />
     </Animated.View>
   );
 };
@@ -104,18 +125,18 @@ const StudentHeader = () => {
   const router = useRouter();
 
   return (
-    <View style={styles.studentHeader}>
+    <View style={[styles.studentHeader, { backgroundColor: colors.white }]}>
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerGreeting}>Your</Text>
-          <Text style={styles.headerTitle}>Wallet</Text>
+          <Text style={[styles.headerGreeting, { color: colors.secondaryText }]}>Your</Text>
+          <Text style={[styles.headerTitle, { color: colors.primaryText }]}>Wallet</Text>
         </View>
         <View style={styles.headerRight}>
-          <Pressable style={styles.headerButton} onPress={() => router.push('/notifications')}>
-            <Bell color="#9ca3af" size={20} strokeWidth={1.5} />
+          <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => router.push('/notifications')}>
+            <Bell color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
-          <Pressable style={styles.headerButton} onPress={() => router.push('/settings')}>
-            <Settings color="#9ca3af" size={20} strokeWidth={1.5} />
+          <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => router.push('/settings')}>
+            <Settings color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>
         </View>
       </View>
@@ -147,7 +168,7 @@ const BalanceCard = ({ balance, weeklyEarnings, onPress }) => {
         
         <View style={styles.balanceHeader}>
           <View style={styles.balanceIconContainer}>
-            <View style={[styles.balanceIconBackdrop, { backgroundColor: '#f59e0b' + '20' }]} />
+            <View style={[styles.balanceIconBackdrop, { backgroundColor: colors.gold + '20' }]} />
             <AnimatedCoin size={28} />
           </View>
         </View>
@@ -160,7 +181,7 @@ const BalanceCard = ({ balance, weeklyEarnings, onPress }) => {
         <View style={styles.balanceStats}>
           <View style={styles.balanceStatContainer}>
             <View style={styles.trendingIconContainer}>
-              <TrendingUp color="#10b981" size={16} strokeWidth={2} />
+              <TrendingUp color={colors.success} size={16} strokeWidth={2} />
             </View>
             <Text style={styles.balanceStatText}>+{weeklyEarnings} this week</Text>
           </View>
@@ -200,12 +221,12 @@ const QuickActionItem = ({ icon: Icon, title, onPress }) => {
   return (
     <Pressable style={styles.quickActionItem} onPress={handlePress}>
       <View style={styles.quickActionIcon}>
-        <Icon color="#ffffff" size={20} strokeWidth={1.5} />
+        <Icon color={colors.white} size={20} strokeWidth={1.5} />
       </View>
       <View style={styles.quickActionContent}>
         <Text style={styles.quickActionTitle}>{title}</Text>
       </View>
-      <ChevronRight color="#6b7280" size={16} strokeWidth={1.5} />
+      <ChevronRight color={colors.muted} size={16} strokeWidth={1.5} />
     </Pressable>
   );
 };
@@ -238,20 +259,20 @@ const TransactionItem = ({ transaction, index }) => {
 
   const getTransactionColor = (type) => {
     switch (type) {
-      case 'earned': return '#10b981';
-      case 'spent': return '#ef4444';
-      case 'bonus': return '#f59e0b';
-      case 'reward': return '#8b5cf6';
-      default: return '#6b7280';
+      case 'earned': return colors.success;
+      case 'spent': return colors.error;
+      case 'bonus': return colors.gold;
+      case 'reward': return colors.info;
+      default: return colors.muted;
     }
   };
 
   const getTransactionStatus = (status) => {
     switch (status) {
-      case 'completed': return { color: '#10b981', text: 'Completed' };
-      case 'pending': return { color: '#f59e0b', text: 'Pending' };
-      case 'failed': return { color: '#ef4444', text: 'Failed' };
-      default: return { color: '#6b7280', text: 'Unknown' };
+      case 'completed': return { color: colors.success, text: 'Completed' };
+      case 'pending': return { color: colors.warning, text: 'Pending' };
+      case 'failed': return { color: colors.error, text: 'Failed' };
+      default: return { color: colors.muted, text: 'Unknown' };
     }
   };
 
@@ -333,10 +354,10 @@ const EarningOpportunity = ({ opportunity, index, onPress }) => {
 
         <View style={styles.opportunityFooter}>
           <View style={styles.opportunityMeta}>
-            <Clock color="#9ca3af" size={14} strokeWidth={1.5} />
+            <Clock color={colors.muted} size={14} strokeWidth={1.5} />
             <Text style={styles.opportunityMetaText}>{opportunity.timeEstimate}</Text>
           </View>
-          <ChevronRight color="#9ca3af" size={16} strokeWidth={1.5} />
+          <ChevronRight color={colors.muted} size={16} strokeWidth={1.5} />
         </View>
       </Pressable>
     </Animated.View>
@@ -354,7 +375,7 @@ export default function StudentWallet() {
   const router = useRouter();
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
     loadWalletData();
   }, []);
 
@@ -382,7 +403,7 @@ export default function StudentWallet() {
   if (loading && !walletData) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <DataLoadingOverlay 
           visible={true}
           message="Loading Wallet"
@@ -397,7 +418,7 @@ export default function StudentWallet() {
   if (error && !walletData) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <IconLoadingState 
           icon={WalletIcon}
           message="Unable to Load Wallet"
@@ -415,25 +436,25 @@ export default function StudentWallet() {
       icon: Store,
       title: 'Visit Store',
       subtitle: 'Browse items & rewards',
-      color: '#3b82f6',
+      color: colors.info,
     },
     {
       icon: History,
       title: 'Transaction History',
       subtitle: 'View all transactions',
-      color: '#8b5cf6',
+      color: colors.highlight,
     },
     {
       icon: Gift,
       title: 'Redeem Code',
       subtitle: 'Enter promotional code',
-      color: '#10b981',
+      color: colors.success,
     },
     {
       icon: Target,
       title: 'Earning Goals',
       subtitle: 'Set monthly targets',
-      color: '#f59e0b',
+      color: colors.warning,
     },
   ];
 
@@ -469,7 +490,7 @@ export default function StudentWallet() {
       credits: 75,
       timeEstimate: '3-4 hours',
       icon: Code,
-      color: '#3b82f6',
+      color: colors.info,
       difficulty: 'Intermediate'
     },
     {
@@ -479,7 +500,7 @@ export default function StudentWallet() {
       credits: 40,
       timeEstimate: '2 hours',
       icon: Coffee,
-      color: '#10b981',
+      color: colors.success,
       difficulty: 'Easy'
     },
     {
@@ -489,7 +510,7 @@ export default function StudentWallet() {
       credits: 25,
       timeEstimate: '1 hour',
       icon: Heart,
-      color: '#ec4899',
+      color: colors.error,
       difficulty: 'Easy'
     },
   ];
@@ -518,8 +539,8 @@ export default function StudentWallet() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+    <View style={[styles.container, { backgroundColor: colors.primaryBg }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <ProfessionalBackground />
       
       <SafeAreaView style={styles.safeArea}>
@@ -531,7 +552,8 @@ export default function StudentWallet() {
             <RefreshControl 
               refreshing={refreshing} 
               onRefresh={handleRefresh}
-              tintColor="#9ca3af"
+              tintColor={colors.accent}
+              colors={[colors.accent]}
             />
           }
           contentContainerStyle={styles.scrollContent}
@@ -566,7 +588,7 @@ export default function StudentWallet() {
               <Text style={styles.sectionTitle}>Recent Activity</Text>
               <Pressable style={styles.viewAllButton}>
                 <Text style={styles.viewAllText}>View All</Text>
-                <ChevronRight color="#9ca3af" size={14} strokeWidth={1.5} />
+                <ChevronRight color={colors.muted} size={14} strokeWidth={1.5} />
               </Pressable>
             </View>
 
@@ -610,7 +632,7 @@ export default function StudentWallet() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -622,7 +644,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    backgroundColor: colors.white,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -634,14 +662,14 @@ const styles = StyleSheet.create({
   },
   headerGreeting: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 4,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -0.5,
   },
   headerRight: {
@@ -652,9 +680,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
-    borderWidth: 1,
-    borderColor: '#1a2332',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -680,14 +706,14 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   balanceCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 24,
     marginBottom: 32,
     borderWidth: 1,
-    borderColor: '#1a2332',
-    shadowColor: '#000',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.6,
+    shadowOpacity: 0.08,
     shadowRadius: 24,
     elevation: 16,
     overflow: 'hidden',
@@ -713,12 +739,12 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 16,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   balanceIconBackdrop: {
     position: 'absolute',
@@ -733,14 +759,14 @@ const styles = StyleSheet.create({
   balanceValue: {
     fontSize: 36,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -1,
     marginBottom: 4,
   },
   balanceCurrency: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#8892b0',
+    color: colors.secondaryText,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -764,15 +790,15 @@ const styles = StyleSheet.create({
   },
   balanceStatText: {
     fontSize: 14,
-    color: '#cbd5e1',
+    color: colors.primaryText,
     fontWeight: '600',
   },
   balanceStatusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: colors.accent,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -782,12 +808,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#10b981',
+    backgroundColor: colors.accent,
   },
   balanceStatusText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#10b981',
+    color: colors.success,
   },
 
   // Quick Actions Section
@@ -798,7 +824,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 20,
   },
   quickActionsGrid: {
@@ -807,17 +833,17 @@ const styles = StyleSheet.create({
   quickActionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 16,
     paddingHorizontal: 20,
     paddingVertical: 16,
-    shadowColor: '#000',
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     position: 'relative',
     overflow: 'hidden',
     gap: 16,
@@ -826,12 +852,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   quickActionContent: {
     flex: 1,
@@ -839,7 +865,7 @@ const styles = StyleSheet.create({
   quickActionTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
 
   // Transactions Section
@@ -861,7 +887,7 @@ const styles = StyleSheet.create({
   viewAllText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#9ca3af',
+    color: colors.muted,
   },
   transactionsContainer: {
     gap: 12,
@@ -869,13 +895,18 @@ const styles = StyleSheet.create({
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 6,
   },
   transactionGradient: {
     position: 'absolute',
@@ -888,13 +919,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   transactionIconBackdrop: {
     position: 'absolute',
@@ -915,7 +946,7 @@ const styles = StyleSheet.create({
   transactionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     flex: 1,
   },
   transactionAmount: {
@@ -930,7 +961,7 @@ const styles = StyleSheet.create({
   },
   transactionDate: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.muted,
     fontWeight: '500',
   },
   transactionStatus: {
@@ -952,7 +983,7 @@ const styles = StyleSheet.create({
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: colors.muted,
     fontWeight: '500',
     marginTop: 4,
   },
@@ -960,13 +991,13 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   opportunityCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#1a2332',
-    shadowColor: '#000',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
     overflow: 'hidden',
@@ -992,12 +1023,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   opportunityIconBackdrop: {
     position: 'absolute',
@@ -1007,13 +1038,13 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   opportunityBadge: {
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: colors.accent,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
-    shadowColor: '#10b981',
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
@@ -1021,19 +1052,19 @@ const styles = StyleSheet.create({
   opportunityBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#10b981',
+    color: colors.accent,
     letterSpacing: 0.5,
   },
   opportunityTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 6,
     lineHeight: 22,
   },
   opportunityDescription: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -1049,7 +1080,7 @@ const styles = StyleSheet.create({
   },
   opportunityMetaText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.muted,
     fontWeight: '500',
   },
 

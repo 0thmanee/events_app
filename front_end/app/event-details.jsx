@@ -65,6 +65,26 @@ import {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Status Badge Component
 const StatusBadge = ({ status }) => {
   const getStatusConfig = (status) => {
@@ -141,7 +161,7 @@ const StudentHeader = ({ onBack }) => {
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>
           <Pressable style={styles.backButton} onPress={onBack}>
-            <ArrowLeft color="#9ca3af" size={20} strokeWidth={1.5} />
+            <ArrowLeft color={colors.secondaryText} size={20} strokeWidth={1.5} />
           </Pressable>
           <View style={styles.headerTitleContainer}>
             <Text style={styles.headerGreeting}>Event</Text>
@@ -150,10 +170,10 @@ const StudentHeader = ({ onBack }) => {
         </View>
         <View style={styles.headerRight}>
           <Pressable style={styles.headerButton}>
-            <Share2 color="#9ca3af" size={20} strokeWidth={1.5} />
+            <Share2 color={colors.secondaryText} size={20} strokeWidth={1.5} />
           </Pressable>
           <Pressable style={styles.headerButton}>
-            <MoreHorizontal color="#9ca3af" size={20} strokeWidth={1.5} />
+            <MoreHorizontal color={colors.secondaryText} size={20} strokeWidth={1.5} />
           </Pressable>
         </View>
       </View>
@@ -394,7 +414,7 @@ const ActionButton = ({ icon: Icon, title, onPress, variant = 'primary', disable
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -406,7 +426,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    backgroundColor: colors.white,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -422,9 +448,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -433,14 +459,14 @@ const styles = StyleSheet.create({
   },
   headerGreeting: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 4,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -0.5,
   },
   headerRight: {
@@ -451,9 +477,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -479,13 +505,13 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   heroCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#1a2332',
-    shadowColor: '#000',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 20,
     elevation: 12,
     overflow: 'hidden',
@@ -511,14 +537,14 @@ const styles = StyleSheet.create({
   heroCategory: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: colors.accent,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   heroDate: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   heroStatusContainer: {
@@ -541,13 +567,13 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 12,
     lineHeight: 30,
   },
   heroDescription: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
     marginBottom: 24,
   },
@@ -566,31 +592,31 @@ const styles = StyleSheet.create({
   },
   heroDetailText: {
     fontSize: 13,
-    color: '#cbd5e1',
+    color: colors.primaryText,
     fontWeight: '500',
   },
   heroFooter: {
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: '#1a2332',
+    borderTopColor: colors.cardBorder,
   },
   heroProgress: {
     gap: 8,
   },
   heroProgressBar: {
     height: 6,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderRadius: 3,
     overflow: 'hidden',
   },
   heroProgressFill: {
     height: '100%',
-    backgroundColor: '#6366f1',
+    backgroundColor: colors.info,
     borderRadius: 3,
   },
   heroProgressText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   heroCredits: {
@@ -600,7 +626,7 @@ const styles = StyleSheet.create({
   },
   heroCreditsText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
 
@@ -612,13 +638,13 @@ const styles = StyleSheet.create({
 
   // Info Section Card
   infoSectionCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#1a2332',
-    shadowColor: '#000',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
     overflow: 'hidden',
@@ -635,14 +661,14 @@ const styles = StyleSheet.create({
   infoSectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 16,
   },
 
   // Requirements
   requirementsText: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
   },
 
@@ -656,16 +682,18 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   agendaTimeContainer: {
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.lightAccent,
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 4,
     minWidth: 80,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
   agendaTime: {
     fontSize: 11,
-    color: '#10b981',
+    color: colors.accent,
     fontWeight: '600',
   },
   agendaContent: {
@@ -673,7 +701,7 @@ const styles = StyleSheet.create({
   },
   agendaActivity: {
     fontSize: 14,
-    color: '#ffffff',
+    color: colors.primaryText,
     fontWeight: '500',
     lineHeight: 20,
   },
@@ -688,16 +716,16 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.lightAccent,
     borderWidth: 2,
-    borderColor: '#6366f1',
+    borderColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   speakerAvatarText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#6366f1',
+    color: colors.accent,
   },
   speakerInfo: {
     flex: 1,
@@ -705,18 +733,18 @@ const styles = StyleSheet.create({
   speakerName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   speakerTitle: {
     fontSize: 13,
-    color: '#10b981',
+    color: colors.success,
     fontWeight: '500',
     marginBottom: 8,
   },
   speakerBio: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     lineHeight: 20,
   },
 
@@ -727,27 +755,27 @@ const styles = StyleSheet.create({
   volunteerCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     gap: 12,
   },
   volunteerAvatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#6366f1',
+    borderColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   volunteerAvatarText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#6366f1',
+    color: colors.accent,
   },
   volunteerInfo: {
     flex: 1,
@@ -755,12 +783,12 @@ const styles = StyleSheet.create({
   volunteerName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 2,
   },
   volunteerRole: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   volunteerStatus: {
@@ -939,7 +967,7 @@ export default function EventDetails() {
   const [registering, setRegistering] = useState(false);
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
     if (id) {
       loadEventDetails();
     }
@@ -1049,7 +1077,7 @@ export default function EventDetails() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <DataLoadingOverlay 
           visible={true}
           message="Loading Event Details"
@@ -1064,7 +1092,7 @@ export default function EventDetails() {
   if (error || !event) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <IconLoadingState 
           icon={AlertCircle}
           message={error ? 'Failed to Load Event' : 'Event Not Found'}
@@ -1119,7 +1147,7 @@ export default function EventDetails() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <ProfessionalBackground />
       
       <SafeAreaView style={styles.safeArea}>

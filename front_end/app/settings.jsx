@@ -47,6 +47,26 @@ import {
 
 const { width: screenWidth } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Student Header Component
 const StudentHeader = ({ onBack }) => {
   return (
@@ -54,7 +74,7 @@ const StudentHeader = ({ onBack }) => {
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>
           <Pressable style={styles.backButton} onPress={onBack}>
-            <ArrowLeft color="#9ca3af" size={20} strokeWidth={1.5} />
+            <ArrowLeft color={colors.secondaryText} size={20} strokeWidth={1.5} />
           </Pressable>
           <View style={styles.headerTitleContainer}>
             <Text style={styles.headerGreeting}>App</Text>
@@ -79,7 +99,7 @@ const SettingsSection = ({ title, children, delay = 0 }) => {
 };
 
 // Settings Item Component
-const SettingsItem = ({ icon: Icon, title, subtitle, onPress, rightComponent, hasArrow = true, color = '#6b7280' }) => {
+const SettingsItem = ({ icon: Icon, title, subtitle, onPress, rightComponent, hasArrow = true, color = colors.secondaryText }) => {
   return (
     <Pressable style={styles.settingsItem} onPress={onPress}>
       <LinearGradient
@@ -99,14 +119,14 @@ const SettingsItem = ({ icon: Icon, title, subtitle, onPress, rightComponent, ha
 
       <View style={styles.itemRight}>
         {rightComponent}
-        {hasArrow && <ChevronRight color="#6b7280" size={16} strokeWidth={1.5} />}
+        {hasArrow && <ChevronRight color={colors.secondaryText} size={16} strokeWidth={1.5} />}
       </View>
     </Pressable>
   );
 };
 
 // Toggle Item Component
-const ToggleItem = ({ icon: Icon, title, subtitle, value, onValueChange, color = '#6b7280' }) => {
+const ToggleItem = ({ icon: Icon, title, subtitle, value, onValueChange, color = colors.secondaryText }) => {
   return (
     <View style={styles.settingsItem}>
       <LinearGradient
@@ -127,8 +147,9 @@ const ToggleItem = ({ icon: Icon, title, subtitle, value, onValueChange, color =
       <Switch
         value={value}
         onValueChange={onValueChange}
-        trackColor={{ false: '#1a2332', true: '#6366f1' }}
-        thumbColor={value ? '#ffffff' : '#9ca3af'}
+        trackColor={{ false: colors.secondaryBg, true: colors.lightAccent }}
+        thumbColor={value ? colors.accent : colors.muted}
+        ios_backgroundColor={colors.secondaryBg}
       />
     </View>
   );
@@ -199,7 +220,7 @@ export default function Settings() {
   const [qrNotifications, setQrNotifications] = useState(true);
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
     loadUserData();
     loadSettings();
   }, []);
@@ -426,7 +447,7 @@ export default function Settings() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <DataLoadingOverlay 
           visible={true}
           message="Loading Settings"
@@ -440,7 +461,7 @@ export default function Settings() {
   if (!userProfile) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <IconLoadingState 
           icon={SettingsIcon}
           message="Unable to Load Settings"
@@ -452,7 +473,7 @@ export default function Settings() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <ProfessionalBackground />
       
       <SafeAreaView style={styles.safeArea}>
@@ -659,7 +680,7 @@ export default function Settings() {
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -671,7 +692,13 @@ const styles = {
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    backgroundColor: colors.white,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -687,25 +714,30 @@ const styles = {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   headerTitleContainer: {
     marginLeft: 16,
   },
   headerGreeting: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 4,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -0.5,
   },
 
@@ -720,13 +752,13 @@ const styles = {
     marginBottom: 32,
   },
   profileCard: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#1a2332',
-    shadowColor: '#000',
+    borderColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 8,
     overflow: 'hidden',
@@ -747,17 +779,22 @@ const styles = {
     width: 56,
     height: 56,
     borderRadius: 16,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.lightAccent,
     borderWidth: 2,
-    borderColor: '#6366f1',
+    borderColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
+    shadowColor: colors.accent,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   profileAvatarText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#6366f1',
+    color: colors.accent,
   },
   profileInfo: {
     flex: 1,
@@ -765,30 +802,35 @@ const styles = {
   profileName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   profileEmail: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 2,
   },
   profileProgram: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.muted,
     fontWeight: '500',
   },
   editButton: {
-    backgroundColor: '#6366f1',
+    backgroundColor: colors.accent,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 10,
+    shadowColor: colors.accent,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   editButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.white,
   },
 
   // Settings Sections
@@ -799,15 +841,21 @@ const styles = {
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 16,
+    letterSpacing: 0.3,
   },
   sectionContent: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   // Settings Items
@@ -817,8 +865,9 @@ const styles = {
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
     position: 'relative',
+    backgroundColor: colors.white,
   },
   itemGradient: {
     position: 'absolute',
@@ -846,12 +895,12 @@ const styles = {
   itemTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 2,
   },
   itemSubtitle: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
   },
   itemRight: {

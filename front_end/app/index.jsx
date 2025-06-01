@@ -47,15 +47,31 @@ import Auth42Button from '../components/Auth42Button';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015'        // Subtle shadow
+};
+
 // Advanced geometric grid system
 const GridPattern = () => {
-  const opacity = useSharedValue(0.03);
+  const opacity = useSharedValue(0.02);
 
   useEffect(() => {
     opacity.value = withRepeat(
       withSequence(
-        withTiming(0.08, { duration: 4000 }),
-        withTiming(0.03, { duration: 4000 })
+        withTiming(0.05, { duration: 4000 }),
+        withTiming(0.02, { duration: 4000 })
       ),
       -1,
       true
@@ -82,7 +98,7 @@ const GridPattern = () => {
             top: Math.floor(i / 5) * (screenHeight / 4),
             width: 1,
             height: screenHeight,
-            backgroundColor: '#ffffff',
+            backgroundColor: colors.secondaryText,
           }}
         />
       ))}
@@ -95,7 +111,7 @@ const GridPattern = () => {
             left: 0,
             width: screenWidth,
             height: 1,
-            backgroundColor: '#ffffff',
+            backgroundColor: colors.secondaryText,
           }}
         />
       ))}
@@ -163,7 +179,7 @@ const FloatingElements = () => {
           width: 80,
           height: 80,
           borderWidth: 1,
-          borderColor: '#1f2937',
+          borderColor: colors.cardBorder,
           borderRadius: 2,
           backgroundColor: 'transparent',
         }}>
@@ -174,7 +190,7 @@ const FloatingElements = () => {
             width: 40,
             height: 40,
             borderWidth: 1,
-            borderColor: '#374151',
+            borderColor: colors.accent,
             borderRadius: 1,
           }} />
         </View>
@@ -195,7 +211,7 @@ const FloatingElements = () => {
             width: 60,
             height: 60,
             borderWidth: 1,
-            borderColor: '#1f2937',
+            borderColor: colors.highlight,
             transform: [{ rotate: '45deg' }],
             backgroundColor: 'transparent',
           }} />
@@ -359,7 +375,6 @@ export default function WelcomeScreen() {
   const loadingParticleOpacity = useSharedValue(0);
   const loadingScanlineY = useSharedValue(-50);
   const loadingCornerExpand = useSharedValue(0);
-  const loadingGlowIntensity = useSharedValue(0);
   const loadingProgress = useSharedValue(0);
   const loadingScreenOpacity = useSharedValue(1);
 
@@ -405,9 +420,8 @@ export default function WelcomeScreen() {
         loadingGridOpacity.value = withTiming(0.1, { duration: 800 });
         loadingLogoScale.value = withDelay(400, withTiming(1, { damping: 15, stiffness: 200 }));
         
-        // Phase 2: Corner expansion and glow
+        // Phase 2: Corner expansion
         loadingCornerExpand.value = withDelay(800, withTiming(1, { duration: 1000 }));
-        loadingGlowIntensity.value = withDelay(1000, withTiming(1, { duration: 800 }));
         
         // Phase 3: Text and progress
         loadingTextOpacity.value = withDelay(1200, withTiming(1, { duration: 600 }));
@@ -441,10 +455,10 @@ export default function WelcomeScreen() {
 
         // Phase 7: Completion (only if no existing auth found)
         setTimeout(() => {
-          loadingScreenOpacity.value = withTiming(0, { duration: 800 });
+          loadingScreenOpacity.value = withTiming(0, { duration: 600, easing: Easing.out(Easing.quad) });
           setTimeout(() => {
             runOnJS(setIsLoading)(false);
-          }, 800);
+          }, 600);
         }, 5000);
       };
 
@@ -568,10 +582,6 @@ export default function WelcomeScreen() {
     transform: [{ scale: loadingCornerExpand.value }],
   }));
 
-  const loadingGlowStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(loadingGlowIntensity.value, [0, 1], [0, 0.8]),
-  }));
-
   const loadingScreenStyle = useAnimatedStyle(() => ({
     opacity: loadingScreenOpacity.value,
   }));
@@ -649,8 +659,8 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000000' }}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+    <View style={{ flex: 1, backgroundColor: colors.primaryBg }}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
       {/* Loading Screen Overlay */}
       {isLoading && (
@@ -661,7 +671,7 @@ export default function WelcomeScreen() {
           right: 0, 
           bottom: 0, 
           zIndex: 1000,
-          backgroundColor: '#000000'
+          backgroundColor: colors.primaryBg
         }]}>
           
           {/* Loading Background Grid */}
@@ -681,7 +691,7 @@ export default function WelcomeScreen() {
                   top: 0,
                   width: 1,
                   height: '100%',
-                  backgroundColor: '#1f2937',
+                  backgroundColor: colors.cardBorder,
                 }}
               />
             ))}
@@ -695,7 +705,7 @@ export default function WelcomeScreen() {
                   left: 0,
                   width: '100%',
                   height: 1,
-                  backgroundColor: '#1f2937',
+                  backgroundColor: colors.cardBorder,
                 }}
               />
             ))}
@@ -710,13 +720,13 @@ export default function WelcomeScreen() {
                   position: 'absolute',
                   left: Math.random() * screenWidth,
                   top: Math.random() * screenHeight,
-                  width: 2,
-                  height: 2,
-                  backgroundColor: '#3b82f6',
-                  borderRadius: 1,
-                  shadowColor: '#3b82f6',
+                  width: 3,
+                  height: 3,
+                  backgroundColor: colors.accent,
+                  borderRadius: 1.5,
+                  shadowColor: colors.accent,
                   shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.8,
+                  shadowOpacity: 0.6,
                   shadowRadius: 4,
                 }}
               />
@@ -731,11 +741,11 @@ export default function WelcomeScreen() {
               left: 0,
               width: '100%',
               height: 2,
-              backgroundColor: '#3b82f6',
-              shadowColor: '#3b82f6',
+              backgroundColor: colors.accent,
+              shadowColor: colors.accent,
               shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 1,
-              shadowRadius: 10,
+              shadowOpacity: 0.8,
+              shadowRadius: 8,
             }
           ]} />
 
@@ -755,7 +765,7 @@ export default function WelcomeScreen() {
                 height: 40,
                 borderTopWidth: 3,
                 borderLeftWidth: 3,
-                borderColor: '#3b82f6',
+                borderColor: colors.accent,
               }} />
             </Animated.View>
             
@@ -765,7 +775,7 @@ export default function WelcomeScreen() {
                 height: 40,
                 borderTopWidth: 3,
                 borderRightWidth: 3,
-                borderColor: '#3b82f6',
+                borderColor: colors.accent,
               }} />
             </Animated.View>
             
@@ -775,7 +785,7 @@ export default function WelcomeScreen() {
                 height: 40,
                 borderBottomWidth: 3,
                 borderLeftWidth: 3,
-                borderColor: '#3b82f6',
+                borderColor: colors.accent,
               }} />
             </Animated.View>
             
@@ -785,7 +795,7 @@ export default function WelcomeScreen() {
                 height: 40,
                 borderBottomWidth: 3,
                 borderRightWidth: 3,
-                borderColor: '#3b82f6',
+                borderColor: colors.accent,
               }} />
             </Animated.View>
 
@@ -801,31 +811,20 @@ export default function WelcomeScreen() {
                 <View style={{
                   width: 160,
                   height: 160,
-                  backgroundColor: '#0a0a0a',
+                  backgroundColor: colors.white,
                   borderWidth: 2,
-                  borderColor: '#1f2937',
+                  borderColor: colors.cardBorder,
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'relative',
+                  shadowColor: colors.accent,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 16,
+                  elevation: 8,
                 }}>
                   
-                  {/* Loading Glow effect */}
-                  <Animated.View style={[
-                    loadingGlowStyle,
-                    {
-                      position: 'absolute',
-                      width: '100%',
-                      height: '100%',
-                      borderWidth: 2,
-                      borderColor: '#3b82f6',
-                      shadowColor: '#3b82f6',
-                      shadowOffset: { width: 0, height: 0 },
-                      shadowOpacity: 1,
-                      shadowRadius: 20,
-                    }
-                  ]} />
-                  
-                  {/* Loading Corner accents */}
+                  {/* Simplified Corner accents - no additional shadows */}
                   <View style={{
                     position: 'absolute',
                     top: -2,
@@ -834,7 +833,7 @@ export default function WelcomeScreen() {
                     height: 30,
                     borderTopWidth: 4,
                     borderLeftWidth: 4,
-                    borderColor: '#3b82f6',
+                    borderColor: colors.accent,
                   }} />
                   <View style={{
                     position: 'absolute',
@@ -844,19 +843,16 @@ export default function WelcomeScreen() {
                     height: 30,
                     borderBottomWidth: 4,
                     borderRightWidth: 4,
-                    borderColor: '#3b82f6',
+                    borderColor: colors.accent,
                   }} />
                   
                   {/* Loading Logo text */}
                   <Text style={{
                     fontSize: 48,
                     fontWeight: '900',
-                    color: '#ffffff',
+                    color: colors.primaryText,
                     letterSpacing: 6,
                     fontFamily: 'monospace',
-                    textShadowColor: '#3b82f6',
-                    textShadowOffset: { width: 0, height: 0 },
-                    textShadowRadius: 10,
                   }}>1337</Text>
                   
                   {/* Loading Status indicators */}
@@ -866,12 +862,8 @@ export default function WelcomeScreen() {
                     right: 12,
                     width: 12,
                     height: 12,
-                    backgroundColor: '#10b981',
+                    backgroundColor: colors.accent,
                     borderRadius: 6,
-                    shadowColor: '#10b981',
-                    shadowOffset: { width: 0, height: 0 },
-                    shadowOpacity: 1,
-                    shadowRadius: 6,
                   }} />
                 </View>
               </Animated.View>
@@ -883,7 +875,7 @@ export default function WelcomeScreen() {
                 <Text style={{
                   fontSize: 24,
                   fontWeight: '900',
-                  color: '#ffffff',
+                  color: colors.primaryText,
                   letterSpacing: 2,
                   marginBottom: 8,
                   fontFamily: 'monospace',
@@ -893,7 +885,7 @@ export default function WelcomeScreen() {
                 
                 <Text style={{
                   fontSize: 12,
-                  color: '#6b7280',
+                  color: colors.secondaryText,
                   letterSpacing: 3,
                   textTransform: 'uppercase',
                   marginBottom: 40,
@@ -905,20 +897,22 @@ export default function WelcomeScreen() {
                 {/* Loading Progress */}
                 <View style={{
                   width: '100%',
-                  backgroundColor: '#1f2937',
+                  backgroundColor: colors.secondaryBg,
                   height: 3,
                   marginBottom: 20,
                   overflow: 'hidden',
+                  borderRadius: 1.5,
                 }}>
                   <Animated.View style={[
                     loadingProgressStyle,
                     {
                       height: '100%',
-                      backgroundColor: '#3b82f6',
-                      shadowColor: '#3b82f6',
+                      backgroundColor: colors.accent,
+                      shadowColor: colors.accent,
                       shadowOffset: { width: 0, height: 0 },
-                      shadowOpacity: 1,
+                      shadowOpacity: 0.6,
                       shadowRadius: 6,
+                      borderRadius: 1.5,
                     }
                   ]} />
                 </View>
@@ -926,7 +920,7 @@ export default function WelcomeScreen() {
                 {/* Loading Text */}
                 <Text style={{
                   fontSize: 14,
-                  color: '#3b82f6',
+                  color: colors.accent,
                   letterSpacing: 2,
                   textAlign: 'center',
                   marginBottom: 12,
@@ -939,7 +933,7 @@ export default function WelcomeScreen() {
                 {/* Loading Progress Percentage */}
                 <Text style={{
                   fontSize: 12,
-                  color: '#6b7280',
+                  color: colors.secondaryText,
                   letterSpacing: 1,
                   fontWeight: '600',
                 }}>
@@ -959,13 +953,13 @@ export default function WelcomeScreen() {
                     <View style={{
                       width: 8,
                       height: 8,
-                      backgroundColor: '#10b981',
+                      backgroundColor: colors.accent,
                       marginRight: 8,
                       borderRadius: 1,
                     }} />
                     <Text style={{
                       fontSize: 12,
-                      color: '#6b7280',
+                      color: colors.secondaryText,
                       letterSpacing: 1,
                       fontWeight: '600',
                     }}>
@@ -975,9 +969,10 @@ export default function WelcomeScreen() {
 
                   <Text style={{
                     fontSize: 11,
-                    color: '#4b5563',
+                    color: colors.secondaryText,
                     letterSpacing: 0.5,
                     textAlign: 'center',
+                    opacity: 0.8,
                   }}>
                     © 2025 WeDesign Club • All Rights Reserved
                   </Text>
@@ -1012,14 +1007,19 @@ export default function WelcomeScreen() {
                 <View style={{
                   width: 120,
                   height: 120,
-                  backgroundColor: '#0a0a0a',
+                  backgroundColor: colors.white,
                   borderWidth: 1,
-                  borderColor: '#1f2937',
+                  borderColor: colors.cardBorder,
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'relative',
+                  shadowColor: colors.accent,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 16,
+                  elevation: 8,
                 }}>
-                  {/* Corner details */}
+                  {/* Enhanced Corner details */}
                   <View style={{
                     position: 'absolute',
                     top: -1,
@@ -1028,7 +1028,7 @@ export default function WelcomeScreen() {
                     height: 20,
                     borderTopWidth: 2,
                     borderLeftWidth: 2,
-                    borderColor: '#3b82f6',
+                    borderColor: colors.accent,
                   }} />
                   <View style={{
                     position: 'absolute',
@@ -1038,14 +1038,14 @@ export default function WelcomeScreen() {
                     height: 20,
                     borderBottomWidth: 2,
                     borderRightWidth: 2,
-                    borderColor: '#3b82f6',
+                    borderColor: colors.accent,
                   }} />
                   
                   {/* Logo */}
                   <Text style={{
                     fontSize: 32,
                     fontWeight: '900',
-                    color: '#ffffff',
+                    color: colors.primaryText,
                     letterSpacing: 4,
                     fontFamily: 'monospace',
                   }}>1337</Text>
@@ -1057,7 +1057,7 @@ export default function WelcomeScreen() {
                     right: 8,
                     width: 8,
                     height: 8,
-                    backgroundColor: '#10b981',
+                    backgroundColor: colors.accent,
                     borderRadius: 4,
                   }} />
                 </View>
@@ -1068,7 +1068,7 @@ export default function WelcomeScreen() {
                 <Text style={{
                   fontSize: 48,
                   fontWeight: '900',
-                  color: '#ffffff',
+                  color: colors.primaryText,
                   textAlign: 'center',
                   letterSpacing: -1,
                   marginBottom: 8,
@@ -1080,7 +1080,7 @@ export default function WelcomeScreen() {
                 <View style={{
                   width: 60,
                   height: 1,
-                  backgroundColor: '#3b82f6',
+                  backgroundColor: colors.accent,
                   marginBottom: 16,
                 }} />
               </Animated.View>
@@ -1088,7 +1088,7 @@ export default function WelcomeScreen() {
               <Animated.View style={[subtitleStyle, { alignItems: 'center' }]}>
                 <Text style={{
                   fontSize: 14,
-                  color: '#6b7280',
+                  color: colors.secondaryText,
                   textAlign: 'center',
                   letterSpacing: 2,
                   textTransform: 'uppercase',
@@ -1100,7 +1100,7 @@ export default function WelcomeScreen() {
                 
                 <Text style={{
                   fontSize: 18,
-                  color: '#9ca3af',
+                  color: colors.secondaryText,
                   textAlign: 'center',
                   lineHeight: 28,
                   maxWidth: 320,
@@ -1126,7 +1126,7 @@ export default function WelcomeScreen() {
                marginTop: 60,
                paddingTop: 32,
                borderTopWidth: 1,
-               borderTopColor: '#1f2937',
+               borderTopColor: colors.cardBorder,
                alignItems: 'center',
              }}>
                <View style={{
@@ -1137,13 +1137,13 @@ export default function WelcomeScreen() {
                  <View style={{
                    width: 12,
                    height: 12,
-                   backgroundColor: '#10b981',
+                   backgroundColor: colors.accent,
                    marginRight: 8,
                    borderRadius: 1,
                  }} />
                  <Text style={{
                    fontSize: 14,
-                   color: '#6b7280',
+                   color: colors.secondaryText,
                    fontWeight: '600',
                    letterSpacing: 1,
                    textTransform: 'uppercase',
@@ -1154,7 +1154,7 @@ export default function WelcomeScreen() {
                
                <Text style={{
                  fontSize: 12,
-                 color: '#4b5563',
+                 color: colors.secondaryText,
                  textAlign: 'center',
                  letterSpacing: 0.5,
                  lineHeight: 18,
@@ -1175,7 +1175,7 @@ export default function WelcomeScreen() {
 const modalStyles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(51, 51, 51, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
@@ -1193,13 +1193,14 @@ const modalStyles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     elevation: 20,
-    shadowColor: '#000',
+    shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.15,
     shadowRadius: 20,
   },
   modalGradient: {
     padding: 24,
+    backgroundColor: colors.white,
   },
   closeButton: {
     position: 'absolute',
@@ -1208,7 +1209,7 @@ const modalStyles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(31, 41, 55, 0.8)',
+    backgroundColor: colors.secondaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
@@ -1223,34 +1224,34 @@ const modalStyles = StyleSheet.create({
   logoSquare: {
     width: 60,
     height: 60,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: colors.white,
     borderWidth: 2,
-    borderColor: '#3b82f6',
+    borderColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoText: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.accent,
     fontFamily: 'monospace',
   },
   title: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     textAlign: 'center',
     marginBottom: 4,
   },
   note: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     textAlign: 'center',
     fontStyle: 'italic',
   },
@@ -1258,9 +1259,9 @@ const modalStyles = StyleSheet.create({
     gap: 16,
   },
   roleCard: {
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.4)',
+    borderColor: colors.cardBorder,
     borderRadius: 16,
     padding: 20,
     flexDirection: 'row',
@@ -1290,18 +1291,18 @@ const modalStyles = StyleSheet.create({
   roleTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   roleSubtitle: {
     fontSize: 13,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
     marginBottom: 6,
   },
   roleDescription: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     lineHeight: 16,
   },
   roleArrow: {
