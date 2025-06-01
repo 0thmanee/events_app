@@ -48,10 +48,14 @@ import {
   Target,
   Sparkles,
   Trophy,
-  MoreHorizontal
+  MoreHorizontal,
+  QrCode,
+  CalendarPlus
 } from 'lucide-react-native';
 import AdminHeader from '../components/AdminHeader';
 import ApiService from '../services/ApiService';
+import CalendarService from '../services/CalendarService';
+import QRCodeService from '../services/QRCodeService';
 import { 
   ProfessionalBackground, 
   IconLoadingState,
@@ -343,7 +347,7 @@ const VolunteerCard = ({ volunteer, index }) => {
 };
 
 // Action Button Component
-const ActionButton = ({ icon: Icon, title, onPress, variant = 'primary', disabled = false }) => {
+const ActionButton = ({ icon: Icon, title, onPress, variant = 'primary', disabled = false, style }) => {
   const getButtonStyle = () => {
     if (disabled || variant === 'disabled') {
       return styles.actionButtonDisabled;
@@ -377,7 +381,7 @@ const ActionButton = ({ icon: Icon, title, onPress, variant = 'primary', disable
 
   return (
     <Pressable 
-      style={[styles.actionButton, getButtonStyle()]} 
+      style={[styles.actionButton, getButtonStyle(), style]} 
       onPress={onPress}
       disabled={disabled || variant === 'disabled'}
     >
@@ -776,6 +780,13 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 32,
   },
+  quickActionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  quickActionButton: {
+    flex: 1,
+  },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -815,10 +826,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#6b7280',
-  },
-  secondaryActions: {
-    flexDirection: 'row',
-    gap: 12,
   },
 
   bottomSpacer: {
@@ -1001,6 +1008,43 @@ export default function EventDetails() {
     }
   };
 
+  const handleQRCheckIn = () => {
+    router.push(`/qr-check-in?eventId=${event.id}&mode=generate`);
+  };
+
+  const handleAddToCalendar = async () => {
+    try {
+      // Check if calendar service is available first
+      const isAvailable = await CalendarService.isAvailable();
+      if (!isAvailable) {
+        Alert.alert(
+          'Calendar Permission Required',
+          'To add events to your calendar, please grant calendar permissions.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Grant Permission', onPress: async () => {
+              const granted = await CalendarService.requestPermissions();
+              if (granted) {
+                // Retry adding to calendar
+                handleAddToCalendar();
+              }
+            }}
+          ]
+        );
+        return;
+      }
+
+      const success = await CalendarService.addEventToCalendar(event);
+      if (success) {
+        // Success message is already shown by the service
+        console.log('Event added to calendar successfully');
+      }
+    } catch (error) {
+      console.error('Calendar error:', error);
+      // Error alert is already shown by the service
+    }
+  };
+
   // Show loading state
   if (loading) {
     return (
@@ -1154,6 +1198,27 @@ export default function EventDetails() {
 
           {/* Action Buttons */}
           <Animated.View entering={FadeInUp.delay(1200)} style={styles.actionsSection}>
+            {/* Quick Actions Row */}
+            <View style={styles.quickActionsRow}>
+              <ActionButton
+                icon={QrCode}
+                title="QR Check-in"
+                onPress={handleQRCheckIn}
+                variant="secondary"
+                disabled={false}
+                style={styles.quickActionButton}
+              />
+              <ActionButton
+                icon={CalendarPlus}
+                title="Add to Calendar"
+                onPress={handleAddToCalendar}
+                variant="secondary"
+                disabled={false}
+                style={styles.quickActionButton}
+              />
+            </View>
+            
+            {/* Main Registration Button */}
             <ActionButton
               icon={UserPlus}
               title={buttonProps.title}

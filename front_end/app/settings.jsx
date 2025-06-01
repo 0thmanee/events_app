@@ -28,9 +28,16 @@ import {
   Info,
   ExternalLink,
   Star,
-  Heart
+  Heart,
+  QrCode,
+  Calendar,
+  Sparkles,
+  BarChart3
 } from 'lucide-react-native';
 import ApiService from '../services/ApiService';
+import NotificationService from '../services/NotificationService';
+import CalendarService from '../services/CalendarService';
+import RecommendationService from '../services/RecommendationService';
 import { 
   ProfessionalBackground, 
   IconLoadingState,
@@ -184,6 +191,13 @@ export default function Settings() {
   const [darkMode, setDarkMode] = useState(true);
   const [autoDownload, setAutoDownload] = useState(false);
 
+  // New feature settings
+  const [eventReminders, setEventReminders] = useState(true);
+  const [feedbackPrompts, setFeedbackPrompts] = useState(true);
+  const [calendarSync, setCalendarSync] = useState(true);
+  const [recommendationsEnabled, setRecommendationsEnabled] = useState(true);
+  const [qrNotifications, setQrNotifications] = useState(true);
+
   useEffect(() => {
     StatusBar.setBarStyle('light-content');
     loadUserData();
@@ -214,6 +228,13 @@ export default function Settings() {
         setVibrationEnabled(settings.vibrationEnabled ?? true);
         setDarkMode(settings.darkMode ?? true);
         setAutoDownload(settings.autoDownload ?? false);
+        
+        // New feature settings
+        setEventReminders(settings.eventReminders ?? true);
+        setFeedbackPrompts(settings.feedbackPrompts ?? true);
+        setCalendarSync(settings.calendarSync ?? true);
+        setRecommendationsEnabled(settings.recommendationsEnabled ?? true);
+        setQrNotifications(settings.qrNotifications ?? true);
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
@@ -230,6 +251,11 @@ export default function Settings() {
         vibrationEnabled,
         darkMode,
         autoDownload,
+        eventReminders,
+        feedbackPrompts,
+        calendarSync,
+        recommendationsEnabled,
+        qrNotifications,
         ...newSettings
       };
       await AsyncStorage.setItem('userSettings', JSON.stringify(currentSettings));
@@ -329,6 +355,13 @@ export default function Settings() {
   const handlePushNotificationsChange = async (value) => {
     setPushNotifications(value);
     await saveSettings({ pushNotifications: value });
+    
+    // Update notification service settings
+    if (value) {
+      await NotificationService.requestPermissions();
+    } else {
+      await NotificationService.disableNotifications();
+    }
   };
 
   const handleSoundChange = async (value) => {
@@ -354,6 +387,39 @@ export default function Settings() {
   const handleAutoDownloadChange = async (value) => {
     setAutoDownload(value);
     await saveSettings({ autoDownload: value });
+  };
+
+  // New feature handlers
+  const handleEventRemindersChange = async (value) => {
+    setEventReminders(value);
+    await saveSettings({ eventReminders: value });
+    await NotificationService.updatePreferences({ eventReminders: value });
+  };
+
+  const handleFeedbackPromptsChange = async (value) => {
+    setFeedbackPrompts(value);
+    await saveSettings({ feedbackPrompts: value });
+    await NotificationService.updatePreferences({ feedbackPrompts: value });
+  };
+
+  const handleCalendarSyncChange = async (value) => {
+    setCalendarSync(value);
+    await saveSettings({ calendarSync: value });
+    if (value) {
+      await CalendarService.requestPermissions();
+    }
+  };
+
+  const handleRecommendationsChange = async (value) => {
+    setRecommendationsEnabled(value);
+    await saveSettings({ recommendationsEnabled: value });
+    await RecommendationService.updateSettings({ enabled: value });
+  };
+
+  const handleQrNotificationsChange = async (value) => {
+    setQrNotifications(value);
+    await saveSettings({ qrNotifications: value });
+    await NotificationService.updatePreferences({ qrNotifications: value });
   };
 
   // Show loading state
@@ -459,6 +525,50 @@ export default function Settings() {
               value={vibrationEnabled}
               onValueChange={handleVibrationChange}
               color="#8b5cf6"
+            />
+          </SettingsSection>
+
+          {/* Features */}
+          <SettingsSection title="Features" delay={700}>
+            <ToggleItem
+              icon={Bell}
+              title="Event Reminders"
+              subtitle="Get notified before events start"
+              value={eventReminders}
+              onValueChange={handleEventRemindersChange}
+              color="#6366f1"
+            />
+            <ToggleItem
+              icon={MessageSquare}
+              title="Feedback Prompts"
+              subtitle="Receive prompts to provide event feedback"
+              value={feedbackPrompts}
+              onValueChange={handleFeedbackPromptsChange}
+              color="#8b5cf6"
+            />
+            <ToggleItem
+              icon={Calendar}
+              title="Calendar Sync"
+              subtitle="Sync events with device calendar"
+              value={calendarSync}
+              onValueChange={handleCalendarSyncChange}
+              color="#10b981"
+            />
+            <ToggleItem
+              icon={Sparkles}
+              title="Personalized Recommendations"
+              subtitle="Get AI-powered event suggestions"
+              value={recommendationsEnabled}
+              onValueChange={handleRecommendationsChange}
+              color="#f59e0b"
+            />
+            <ToggleItem
+              icon={QrCode}
+              title="QR Check-in Notifications"
+              subtitle="Notifications for QR code check-ins"
+              value={qrNotifications}
+              onValueChange={handleQrNotificationsChange}
+              color="#ef4444"
             />
           </SettingsSection>
 

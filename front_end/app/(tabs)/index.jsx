@@ -40,9 +40,17 @@ import {
   Info,
   ArrowUpRight,
   MoreHorizontal,
-  Coins
+  Coins,
+  QrCode,
+  Smartphone,
+  BookOpen,
+  Heart,
+  Sparkles
 } from 'lucide-react-native';
 import ApiService from '../../services/ApiService';
+import RecommendationService from '../../services/RecommendationService';
+import CalendarService from '../../services/CalendarService';
+import NotificationService from '../../services/NotificationService';
 import { 
   ProfessionalBackground, 
   EventCardSkeleton, 
@@ -327,6 +335,171 @@ const QuickActionButton = ({ action, onPress, delay = 0 }) => {
   );
 };
 
+// Recommended Events Component
+const RecommendedEventsSection = ({ navigateWithTransition }) => {
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadRecommendations();
+  }, []);
+
+  const loadRecommendations = async () => {
+    try {
+      const recs = await RecommendationService.getQuickRecommendations(3);
+      setRecommendations(recs); // Show top 3
+    } catch (error) {
+      console.error('Failed to load recommendations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.recommendationsSection}>
+        <Text style={styles.sectionTitle}>Recommended for You</Text>
+        <EventCardSkeleton />
+      </View>
+    );
+  }
+
+  if (recommendations.length === 0) {
+    return null;
+  }
+
+  return (
+    <Animated.View entering={FadeInUp.delay(600)} style={styles.recommendationsSection}>
+      <View style={styles.sectionHeader}>
+        <View style={styles.recommendationHeader}>
+          <Sparkles color="#f59e0b" size={20} strokeWidth={1.5} />
+          <Text style={styles.sectionTitle}>Recommended for You</Text>
+        </View>
+        <Pressable style={styles.viewAllButton}>
+          <Text style={styles.viewAllText}>View All</Text>
+          <ArrowUpRight color="#9ca3af" size={14} strokeWidth={1.5} />
+        </Pressable>
+      </View>
+
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.recommendationsScroll}
+      >
+        {recommendations.map((event, index) => (
+          <Pressable
+            key={event.id}
+            style={styles.recommendationCard}
+            onPress={() => navigateWithTransition(`/event-details?id=${event.id}`, 'Loading event details...')}
+          >
+            <LinearGradient
+              colors={['rgba(99, 102, 241, 0.1)', 'transparent']}
+              style={styles.recommendationGradient}
+            />
+            
+            <View style={styles.recommendationContent}>
+              <View style={styles.recommendationScore}>
+                <Heart color="#ef4444" size={12} strokeWidth={1.5} />
+                <Text style={styles.scoreText}>{Math.round(event.score * 100)}% match</Text>
+              </View>
+              
+              <Text style={styles.recommendationTitle}>{event.title}</Text>
+              <Text style={styles.recommendationCategory}>{event.category}</Text>
+              
+              <View style={styles.recommendationDetails}>
+                <View style={styles.recommendationDetail}>
+                  <Clock color="#9ca3af" size={12} strokeWidth={1.5} />
+                  <Text style={styles.recommendationDetailText}>{event.time}</Text>
+                </View>
+                <View style={styles.recommendationDetail}>
+                  <MapPin color="#9ca3af" size={12} strokeWidth={1.5} />
+                  <Text style={styles.recommendationDetailText}>{event.location}</Text>
+                </View>
+              </View>
+
+              <View style={styles.recommendationTags}>
+                {event.reasons?.slice(0, 2).map((reason, idx) => (
+                  <View key={idx} style={styles.reasonTag}>
+                    <Text style={styles.reasonText}>{reason}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </Animated.View>
+  );
+};
+
+// Quick Access Features Component
+const QuickAccessFeatures = ({ navigateWithTransition }) => {
+  const quickFeatures = [
+    { 
+      icon: QrCode, 
+      label: 'QR Check-in', 
+      iconColor: '#6366f1',
+      description: 'Scan event QR codes'
+    },
+    { 
+      icon: Calendar, 
+      label: 'Add to Calendar', 
+      iconColor: '#10b981',
+      description: 'Sync with device calendar'
+    },
+    { 
+      icon: Bell, 
+      label: 'Notifications', 
+      iconColor: '#f59e0b',
+      description: 'Manage reminders'
+    },
+    { 
+      icon: Sparkles, 
+      label: 'Recommendations', 
+      iconColor: '#8b5cf6',
+      description: 'Personalized events'
+    },
+  ];
+
+  const handleFeaturePress = (feature) => {
+    switch (feature.label) {
+      case 'QR Check-in':
+        navigateWithTransition('/qr-check-in?mode=scan', 'Opening QR scanner...');
+        break;
+      case 'Add to Calendar':
+        CalendarService.openCalendarSync();
+        break;
+      case 'Notifications':
+        navigateWithTransition('/settings', 'Loading notification settings...');
+        break;
+      case 'Recommendations':
+        navigateWithTransition('/events?filter=recommended', 'Loading recommendations...');
+        break;
+      default:
+        break;
+    }
+  };
+
+  return (
+    <Animated.View entering={FadeInUp.delay(400)} style={styles.quickAccessSection}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Quick Access</Text>
+      </View>
+
+      <View style={styles.quickAccessGrid}>
+        {quickFeatures.map((feature, index) => (
+          <QuickActionButton
+            key={feature.label}
+            action={feature}
+            onPress={() => handleFeaturePress(feature)}
+            delay={index * 100}
+          />
+        ))}
+      </View>
+    </Animated.View>
+  );
+};
+
 // Main Student Dashboard
 export default function StudentDashboard() {
   const [refreshing, setRefreshing] = useState(false);
@@ -488,6 +661,12 @@ export default function StudentDashboard() {
           <Animated.View entering={FadeInDown.delay(200)} style={styles.summarySection}>
             <ExecutiveSummaryCard data={studentData} />
           </Animated.View>
+
+          {/* Quick Access Features */}
+          <QuickAccessFeatures navigateWithTransition={navigateWithTransition} />
+
+          {/* Recommended Events */}
+          <RecommendedEventsSection navigateWithTransition={navigateWithTransition} />
 
           {/* Upcoming Events */}
           <Animated.View entering={FadeInUp.delay(800)} style={styles.eventsSection}>
@@ -1056,5 +1235,112 @@ const styles = StyleSheet.create({
 
   bottomSpacer: {
     height: 40,
+  },
+
+  // Recommended Events
+  recommendationsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  recommendationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  recommendationsScroll: {
+    gap: 12,
+  },
+  recommendationCard: {
+    width: screenWidth - 40,
+    height: 120,
+    borderRadius: 20,
+    backgroundColor: '#0a0f1c',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  recommendationGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 20,
+  },
+  recommendationContent: {
+    padding: 16,
+    position: 'relative',
+    zIndex: 1,
+  },
+  recommendationScore: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 8,
+  },
+  scoreText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9ca3af',
+  },
+  recommendationTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+    marginBottom: 4,
+  },
+  recommendationCategory: {
+    fontSize: 12,
+    color: '#9ca3af',
+    fontWeight: '500',
+  },
+  recommendationDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  recommendationDetail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  recommendationDetailText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    fontWeight: '500',
+  },
+  recommendationTags: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  reasonTag: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  reasonText: {
+    fontSize: 12,
+    color: '#10b981',
+    fontWeight: '500',
+  },
+
+  // Quick Access
+  quickAccessSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  quickAccessGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 12,
   },
 }); 
