@@ -1,9 +1,10 @@
-import { View, Text, ScrollView, Pressable, StatusBar, Dimensions, Switch } from 'react-native';
+import { View, Text, ScrollView, Pressable, StatusBar, Dimensions, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { 
   ArrowLeft,
   User,
@@ -29,6 +30,7 @@ import {
   Star,
   Heart
 } from 'lucide-react-native';
+import ApiService from '../services/ApiService';
 import { 
   ProfessionalBackground, 
   IconLoadingState,
@@ -127,6 +129,21 @@ const ToggleItem = ({ icon: Icon, title, subtitle, value, onValueChange, color =
 
 // Profile Card Component
 const ProfileCard = ({ user, onEditPress }) => {
+  const getUserName = () => {
+    return user.nickname || user.name || 'Student';
+  };
+
+  const getUserEmail = () => {
+    return user.email || 'No email available';
+  };
+
+  const getUserProgram = () => {
+    if (user.email && user.email.includes('@student.42')) {
+      return 'Software Engineering';
+    }
+    return 'Computer Science';
+  };
+
   return (
     <Animated.View entering={FadeInDown.delay(200)} style={styles.profileCard}>
       <LinearGradient
@@ -136,12 +153,12 @@ const ProfileCard = ({ user, onEditPress }) => {
       
       <View style={styles.profileContent}>
         <View style={styles.profileAvatar}>
-          <Text style={styles.profileAvatarText}>{user.name.charAt(0)}</Text>
+          <Text style={styles.profileAvatarText}>{getUserName().charAt(0).toUpperCase()}</Text>
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>{user.name}</Text>
-          <Text style={styles.profileEmail}>{user.email}</Text>
-          <Text style={styles.profileProgram}>{user.program}</Text>
+          <Text style={styles.profileName}>{getUserName()}</Text>
+          <Text style={styles.profileEmail}>{getUserEmail()}</Text>
+          <Text style={styles.profileProgram}>{getUserProgram()}</Text>
         </View>
         <Pressable style={styles.editButton} onPress={onEditPress}>
           <Text style={styles.editButtonText}>Edit</Text>
@@ -154,6 +171,10 @@ const ProfileCard = ({ user, onEditPress }) => {
 export default function Settings() {
   const router = useRouter();
   
+  // Loading and user state
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState(null);
+  
   // Settings state
   const [notifications, setNotifications] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(false);
@@ -165,16 +186,60 @@ export default function Settings() {
 
   useEffect(() => {
     StatusBar.setBarStyle('light-content');
+    loadUserData();
+    loadSettings();
   }, []);
+
+  const loadUserData = async () => {
+    try {
+      const profile = await ApiService.getUserProfile();
+      setUserProfile(profile);
+    } catch (error) {
+      console.error('Failed to load user profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSettings = async () => {
+    try {
+      // Load settings from AsyncStorage
+      const savedSettings = await AsyncStorage.getItem('userSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        setNotifications(settings.notifications ?? true);
+        setEmailNotifications(settings.emailNotifications ?? false);
+        setPushNotifications(settings.pushNotifications ?? true);
+        setSoundEnabled(settings.soundEnabled ?? true);
+        setVibrationEnabled(settings.vibrationEnabled ?? true);
+        setDarkMode(settings.darkMode ?? true);
+        setAutoDownload(settings.autoDownload ?? false);
+      }
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+    }
+  };
+
+  const saveSettings = async (newSettings) => {
+    try {
+      const currentSettings = {
+        notifications,
+        emailNotifications,
+        pushNotifications,
+        soundEnabled,
+        vibrationEnabled,
+        darkMode,
+        autoDownload,
+        ...newSettings
+      };
+      await AsyncStorage.setItem('userSettings', JSON.stringify(currentSettings));
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    }
+  };
 
   const handleBack = () => {
     router.back();
-  };
-
-  const user = {
-    name: 'Si Yhya',
-    email: 'si.yhya@1337.ma',
-    program: 'Software Engineering',
   };
 
   const handleAccountPress = () => {
@@ -182,28 +247,142 @@ export default function Settings() {
   };
 
   const handlePrivacyPress = () => {
-    console.log('Privacy settings');
+    Alert.alert(
+      'Privacy Settings',
+      'Privacy settings help you control how your information is used and shared.',
+      [{ text: 'OK' }]
+    );
   };
 
   const handleSecurityPress = () => {
-    console.log('Security settings');
+    Alert.alert(
+      'Security Settings',
+      'Review and manage your account security settings.',
+      [{ text: 'OK' }]
+    );
   };
 
   const handleLanguagePress = () => {
-    console.log('Language settings');
+    Alert.alert(
+      'Language Settings',
+      'Currently, only English is supported. More languages coming soon!',
+      [{ text: 'OK' }]
+    );
   };
 
   const handleHelpPress = () => {
-    console.log('Help & Support');
+    Alert.alert(
+      'Help & Support',
+      'Need help? Contact support at support@1337.ma or visit our FAQ section.',
+      [{ text: 'OK' }]
+    );
   };
 
   const handleAboutPress = () => {
-    console.log('About app');
+    Alert.alert(
+      'About 1337 Event Hub',
+      'Version 1.0.0\n\nDeveloped for 1337 students and staff to manage events and activities.',
+      [{ text: 'OK' }]
+    );
   };
 
   const handleLogoutPress = () => {
-    console.log('Logout');
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout? You will need to authenticate again to access the app.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Logout', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Clear stored data
+              await AsyncStorage.multiRemove([
+                'appToken',
+                'userData',
+                'userRole',
+                'userSettings',
+                'oauth_state'
+              ]);
+              // Navigate to login
+              router.replace('/');
+            } catch (error) {
+              console.error('Logout error:', error);
+            }
+          }
+        }
+      ]
+    );
   };
+
+  const handleNotificationsChange = async (value) => {
+    setNotifications(value);
+    await saveSettings({ notifications: value });
+  };
+
+  const handleEmailNotificationsChange = async (value) => {
+    setEmailNotifications(value);
+    await saveSettings({ emailNotifications: value });
+  };
+
+  const handlePushNotificationsChange = async (value) => {
+    setPushNotifications(value);
+    await saveSettings({ pushNotifications: value });
+  };
+
+  const handleSoundChange = async (value) => {
+    setSoundEnabled(value);
+    await saveSettings({ soundEnabled: value });
+  };
+
+  const handleVibrationChange = async (value) => {
+    setVibrationEnabled(value);
+    await saveSettings({ vibrationEnabled: value });
+  };
+
+  const handleDarkModeChange = async (value) => {
+    setDarkMode(value);
+    await saveSettings({ darkMode: value });
+    Alert.alert(
+      'Theme Changed',
+      'Theme changes will take effect on the next app launch.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleAutoDownloadChange = async (value) => {
+    setAutoDownload(value);
+    await saveSettings({ autoDownload: value });
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <DataLoadingOverlay 
+          visible={true}
+          message="Loading Settings"
+          subMessage="Getting your preferences"
+          icon={SettingsIcon}
+        />
+      </View>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <IconLoadingState 
+          icon={SettingsIcon}
+          message="Unable to Load Settings"
+          subMessage="Please try again later"
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -219,7 +398,7 @@ export default function Settings() {
         >
           {/* Profile Section */}
           <View style={styles.profileSection}>
-            <ProfileCard user={user} onEditPress={handleAccountPress} />
+            <ProfileCard user={userProfile} onEditPress={handleAccountPress} />
           </View>
 
           {/* Account Settings */}
@@ -254,7 +433,7 @@ export default function Settings() {
               title="Push Notifications"
               subtitle="Receive notifications on your device"
               value={pushNotifications}
-              onValueChange={setPushNotifications}
+              onValueChange={handlePushNotificationsChange}
               color="#f59e0b"
             />
             <ToggleItem
@@ -262,7 +441,7 @@ export default function Settings() {
               title="Email Notifications"
               subtitle="Receive updates via email"
               value={emailNotifications}
-              onValueChange={setEmailNotifications}
+              onValueChange={handleEmailNotificationsChange}
               color="#3b82f6"
             />
             <ToggleItem
@@ -270,7 +449,7 @@ export default function Settings() {
               title="Sound"
               subtitle="Play sound for notifications"
               value={soundEnabled}
-              onValueChange={setSoundEnabled}
+              onValueChange={handleSoundChange}
               color="#10b981"
             />
             <ToggleItem
@@ -278,7 +457,7 @@ export default function Settings() {
               title="Vibration"
               subtitle="Vibrate for notifications"
               value={vibrationEnabled}
-              onValueChange={setVibrationEnabled}
+              onValueChange={handleVibrationChange}
               color="#8b5cf6"
             />
           </SettingsSection>
@@ -290,7 +469,7 @@ export default function Settings() {
               title="Dark Mode"
               subtitle="Use dark theme"
               value={darkMode}
-              onValueChange={setDarkMode}
+              onValueChange={handleDarkModeChange}
               color="#6b7280"
             />
             <SettingsItem
@@ -305,7 +484,7 @@ export default function Settings() {
               title="Auto Download"
               subtitle="Download content automatically"
               value={autoDownload}
-              onValueChange={setAutoDownload}
+              onValueChange={handleAutoDownloadChange}
               color="#10b981"
             />
           </SettingsSection>

@@ -396,6 +396,7 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     StatusBar.setBarStyle('light-content');
+    checkExistingAuth();
     
     if (isLoading) {
       // Loading sequence
@@ -438,7 +439,7 @@ export default function WelcomeScreen() {
         // Phase 6: Particle effects
         loadingParticleOpacity.value = withDelay(2000, withTiming(1, { duration: 1000 }));
 
-        // Phase 7: Completion
+        // Phase 7: Completion (only if no existing auth found)
         setTimeout(() => {
           loadingScreenOpacity.value = withTiming(0, { duration: 800 });
           setTimeout(() => {
@@ -476,6 +477,38 @@ export default function WelcomeScreen() {
       return () => clearInterval(interval);
     }
   }, [isLoading]);
+
+  const checkExistingAuth = async () => {
+    try {
+      const [appToken, userRole] = await Promise.all([
+        AsyncStorage.getItem('appToken'),
+        AsyncStorage.getItem('userRole')
+      ]);
+
+      if (appToken && userRole) {
+        console.log('🔐 Existing authentication found, redirecting...');
+        
+        // Update loading text to show auto-login
+        setLoadingText('AUTHENTICATING...');
+        setLoadingPercent(80);
+        
+        // Small delay to show the loading state
+        setTimeout(() => {
+          if (userRole === 'staff' || userRole === 'admin') {
+            console.log('🎯 Auto-routing to admin panel...');
+            router.replace('/(tabs)/admin');
+          } else {
+            console.log('🎯 Auto-routing to student interface...');
+            router.replace('/(tabs)/');
+          }
+        }, 2000);
+      } else {
+        console.log('🔐 No existing authentication found');
+      }
+    } catch (error) {
+      console.error('Error checking existing auth:', error);
+    }
+  };
 
   // All animated styles declared unconditionally
   const containerStyle = useAnimatedStyle(() => ({
@@ -550,6 +583,12 @@ export default function WelcomeScreen() {
     console.log('👤 User role from backend:', authData.user.role);
     
     try {
+      // Show loading during transition
+      setIsLoading(true);
+      
+      // Small delay to allow UI to update
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       // The role is already determined by the backend based on 42 staff status
       const userRole = authData.user.role;
       
@@ -568,6 +607,9 @@ export default function WelcomeScreen() {
       console.error('Error processing authentication:', error);
       // Fallback navigation
       router.replace('/(tabs)/');
+    } finally {
+      // Keep loading state until navigation completes
+      setTimeout(() => setIsLoading(false), 500);
     }
   };
 

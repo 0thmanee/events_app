@@ -716,6 +716,11 @@ class ApiService {
       isNearlyFull: spotsLeft <= 5 && spotsLeft > 0
     };
   }
+
+  // Get events that need feedback from the current user
+  async getEventsNeedingFeedback() {
+    return this.makeRequest('/api/events/feedback-pending');
+  }
 }
 
 export default new ApiService(); 

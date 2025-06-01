@@ -101,6 +101,32 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get events needing feedback from current user
+router.get('/feedback-pending', auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const now = new Date();
+    
+    // Find events where:
+    // 1. User attended (status: 'attended')
+    // 2. Event has ended (time < now)
+    // 3. User hasn't given feedback yet
+    const eventsNeedingFeedback = await Event.find({
+      'attendees.user': userId,
+      'attendees.status': 'attended',
+      time: { $lt: now },
+      'feedbacks.user': { $ne: userId } // User hasn't given feedback
+    })
+    .populate('attendees.user', 'nickname')
+    .sort({ time: -1 }) // Most recent first
+    .limit(10);
+
+    res.json(eventsNeedingFeedback);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get event by ID
 router.get('/:id', async (req, res) => {
   try {
