@@ -5,6 +5,8 @@ const FormData = require('form-data');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+const PushNotificationService = require('../services/PushNotificationService');
 
 // Helper function to get 42 user data
 async function get42UserData(accessToken) {
@@ -56,7 +58,10 @@ async function get42AccessToken(code) {
 // Middleware to check if user is admin
 const isAdmin = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
+    // Special case for development: treat "obouchta" as admin
+    const isTestUser = req.user.intraUsername === 'obouchta' || req.user.nickname === 'obouchta';
+    
+    if (req.user.role !== 'admin' && !isTestUser) {
       return res.status(403).json({ error: 'Access denied. Admin only.' });
     }
     next();
@@ -667,6 +672,202 @@ router.post('/fix-users', async (req, res) => {
 
   } catch (error) {
     console.error('Error fixing users:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Device Token Management for Push Notifications
+
+// Register device token for push notifications
+router.post('/device-token', auth, async (req, res) => {
+  try {
+    const { token, platform } = req.body;
+    
+    if (!token || !platform) {
+      return res.status(400).json({ error: 'Device token and platform are required' });
+    }
+    
+    if (!['ios', 'android', 'web'].includes(platform)) {
+      return res.status(400).json({ error: 'Platform must be ios, android, or web' });
+    }
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Add or update device token
+    user.addDeviceToken(token, platform);
+    await user.save();
+    
+    console.log(`📱 Device token registered for user ${user.nickname} (${platform})`);
+    
+    res.json({ 
+      message: 'Device token registered successfully',
+      tokenCount: user.deviceTokens?.length || 0
+    });
+  } catch (error) {
+    console.error('Error registering device token:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Remove device token
+router.delete('/device-token', auth, async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ error: 'Device token is required' });
+    }
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    user.removeDeviceToken(token);
+    await user.save();
+    
+    console.log(`📱 Device token removed for user ${user.nickname}`);
+    
+    res.json({ 
+      message: 'Device token removed successfully',
+      tokenCount: user.deviceTokens?.length || 0
+    });
+  } catch (error) {
+    console.error('Error removing device token:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get user's device tokens (for debugging)
+router.get('/device-tokens', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('deviceTokens pushNotificationSettings');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const activeTokens = user.getActiveDeviceTokens();
+    
+    res.json({
+      totalTokens: user.deviceTokens?.length || 0,
+      activeTokens: activeTokens.length,
+      tokens: user.deviceTokens?.map(dt => ({
+        platform: dt.platform,
+        active: dt.active,
+        lastUsed: dt.lastUsed,
+        tokenPreview: dt.token.substring(0, 20) + '...'
+      })) || [],
+      pushSettings: user.pushNotificationSettings
+    });
+  } catch (error) {
+    console.error('Error fetching device tokens:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update push notification preferences
+router.patch('/push-settings', auth, async (req, res) => {
+  try {
+    const {
+      enabled,
+      eventReminders,
+      newEvents,
+      eventApproved,
+      eventCancelled,
+      quietHours
+    } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Initialize pushNotificationSettings if not exists
+    if (!user.pushNotificationSettings) {
+      user.pushNotificationSettings = {};
+    }
+    
+    // Update settings
+    if (typeof enabled === 'boolean') {
+      user.pushNotificationSettings.enabled = enabled;
+    }
+    if (typeof eventReminders === 'boolean') {
+      user.pushNotificationSettings.eventReminders = eventReminders;
+    }
+    if (typeof newEvents === 'boolean') {
+      user.pushNotificationSettings.newEvents = newEvents;
+    }
+    if (typeof eventApproved === 'boolean') {
+      user.pushNotificationSettings.eventApproved = eventApproved;
+    }
+    if (typeof eventCancelled === 'boolean') {
+      user.pushNotificationSettings.eventCancelled = eventCancelled;
+    }
+    if (quietHours && typeof quietHours === 'object') {
+      user.pushNotificationSettings.quietHours = {
+        ...user.pushNotificationSettings.quietHours,
+        ...quietHours
+      };
+    }
+    
+    await user.save();
+    
+    console.log(`🔧 Push notification settings updated for user ${user.nickname}`);
+    
+    res.json({ 
+      message: 'Push notification settings updated successfully',
+      settings: user.pushNotificationSettings
+    });
+  } catch (error) {
+    console.error('Error updating push settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Test push notification (for development)
+router.post('/test-push', auth, async (req, res) => {
+  try {
+    const { title = 'Test Notification', message = 'This is a test push notification' } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const deviceTokens = user.getActiveDeviceTokens();
+    if (deviceTokens.length === 0) {
+      return res.status(400).json({ 
+        error: 'No active device tokens found. Please register a device token first.' 
+      });
+    }
+    
+    console.log(`🧪 Sending test push notification to ${user.nickname}`);
+    
+    const result = await PushNotificationService.sendToMultipleDevices(
+      deviceTokens,
+      { title, message },
+      {
+        type: 'test',
+        notificationId: 'test',
+        actionUrl: '/notifications',
+        timestamp: new Date().toISOString()
+      }
+    );
+    
+    res.json({
+      message: 'Test push notification sent',
+      result: {
+        success: result.success,
+        successCount: result.successCount,
+        failureCount: result.failureCount,
+        devicesTargeted: deviceTokens.length
+      }
+    });
+  } catch (error) {
+    console.error('Error sending test push notification:', error);
     res.status(500).json({ error: error.message });
   }
 });

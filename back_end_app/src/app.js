@@ -7,6 +7,8 @@ const eventRoutes = require('./routes/eventRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
 const storeRoutes = require('./routes/storeRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const notificationScheduler = require('./services/NotificationScheduler');
 
 const app = express();
 
@@ -30,7 +32,12 @@ mongoose.connect(process.env.MONGODB_URI, {
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000
 })
-.then(() => console.log('Connected to MongoDB'))
+.then(() => {
+  console.log('Connected to MongoDB');
+  
+  // Start notification scheduler after successful DB connection
+  notificationScheduler.start();
+})
 .catch(err => {
   console.error('MongoDB connection error:', err);
   process.exit(1);
@@ -46,6 +53,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/store', storeRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

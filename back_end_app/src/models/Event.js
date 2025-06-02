@@ -75,8 +75,11 @@ const eventSchema = new mongoose.Schema({
     },
     status: {
       type: String,
-      enum: ['registered', 'attended', 'absent'],
+      enum: ['registered', 'attended', 'absent', 'checked_in'],
       default: 'registered'
+    },
+    checkInTime: {
+      type: Date
     }
   }],
   feedbacks: [feedbackSchema],
@@ -197,12 +200,33 @@ eventSchema.virtual('averageRating').get(function() {
 });
 
 // Method to check if user can give feedback
-eventSchema.methods.canGiveFeedback = function(userId) {
+eventSchema.methods.canGiveFeedback = function(userId, userRole) {
+  // Staff members cannot give feedback
+  if (userRole === 'staff' || userRole === 'admin') {
+    return false;
+  }
+  
+  const now = new Date();
+  const eventEndTime = new Date(this.time.getTime() + (this.expectedTime * 60 * 1000)); // event time + duration in minutes
+  const feedbackAvailableTime = new Date(eventEndTime.getTime() + (5 * 60 * 1000)); // 5 minutes after event ends
+  
+  // Check if feedback period has started (5 minutes after event ends)
+  if (now < feedbackAvailableTime) {
+    return false;
+  }
+  
+  // Check if user attended the event
   const attendees = this.attendees || [];
-  const feedbacks = this.feedbacks || [];
   const attendee = attendees.find(a => a.user.toString() === userId.toString());
-  return attendee && attendee.status === 'attended' && 
-         !feedbacks.some(f => f.user.toString() === userId.toString());
+  if (!attendee || attendee.status !== 'attended') {
+    return false;
+  }
+  
+  // Check if user hasn't already given feedback
+  const feedbacks = this.feedbacks || [];
+  const hasGivenFeedback = feedbacks.some(f => f.user.toString() === userId.toString());
+  
+  return !hasGivenFeedback;
 };
 
 // Method to add volunteer

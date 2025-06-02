@@ -4,11 +4,27 @@ const Event = require('../models/Event');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
+// Check if user is admin middleware
+const isAdmin = async (req, res, next) => {
+  try {
+    // Special case for development: treat "obouchta" as admin
+    const isTestUser = req.user.intraUsername === 'obouchta' || req.user.nickname === 'obouchta';
+    
+    if (req.user.role !== 'admin' && !isTestUser) {
+      return res.status(403).json({ error: 'Access denied. Admin only.' });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get global leaderboard
 router.get('/', auth, async (req, res) => {
   try {
     const users = await User.find({}, {
       nickname: 1,
+      intraUsername: 1,
       picture: 1,
       level: 1,
       wallet: 1,
@@ -21,6 +37,7 @@ router.get('/', auth, async (req, res) => {
     const leaderboard = users.map((user, index) => ({
       rank: index + 1,
       nickname: user.nickname,
+      intraUsername: user.intraUsername,
       picture: user.picture,
       level: user.level,
       wallet: user.wallet,
@@ -168,6 +185,83 @@ router.get('/achievements', auth, async (req, res) => {
         wallet: user.wallet
       }
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Admin: Get detailed leaderboard with all user data
+router.get('/admin', auth, isAdmin, async (req, res) => {
+  try {
+    const { search, filter, limit = 100 } = req.query;
+    
+    // Build query
+    let query = {};
+    if (search) {
+      query.$or = [
+        { nickname: { $regex: search, $options: 'i' } },
+        { intraUsername: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Get all users with full details
+    const users = await User.find(query, {
+      nickname: 1,
+      intraUsername: 1,
+      email: 1,
+      picture: 1,
+      level: 1,
+      wallet: 1,
+      eventsAttended: 1,
+      feedbacksGiven: 1,
+      role: 1,
+      createdAt: 1
+    })
+    .sort({ level: -1, wallet: -1 })
+    .limit(parseInt(limit));
+
+    // Calculate total scores and apply filters
+    const leaderboard = users.map((user, index) => {
+      const eventsCount = user.eventsAttended.length;
+      const feedbackCount = user.feedbacksGiven.length;
+      const totalScore = (eventsCount * 10) + (feedbackCount * 5) + (user.wallet || 0);
+      
+      return {
+        id: user._id,
+        rank: index + 1,
+        name: user.nickname,
+        login: user.intraUsername || user.nickname?.toLowerCase().replace(/\s+/g, ''),
+        email: user.email,
+        level: user.level,
+        score: totalScore,
+        eventsAttended: eventsCount,
+        totalCoins: user.wallet,
+        lastActivity: 'active', // TODO: Add actual last activity tracking
+        achievements: Math.floor(totalScore / 500), // Mock achievements based on score
+        feedback: feedbackCount,
+        role: user.role,
+        joinDate: user.createdAt
+      };
+    });
+
+    // Apply additional filters
+    let filteredLeaderboard = leaderboard;
+    if (filter) {
+      switch (filter) {
+        case 'active':
+          // For now, show all as active since we don't track last activity
+          break;
+        case 'high-level':
+          filteredLeaderboard = leaderboard.filter(user => user.level >= 8);
+          break;
+        case 'top-10':
+          filteredLeaderboard = leaderboard.slice(0, 10);
+          break;
+      }
+    }
+
+    res.json(filteredLeaderboard);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

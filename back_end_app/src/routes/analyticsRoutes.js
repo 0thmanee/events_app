@@ -9,7 +9,10 @@ const router = express.Router();
 // Middleware to check if user is admin
 const isAdmin = async (req, res, next) => {
   try {
-    if (req.user.role !== 'admin') {
+    // Special case for development: treat "obouchta" as admin
+    const isTestUser = req.user.intraUsername === 'obouchta' || req.user.nickname === 'obouchta';
+    
+    if (req.user.role !== 'admin' && !isTestUser) {
       return res.status(403).json({ error: 'Access denied. Admin only.' });
     }
     next();
