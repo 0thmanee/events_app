@@ -47,6 +47,7 @@ import {
   TrendingDown
 } from 'lucide-react-native';
 import ApiService from '../../services/ApiService';
+import ProfileImage from '../../components/ProfileImage';
 import { 
   ProfessionalBackground, 
   IconLoadingState,
@@ -179,11 +180,16 @@ const PodiumCard = ({ student, position, onPress }) => {
     <Animated.View style={[styles.podiumCard, cardStyle]}>
       <Pressable style={styles.podiumPressable} onPress={() => onPress(student)}>
         {/* Student Avatar */}
-        <View style={[styles.podiumAvatar, { backgroundColor: `${podiumMeta.bg}20`, borderColor: podiumMeta.bg }]}>
-          <Text style={[styles.podiumAvatarText, { color: podiumMeta.bg }]}>
-            {student.name.charAt(0)}
-          </Text>
-        </View>
+        <ProfileImage
+          imageUrl={student.picture}
+          name={student.name}
+          size={48}
+          backgroundColor={`${podiumMeta.bg}20`}
+          textColor={podiumMeta.bg}
+          borderRadius={24}
+          borderWidth={2}
+          borderColor={podiumMeta.bg}
+        />
 
         {/* Position Badge */}
         <View style={[styles.positionBadge, { backgroundColor: podiumMeta.bg }]}>
@@ -273,9 +279,16 @@ const LeaderboardRow = ({ student, index, onPress }) => {
 
         {/* Student Info */}
         <View style={styles.studentInfo}>
-          <View style={styles.studentAvatar}>
-            <Text style={styles.studentAvatarText}>{student.name.charAt(0)}</Text>
-          </View>
+          <ProfileImage
+            imageUrl={student.picture}
+            name={student.name}
+            size={28}
+            backgroundColor={colors.lightAccent}
+            textColor={colors.accent}
+            borderRadius={14}
+            borderWidth={1}
+            borderColor={colors.accent}
+          />
           <View style={styles.studentDetails}>
             <Text style={styles.studentName}>{student.name}</Text>
             <Text style={styles.studentLogin}>@{student.login}</Text>
@@ -373,9 +386,16 @@ const UserStatsCard = ({ userStats }) => {
         
         <View style={styles.statsHeader}>
           <View style={styles.userProfile}>
-            <View style={styles.userAvatar}>
-              <Text style={styles.userAvatarText}>{userStats.name.charAt(0)}</Text>
-            </View>
+            <ProfileImage
+              imageUrl={userStats.picture}
+              name={userStats.name}
+              size={48}
+              backgroundColor={colors.lightAccent}
+              textColor={colors.accent}
+              borderRadius={14}
+              borderWidth={2}
+              borderColor={colors.accent}
+            />
             <View style={styles.userInfo}>
               <Text style={styles.userName}>{userStats.name}</Text>
               <Text style={styles.userLevel}>Level {userStats.level} • {userStats.program}</Text>
@@ -494,6 +514,7 @@ export default function StudentLeaderboard() {
       // Set user stats with real calculated data
       setUserStats({
         name: profile.nickname || 'Student',
+        picture: profile.picture || null,
         level: profile.level || 1,
         program: ApiService.getProgramFromEmail(profile.email || ''),
         rank: (ranking && ranking.userRank) || 999,
@@ -594,16 +615,6 @@ export default function StudentLeaderboard() {
           {/* User Stats */}
           <Animated.View entering={FadeInUp.delay(200)} style={styles.userStatsSection}>
             <UserStatsCard userStats={userStats} />
-          </Animated.View>
-
-          {/* Categories */}
-          <Animated.View entering={FadeInUp.delay(400)} style={styles.categoriesSection}>
-            <Text style={styles.sectionTitle}>Categories</Text>
-            <CategoryFilter
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSelect={handleCategorySelect}
-            />
           </Animated.View>
 
           {/* Top 3 Podium */}
@@ -770,6 +781,7 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     flex: 1,
+    marginLeft: 14
   },
   userName: {
     fontSize: 16,
@@ -873,7 +885,6 @@ const styles = StyleSheet.create({
     color: colors.primaryText,
     letterSpacing: 0.5,
     marginBottom: 16,
-    paddingHorizontal: 24,
   },
   categoriesContainer: {
     paddingHorizontal: 24,

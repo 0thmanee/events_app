@@ -777,6 +777,7 @@ router.patch('/push-settings', auth, async (req, res) => {
       newEvents,
       eventApproved,
       eventCancelled,
+      eventFeedback,
       quietHours
     } = req.body;
     
@@ -805,6 +806,9 @@ router.patch('/push-settings', auth, async (req, res) => {
     }
     if (typeof eventCancelled === 'boolean') {
       user.pushNotificationSettings.eventCancelled = eventCancelled;
+    }
+    if (typeof eventFeedback === 'boolean') {
+      user.pushNotificationSettings.eventFeedback = eventFeedback;
     }
     if (quietHours && typeof quietHours === 'object') {
       user.pushNotificationSettings.quietHours = {

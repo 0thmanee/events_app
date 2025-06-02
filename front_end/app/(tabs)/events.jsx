@@ -406,7 +406,6 @@ export default function EventsDiscovery() {
     { id: 'all', name: 'All', icon: Target, color: '#6b7280', count: events.length },
     { id: 'workshop', name: 'Workshop', icon: Code, color: '#3b82f6', count: events.filter(e => e.category === 'workshop').length },
     { id: 'talk', name: 'Talk', icon: Heart, color: '#ec4899', count: events.filter(e => e.category === 'talk').length },
-    { id: 'coding_night', name: 'Coding Night', icon: Coffee, color: '#f59e0b', count: events.filter(e => e.category === 'coding_night').length },
     { id: 'social', name: 'Social', icon: Users, color: '#10b981', count: events.filter(e => e.category === 'social').length },
   ];
 
@@ -683,6 +682,7 @@ const styles = StyleSheet.create({
   },
   featuredCard: {
     backgroundColor: colors.white,
+    marginTop: 14,
     borderRadius: 24,
     borderWidth: 1,
     borderColor: colors.cardBorder,
@@ -899,7 +899,6 @@ const styles = StyleSheet.create({
     borderTopColor: colors.cardBorder,
   },
   eventCredits: {
-    backgroundColor: colors.lightAccent,
     borderWidth: 1,
     borderColor: colors.accent,
     paddingHorizontal: 12,
@@ -916,6 +915,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.accent,
     letterSpacing: 0.5,
+    backgroundColor: 'inherit'
   },
   registrationIndicator: {
     flexDirection: 'row',

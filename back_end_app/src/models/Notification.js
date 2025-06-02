@@ -14,7 +14,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['event_created', 'event_reminder', 'event_approved', 'event_cancelled', 'general', 'system'],
+    enum: ['event_created', 'event_reminder', 'event_approved', 'event_cancelled', 'event_feedback', 'general', 'system'],
     required: true
   },
   
@@ -189,6 +189,15 @@ notificationSchema.statics.createEventNotification = async function(eventId, typ
       recipients = event.attendees.map(attendee => ({ _id: attendee.user }));
       break;
       
+    case 'event_feedback':
+      title = '💬 New Event Feedback Received';
+      message = customMessage || `Someone provided feedback for event "${event.title}".`;
+      // Send to all admins and the event creator
+      const adminUsers = await User.find({ role: { $in: ['admin', 'staff'] } }, '_id');
+      const creatorUser = event.creator ? [{ _id: event.creator._id }] : [];
+      recipients = [...adminUsers, ...creatorUser];
+      break;
+      
     default:
       throw new Error('Invalid notification type');
   }
@@ -229,6 +238,70 @@ notificationSchema.statics.createEventNotification = async function(eventId, typ
     await this.sendPushNotificationsForNotification(notification);
   } catch (pushError) {
     console.error('❌ Failed to send push notifications:', pushError);
+    notification.pushNotification.error = pushError.message;
+    await notification.save();
+  }
+  
+  return notification;
+};
+
+// Static method specifically for feedback notifications
+notificationSchema.statics.createFeedbackNotification = async function(eventId, feedbackData, submitterUser) {
+  const Event = mongoose.model('Event');
+  const User = mongoose.model('User');
+  
+  const event = await Event.findById(eventId).populate('creator');
+  if (!event) throw new Error('Event not found');
+  
+  const title = '💬 New Event Feedback Received';
+  const message = `${submitterUser.nickname} provided feedback for "${event.title}". Rating: ${feedbackData.rating}/5 stars.`;
+  
+  // Send to all admins and the event creator
+  const adminUsers = await User.find({ role: { $in: ['admin', 'staff'] } }, '_id');
+  const creatorUser = event.creator ? [{ _id: event.creator._id }] : [];
+  const recipients = [...adminUsers, ...creatorUser];
+  
+  const notificationData = {
+    title,
+    message,
+    type: 'event_feedback',
+    recipients: recipients.map(user => ({
+      user: user._id,
+      read: false,
+      delivered: false
+    })),
+    relatedEvent: eventId,
+    relatedUser: submitterUser._id,
+    data: {
+      eventId: eventId,
+      eventTitle: event.title,
+      eventDate: event.time,
+      feedbackRating: feedbackData.rating,
+      feedbackComment: feedbackData.comment.substring(0, 100), // First 100 chars
+      submitterNickname: submitterUser.nickname,
+      submitterId: submitterUser._id
+    },
+    inAppNotification: {
+      enabled: true,
+      priority: 'medium',
+      actionUrl: `/event-details/${eventId}`,
+      actionText: 'View Feedback'
+    },
+    pushNotification: {
+      enabled: true,
+      sent: false
+    }
+  };
+  
+  const notification = new this(notificationData);
+  await notification.save();
+  
+  // Send push notifications immediately after creating the notification
+  try {
+    console.log(`🚀 Triggering feedback notification for: ${title}`);
+    await this.sendPushNotificationsForNotification(notification);
+  } catch (pushError) {
+    console.error('❌ Failed to send feedback notification:', pushError);
     notification.pushNotification.error = pushError.message;
     await notification.save();
   }

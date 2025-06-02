@@ -168,7 +168,7 @@ const styles = {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: colors.secondaryBg,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.cardBorder,
     alignItems: 'center',

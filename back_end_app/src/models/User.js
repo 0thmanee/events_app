@@ -140,6 +140,10 @@ const userSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
+    eventFeedback: {
+      type: Boolean,
+      default: true
+    },
     quietHours: {
       enabled: {
         type: Boolean,
@@ -267,6 +271,8 @@ userSchema.methods.wantsPushNotification = function(notificationType) {
       return this.pushNotificationSettings?.eventApproved !== false;
     case 'event_cancelled':
       return this.pushNotificationSettings?.eventCancelled !== false;
+    case 'event_feedback':
+      return this.pushNotificationSettings?.eventFeedback !== false;
     default:
       return true;
   }

@@ -382,6 +382,7 @@ class ApiService {
           id: userProfile.id || 'unknown',
           name: userProfile.nickname || 'Student',
           email: userProfile.email || '',
+          picture: userProfile.picture || null,
           program: this.getProgramFromEmail(userProfile.email || ''),
           currentLevel: userProfile.level || 1,
           totalCredits: userProfile.wallet || 0,
@@ -601,6 +602,7 @@ class ApiService {
       return {
         id: user._id || user.id || `user-${index}`,
         name: user.nickname || 'Unknown User',
+        picture: user.picture || null,
         login: user.intraUsername || user.nickname?.toLowerCase().replace(/\s+/g, '') || `user${index}`,
         level: user.level || 1,
         xp: xp,
@@ -736,6 +738,11 @@ class ApiService {
     return this.makeRequest('/api/events/feedback-pending');
   }
 
+  // Get events available for feedback (with timing logic)
+  async getEventsAvailableForFeedback() {
+    return this.makeRequest('/api/events/feedback-available');
+  }
+
   // ========== ADMIN EVENT MANAGEMENT ==========
   
   // Get all events for admin management (including pending, rejected, etc.)
@@ -771,10 +778,31 @@ class ApiService {
   }
 
   // Update event (admin only)
-  async updateEvent(eventId, updates) {
+  async updateEvent(eventId, eventData) {
+    // Transform frontend form data to backend format if needed
+    const backendEventData = {
+      title: eventData.title?.trim(),
+      description: eventData.description?.trim(),
+      category: eventData.category,
+      location: eventData.location?.trim(),
+      maxCapacity: eventData.capacity ? parseInt(eventData.capacity) : undefined,
+      status: eventData.status,
+      // Convert date/time if provided
+      ...(eventData.date && eventData.time && {
+        time: new Date(`${eventData.date}T${eventData.time}`).toISOString()
+      })
+    };
+
+    // Remove undefined values
+    Object.keys(backendEventData).forEach(key => {
+      if (backendEventData[key] === undefined) {
+        delete backendEventData[key];
+      }
+    });
+
     return this.makeRequest(`/api/events/${eventId}`, {
       method: 'PATCH',
-      body: JSON.stringify(updates)
+      body: JSON.stringify(backendEventData)
     });
   }
 
@@ -984,6 +1012,22 @@ class ApiService {
   // Debug push notification service
   async debugPushNotifications() {
     return this.makeRequest('/api/users/debug-push');
+  }
+
+  // Get all feedbacks for staff/admin
+  async getAllFeedbacks(page = 1, limit = 20, eventId = null, rating = null) {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    if (eventId) params.append('eventId', eventId);
+    if (rating) params.append('rating', rating.toString());
+    
+    return this.makeRequest(`/api/events/feedbacks/all?${params.toString()}`);
+  }
+
+  // Get feedbacks for a specific event
+  async getEventFeedbacks(eventId) {
+    return this.makeRequest(`/api/events/${eventId}/feedbacks`);
   }
 }
 

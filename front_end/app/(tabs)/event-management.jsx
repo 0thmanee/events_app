@@ -2,13 +2,10 @@ import { View, Text, ScrollView, Pressable, Dimensions, RefreshControl, StatusBa
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
-  FadeInDown, 
-  FadeInUp,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
-  SlideInRight
+  withSpring
 } from 'react-native-reanimated';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
@@ -31,12 +28,14 @@ import {
   Award,
   User,
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  Edit3,
+  Trash2
 } from 'lucide-react-native';
 import AdminHeader from '../../components/AdminHeader';
 import ApiService from '../../services/ApiService';
 import { 
-  ProfessionalBackground, 
+  ProfessionalBackground,
   IconLoadingState,
   DataLoadingOverlay,
   PageTransitionLoading
@@ -75,7 +74,7 @@ const SimpleBackground = () => {
 };
 
 // Clean Simple Event Card
-const EventCard = ({ event, index, onPress, onApprove, onReject }) => {
+const EventCard = ({ event, index, onPress, onApprove, onReject, onEdit, onDelete }) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(1);
 
@@ -101,6 +100,8 @@ const EventCard = ({ event, index, onPress, onApprove, onReject }) => {
       case 'pending': return colors.warning;
       case 'approved': return colors.success;
       case 'rejected': return colors.error;
+      case 'completed': return colors.info;
+      case 'cancelled': return colors.muted;
       default: return colors.muted;
     }
   };
@@ -143,6 +144,23 @@ const EventCard = ({ event, index, onPress, onApprove, onReject }) => {
     );
   };
 
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    onEdit(event.id);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    Alert.alert(
+      'Delete Event',
+      `Are you sure you want to delete "${event.title}"? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => onDelete(event.id) }
+      ]
+    );
+  };
+
   return (
     <Animated.View style={[styles.eventCard, cardStyle]}>
       <Pressable
@@ -161,7 +179,6 @@ const EventCard = ({ event, index, onPress, onApprove, onReject }) => {
               <CategoryIcon color={colors.muted} size={16} strokeWidth={2} />
               <Text style={styles.categoryText}>{event.category}</Text>
             </View>
-            <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
           </View>
 
           {/* Title */}
@@ -201,6 +218,20 @@ const EventCard = ({ event, index, onPress, onApprove, onReject }) => {
               <Pressable style={styles.rejectButton} onPress={handleReject}>
                 <XCircle color={colors.white} size={16} strokeWidth={2} />
                 <Text style={styles.rejectButtonText}>Reject</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {/* Edit & Delete buttons for approved/completed events */}
+          {(event.status === 'approved' || event.status === 'completed') && (
+            <View style={styles.actionButtons}>
+              <Pressable style={styles.editButton} onPress={handleEdit}>
+                <Edit3 color={colors.white} size={16} strokeWidth={2} />
+                <Text style={styles.editButtonText}>Edit</Text>
+              </Pressable>
+              <Pressable style={styles.deleteButton} onPress={handleDelete}>
+                <Trash2 color={colors.white} size={16} strokeWidth={2} />
+                <Text style={styles.deleteButtonText}>Delete</Text>
               </Pressable>
             </View>
           )}
@@ -245,7 +276,6 @@ const QuickStats = ({ events }) => {
       {stats.map((stat, index) => (
         <Animated.View 
           key={stat.label}
-          entering={FadeInUp.delay(200 + index * 100)}
           style={styles.statCard}
         >
           <Text style={[styles.statValue, { color: stat.color }]}>{stat.value}</Text>
@@ -323,6 +353,21 @@ export default function EventManagement() {
     }
   };
 
+  const handleEditEvent = (eventId) => {
+    router.push(`/edit-event?id=${eventId}`);
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      await ApiService.deleteEvent(eventId);
+      Alert.alert('Success', 'Event deleted successfully!');
+      await loadEvents(); // Reload events
+    } catch (error) {
+      console.error('Failed to delete event:', error);
+      Alert.alert('Error', `Failed to delete event: ${error.message}`);
+    }
+  };
+
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.organizer.toLowerCase().includes(searchQuery.toLowerCase());
@@ -338,12 +383,10 @@ export default function EventManagement() {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-        <DataLoadingOverlay 
-          visible={true}
-          message="Loading Events"
-          subMessage="Fetching event management data"
-          icon={Calendar}
-        />
+        <SimpleBackground />
+        <SafeAreaView style={styles.safeArea}>
+          <AdminHeader title="Event Management" subtitle="Approve and manage events" />
+        </SafeAreaView>
       </View>
     );
   }
@@ -356,17 +399,6 @@ export default function EventManagement() {
         <SimpleBackground />
         <SafeAreaView style={styles.safeArea}>
           <AdminHeader title="Event Management" subtitle="Approve and manage events" />
-          <View style={styles.errorContainer}>
-            <IconLoadingState 
-              icon={AlertTriangle}
-              message="Unable to Load Events"
-              subMessage={error}
-            />
-            <Pressable style={styles.retryButton} onPress={loadEvents}>
-              <RefreshCw color={colors.white} size={16} strokeWidth={2} />
-              <Text style={styles.retryButtonText}>Try Again</Text>
-            </Pressable>
-          </View>
         </SafeAreaView>
       </View>
     );
@@ -391,7 +423,7 @@ export default function EventManagement() {
           <QuickStats events={events} />
 
           {/* Search */}
-          <Animated.View entering={FadeInUp.delay(400)} style={styles.searchSection}>
+          <Animated.View style={styles.searchSection}>
             <View style={styles.searchBar}>
               <Search color={colors.muted} size={20} strokeWidth={2} />
               <TextInput
@@ -410,10 +442,7 @@ export default function EventManagement() {
             </View>
 
             {showFilters && (
-              <Animated.View 
-                entering={FadeInDown.duration(200)}
-                style={styles.filterRow}
-              >
+              <Animated.View style={styles.filterRow}>
                 {['all', 'pending', 'approved', 'rejected'].map((filter) => (
                   <Pressable
                     key={filter}
@@ -455,6 +484,8 @@ export default function EventManagement() {
                 onPress={handleEventPress}
                 onApprove={handleApproveEvent}
                 onReject={handleRejectEvent}
+                onEdit={handleEditEvent}
+                onDelete={handleDeleteEvent}
               />
             ))}
 
@@ -777,6 +808,38 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.white,
   },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.info,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  editButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.white,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.error,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  deleteButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.white,
+  },
 
   // Arrow Container
   arrowContainer: {
@@ -805,27 +868,5 @@ const styles = StyleSheet.create({
 
   bottomSpacer: {
     height: 40,
-  },
-
-  // Error container styles
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  retryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.accent,
-    padding: 12,
-    borderRadius: 12,
-    gap: 6,
-    marginTop: 16,
-  },
-  retryButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.white,
   },
 }); 

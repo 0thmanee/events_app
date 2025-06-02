@@ -2,12 +2,13 @@ import { View, Text, ScrollView, Pressable, Dimensions, RefreshControl, StatusBa
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
-  FadeInDown, 
-  FadeInUp,
   useSharedValue,
   useAnimatedStyle,
+  withSpring,
   withTiming,
-  withSpring
+  interpolate,
+  runOnJS,
+  Easing
 } from 'react-native-reanimated';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
@@ -53,14 +54,11 @@ import CalendarService from '../../services/CalendarService';
 import NotificationService from '../../services/NotificationService';
 import NotificationBell from '../../components/NotificationBell';
 import { 
-  ProfessionalBackground, 
-  EventCardSkeleton, 
-  SummaryCardSkeleton, 
-  IconLoadingState,
-  DataLoadingOverlay,
-  PageTransitionLoading
+  ProfessionalBackground,
+  EventCardSkeleton
 } from '../../components/LoadingComponents';
 import usePageTransition from '../../hooks/usePageTransition';
+import ProfileImage from '../../components/ProfileImage';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -117,16 +115,22 @@ const ExecutiveSummaryCard = ({ data }) => {
   }));
 
   return (
-    <Animated.View style={[styles.summaryCard, cardStyle, { 
+    <View style={[styles.summaryCard, cardStyle, { 
       backgroundColor: colors.white,
       borderColor: colors.cardBorder,
       shadowColor: colors.primaryText
     }]}>
       <View style={styles.summaryHeader}>
         <View style={styles.userProfile}>
-          <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
-            <Text style={[styles.avatarInitial, { color: colors.white }]}>{data.name.charAt(0)}</Text>
-          </View>
+          <ProfileImage
+            imageUrl={data.picture}
+            name={data.name}
+            size={52}
+            backgroundColor={colors.accent}
+            textColor={colors.white}
+            borderRadius={26}
+            style={{ marginRight: 16 }}
+          />
           <View style={styles.userInfo}>
             <Text style={[styles.userName, { color: colors.primaryText }]}>{data.name}</Text>
             <Text style={[styles.userRole, { color: colors.secondaryText }]}>Student • {data.program}</Text>
@@ -166,7 +170,7 @@ const ExecutiveSummaryCard = ({ data }) => {
           {data.creditsToNext} credits needed for Level {data.currentLevel + 1}
         </Text>
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -193,7 +197,7 @@ const BusinessMetricCard = ({ metric, index }) => {
   const trendColor = metric.trend === 'up' ? colors.success : colors.error;
 
   return (
-    <Animated.View style={[styles.metricCard, cardStyle, {
+    <View style={[styles.metricCard, cardStyle, {
       backgroundColor: colors.white,
       borderColor: colors.cardBorder,
       shadowColor: colors.primaryText
@@ -229,7 +233,7 @@ const BusinessMetricCard = ({ metric, index }) => {
         </View>
         <Text style={[styles.periodText, { color: colors.muted }]}>{metric.period}</Text>
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -276,7 +280,7 @@ const ProfessionalEventCard = ({ event, index, onPress }) => {
   } : {};
 
   return (
-    <Animated.View style={[styles.eventCard, cardStyle, cardBorderStyle, {
+    <View style={[styles.eventCard, cardStyle, cardBorderStyle, {
       backgroundColor: colors.white,
       borderColor: colors.cardBorder,
       shadowColor: colors.primaryText
@@ -332,7 +336,7 @@ const ProfessionalEventCard = ({ event, index, onPress }) => {
           </View>
         </View>
       </Pressable>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -353,7 +357,7 @@ const QuickActionButton = ({ action, onPress, delay = 0 }) => {
   }));
 
   return (
-    <Animated.View style={buttonStyle}>
+    <View style={buttonStyle}>
       <Pressable style={[styles.actionButton, {
         backgroundColor: colors.white,
         borderColor: colors.cardBorder,
@@ -375,7 +379,7 @@ const QuickActionButton = ({ action, onPress, delay = 0 }) => {
         </View>
         <Text style={[styles.actionText, { color: colors.primaryText }]}>{action.label}</Text>
       </Pressable>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -413,7 +417,7 @@ const RecommendedEventsSection = ({ navigateWithTransition }) => {
   }
 
   return (
-    <Animated.View entering={FadeInUp.delay(600)} style={styles.recommendationsSection}>
+    <View style={styles.recommendationsSection}>
       <View style={styles.sectionHeader}>
         <View style={styles.recommendationHeader}>
           <Sparkles color={colors.highlight} size={20} strokeWidth={1.5} />
@@ -463,10 +467,10 @@ const RecommendedEventsSection = ({ navigateWithTransition }) => {
                   <Clock color={colors.muted} size={12} strokeWidth={1.5} />
                   <Text style={[styles.recommendationDetailText, { color: colors.secondaryText }]}>{event.time}</Text>
                 </View>
-                <View style={styles.recommendationDetail}>
+                {/* <View style={styles.recommendationDetail}>
                   <MapPin color={colors.muted} size={12} strokeWidth={1.5} />
                   <Text style={[styles.recommendationDetailText, { color: colors.secondaryText }]}>{event.location}</Text>
-                </View>
+                </View> */}
               </View>
 
               <View style={styles.recommendationTags}>
@@ -483,7 +487,7 @@ const RecommendedEventsSection = ({ navigateWithTransition }) => {
           </Pressable>
         ))}
       </ScrollView>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -536,7 +540,7 @@ const QuickAccessFeatures = ({ navigateWithTransition }) => {
   };
 
   return (
-    <Animated.View entering={FadeInUp.delay(400)} style={styles.quickAccessSection}>
+    <View style={styles.quickAccessSection}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Quick Access</Text>
       </View>
@@ -551,7 +555,7 @@ const QuickAccessFeatures = ({ navigateWithTransition }) => {
           />
         ))}
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -562,7 +566,7 @@ const BusinessMetricsSection = ({ businessMetrics, navigateWithTransition }) => 
   }
 
   return (
-    <Animated.View entering={FadeInUp.delay(300)} style={styles.metricsSection}>
+    <View style={styles.metricsSection}>
       <View style={styles.sectionHeader}>
         <View style={styles.metricsHeaderContainer}>
           <BarChart3 color={colors.accent} size={20} strokeWidth={1.5} />
@@ -583,7 +587,7 @@ const BusinessMetricsSection = ({ businessMetrics, navigateWithTransition }) => 
           />
         ))}
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -607,7 +611,7 @@ const FloatingActionButton = ({ navigateWithTransition }) => {
   }));
 
   return (
-    <Animated.View style={[styles.floatingActionButton, fabStyle]}>
+    <View style={[styles.floatingActionButton, fabStyle]}>
       <Pressable 
         style={[styles.fabButton, {
           backgroundColor: colors.accent,
@@ -623,7 +627,7 @@ const FloatingActionButton = ({ navigateWithTransition }) => {
         />
         <Plus color={colors.white} size={24} strokeWidth={2.5} />
       </Pressable>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -637,7 +641,7 @@ const StatsOverviewCard = ({ data }) => {
   ];
 
   return (
-    <Animated.View entering={FadeInUp.delay(500)} style={styles.statsOverviewSection}>
+    <View style={styles.statsOverviewSection}>
       <View style={styles.sectionHeader}>
         <View style={styles.statsHeaderContainer}>
           <Activity color={colors.accent} size={20} strokeWidth={1.5} />
@@ -647,9 +651,8 @@ const StatsOverviewCard = ({ data }) => {
 
       <View style={styles.statsGrid}>
         {statsData.map((stat, index) => (
-          <Animated.View 
+          <View 
             key={stat.label}
-            entering={FadeInDown.delay(600 + index * 100)}
             style={[styles.statCard, {
               backgroundColor: colors.white,
               borderColor: colors.cardBorder,
@@ -661,10 +664,10 @@ const StatsOverviewCard = ({ data }) => {
             </View>
             <Text style={[styles.statValue, { color: colors.primaryText }]}>{stat.value}</Text>
             <Text style={[styles.statLabel, { color: colors.secondaryText }]}>{stat.label}</Text>
-          </Animated.View>
+          </View>
         ))}
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -706,12 +709,7 @@ export default function StudentDashboard() {
     return (
       <View style={[styles.container, { backgroundColor: colors.primaryBg }]}>
         <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-        <DataLoadingOverlay 
-          visible={true}
-          message="Loading Dashboard"
-          subMessage="Fetching your student data and upcoming events"
-          icon={Activity}
-        />
+        <ProfessionalBackground />
       </View>
     );
   }
@@ -721,11 +719,7 @@ export default function StudentDashboard() {
     return (
       <View style={[styles.container, { backgroundColor: colors.primaryBg }]}>
         <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-        <IconLoadingState 
-          icon={AlertTriangle}
-          message="Unable to Load Dashboard"
-          subMessage={error}
-        />
+        <ProfessionalBackground />
       </View>
     );
   }
@@ -826,12 +820,12 @@ export default function StudentDashboard() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Executive Summary */}
-          <Animated.View entering={FadeInDown.delay(200)} style={styles.summarySection}>
+          <View style={styles.summarySection}>
             <ExecutiveSummaryCard data={studentData} />
-          </Animated.View>
+          </View>
 
           {/* Quick Access Features */}
-          <QuickAccessFeatures navigateWithTransition={navigateWithTransition} />
+          {/* <QuickAccessFeatures navigateWithTransition={navigateWithTransition} /> */}
 
           {/* Business Metrics */}
           {/* <BusinessMetricsSection businessMetrics={businessMetrics} navigateWithTransition={navigateWithTransition} /> */}
@@ -843,7 +837,7 @@ export default function StudentDashboard() {
           <RecommendedEventsSection navigateWithTransition={navigateWithTransition} />
 
           {/* Upcoming Events */}
-          <Animated.View entering={FadeInUp.delay(800)} style={styles.eventsSection}>
+          <View style={styles.eventsSection}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>Upcoming Events</Text>
               <Pressable style={styles.viewAllButton} onPress={() => navigateWithTransition('/events', 'Loading all events...')}>
@@ -862,7 +856,7 @@ export default function StudentDashboard() {
                 />
               ))}
             </View>
-          </Animated.View>
+          </View>
 
           <View style={styles.bottomSpacer} />
         </ScrollView>
@@ -870,9 +864,6 @@ export default function StudentDashboard() {
 
       {/* Floating Action Button */}
       <FloatingActionButton navigateWithTransition={navigateWithTransition} />
-
-      {/* Page Transition Loading Overlay */}
-      <PageTransitionLoading visible={isNavigating} message={navigationMessage} />
     </View>
   );
 } 

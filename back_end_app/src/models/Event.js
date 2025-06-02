@@ -30,7 +30,7 @@ const eventSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['workshop', 'talk', 'coding_night', 'social', 'other'],
+    enum: ['workshop', 'talk', 'vibe_coding', 'social', 'other'],
     default: 'other'
   },
   volunteers: [{

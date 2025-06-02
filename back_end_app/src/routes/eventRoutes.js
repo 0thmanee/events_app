@@ -414,6 +414,15 @@ router.post('/:id/feedback', auth, async (req, res) => {
       .populate('feedbacks.user', 'nickname picture')
       .then(e => e.feedbacks[e.feedbacks.length - 1]);
 
+    // Send notification to admins about new feedback
+    try {
+      await Notification.createFeedbackNotification(event._id, feedback, req.user);
+      console.log(`📱 Feedback notification sent to admins for event: ${event.title}`);
+    } catch (notificationError) {
+      console.error('Failed to send feedback notification:', notificationError);
+      // Don't fail the feedback submission if notification fails
+    }
+
     console.log(`✅ Feedback submitted by ${req.user.nickname} for event: ${event.title}`);
 
     res.status(201).json({
@@ -524,7 +533,7 @@ router.delete('/:id', auth, isAdmin, async (req, res) => {
       { $pull: { eventsAttended: event._id, feedbacksGiven: event._id } }
     );
 
-    await event.remove();
+    await Event.findByIdAndDelete(req.params.id);
     res.json({ message: 'Event deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

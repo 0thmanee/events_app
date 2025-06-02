@@ -100,13 +100,13 @@ const RewardEventCard = ({ event, index, onPress }) => {
 
         <View style={styles.eventFooter}>
           <View style={styles.eventProgress}>
-            <Text style={styles.progressText}>{event.registered}/{event.maxParticipants} registered</Text>
+            <Text style={styles.progressText}>{event.enrolled || 0}/{event.capacity || event.maxParticipants} registered</Text>
             <View style={styles.progressBar}>
               <View 
                 style={[
                   styles.progressFill, 
                   { 
-                    width: `${(event.registered / event.maxParticipants) * 100}%`,
+                    width: `${((event.enrolled || 0) / (event.capacity || event.maxParticipants)) * 100}%`,
                     backgroundColor: color 
                   }
                 ]} 

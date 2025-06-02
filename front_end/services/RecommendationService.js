@@ -30,7 +30,7 @@ class RecommendationService {
       this.userInterests = storedInterests ? JSON.parse(storedInterests) : {
         workshop: 0,
         talk: 0,
-        coding_night: 0,
+        vibe_coding: 0,
         social: 0,
         other: 0
       };
@@ -95,7 +95,7 @@ class RecommendationService {
         this.categoryWeights = {
           workshop: 0.3,
           talk: 0.2,
-          coding_night: 0.25,
+          vibe_coding: 0.25,
           social: 0.15,
           other: 0.1
         };
@@ -279,7 +279,7 @@ class RecommendationService {
     // Adjust based on category
     const categoryDifficulty = {
       workshop: 0,
-      coding_night: 1,
+      vibe_coding: 1,
       talk: -1,
       social: -2,
       other: 0
@@ -341,7 +341,7 @@ class RecommendationService {
     // Category-specific reasons
     if (event.category === 'workshop') {
       reasons.push('Hands-on learning');
-    } else if (event.category === 'coding_night') {
+    } else if (event.category === 'vibe_coding') {
       reasons.push('Coding practice');
     } else if (event.category === 'talk') {
       reasons.push('Knowledge sharing');

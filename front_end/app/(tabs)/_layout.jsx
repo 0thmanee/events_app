@@ -202,8 +202,6 @@ function CustomTab({ route, options, isFocused, onPress, index, userRole }) {
   const iconOpacity = useSharedValue(isFocused ? 1 : 0.6);
   const textOpacity = useSharedValue(isFocused ? 1 : 0.7);
   const iconTranslateY = useSharedValue(0);
-  const backgroundOpacity = useSharedValue(isFocused ? 1 : 0);
-  const backgroundScale = useSharedValue(isFocused ? 1 : 0.8);
 
   useEffect(() => {
     iconOpacity.value = withTiming(isFocused ? 1 : 0.6, { duration: 250 });
@@ -212,20 +210,10 @@ function CustomTab({ route, options, isFocused, onPress, index, userRole }) {
       damping: 20,
       stiffness: 300,
     });
-    backgroundOpacity.value = withTiming(isFocused ? 1 : 0, { duration: 250 });
-    backgroundScale.value = withSpring(isFocused ? 1 : 0.8, {
-      damping: 15,
-      stiffness: 200,
-    });
   }, [isFocused]);
 
   const tabStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-  }));
-
-  const backgroundStyle = useAnimatedStyle(() => ({
-    opacity: backgroundOpacity.value,
-    transform: [{ scale: backgroundScale.value }],
   }));
 
   const iconContainerStyle = useAnimatedStyle(() => ({
@@ -311,45 +299,6 @@ function CustomTab({ route, options, isFocused, onPress, index, userRole }) {
         scale.value = withSpring(1, { damping: 20, stiffness: 300 });
       }}
     >
-      {/* Active background with gradient */}
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            borderRadius: 18,
-            overflow: 'hidden',
-          },
-          backgroundStyle,
-        ]}
-      >
-        <LinearGradient
-          colors={[colors.accent + '20', colors.accent + '10']}
-          style={{
-            flex: 1,
-            borderRadius: 18,
-          }}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
-        {/* Subtle border for active state */}
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            borderRadius: 18,
-            borderWidth: 1,
-            borderColor: colors.accent + '30',
-          }}
-        />
-      </Animated.View>
-
       {/* Icon Container */}
       <Animated.View
         style={[
@@ -383,25 +332,6 @@ function CustomTab({ route, options, isFocused, onPress, index, userRole }) {
       >
         {options.title}
       </Animated.Text>
-
-      {/* Modern active indicator - glowing dot */}
-      {isFocused && (
-        <Animated.View
-          style={{
-            position: "absolute",
-            top: 6,
-            width: 4,
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: colors.accent,
-            shadowColor: colors.accent,
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.8,
-            shadowRadius: 4,
-            elevation: 4,
-          }}
-        />
-      )}
     </AnimatedPressable>
   );
 }

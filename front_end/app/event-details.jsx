@@ -1,16 +1,6 @@
 import { View, Text, ScrollView, Pressable, Dimensions, RefreshControl, Alert, StatusBar, StyleSheet, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { 
-  FadeInDown, 
-  FadeInRight,
-  FadeInUp,
-  FadeInLeft,
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-} from 'react-native-reanimated';
 import { useState, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { 
@@ -58,10 +48,7 @@ import CalendarService from '../services/CalendarService';
 import QRCodeService from '../services/QRCodeService';
 import { isStaff } from '../utils/auth';
 import { 
-  ProfessionalBackground, 
-  IconLoadingState,
-  DataLoadingOverlay,
-  PageTransitionLoading
+  ProfessionalBackground
 } from '../components/LoadingComponents';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -184,16 +171,6 @@ const StudentHeader = ({ onBack }) => {
 
 // Event Hero Card
 const EventHeroCard = ({ event }) => {
-  const cardOpacity = useSharedValue(0);
-
-  useEffect(() => {
-    cardOpacity.value = withTiming(1, { duration: 800 });
-  }, []);
-
-  const cardStyle = useAnimatedStyle(() => ({
-    opacity: cardOpacity.value,
-  }));
-
   const getStatusConfig = (status) => {
     switch (status) {
       case 'approved':
@@ -226,7 +203,7 @@ const EventHeroCard = ({ event }) => {
   const RegistrationIcon = registrationConfig.icon;
 
   return (
-    <Animated.View style={[styles.heroCard, cardStyle]}>
+    <View style={styles.heroCard}>
       {/* Enhanced gradient overlay */}
       <LinearGradient
         colors={['rgba(59, 130, 246, 0.1)', 'transparent', 'rgba(0, 0, 0, 0.1)']}
@@ -290,35 +267,21 @@ const EventHeroCard = ({ event }) => {
           <Text style={styles.heroCreditsText}>{event.credits} Credits</Text>
         </View>
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
 // Info Section Card
 const InfoSectionCard = ({ title, children, delay = 0 }) => {
-  const cardOpacity = useSharedValue(0);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      cardOpacity.value = withTiming(1, { duration: 600 });
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  const cardStyle = useAnimatedStyle(() => ({
-    opacity: cardOpacity.value,
-  }));
-
   return (
-    <Animated.View style={[styles.infoSectionCard, cardStyle]}>
+    <View style={styles.infoSectionCard}>
       <LinearGradient
         colors={['rgba(255, 255, 255, 0.02)', 'transparent']}
         style={styles.infoSectionGradient}
       />
       <Text style={styles.infoSectionTitle}>{title}</Text>
       {children}
-    </Animated.View>
+    </View>
   );
 };
 
@@ -390,12 +353,18 @@ const ActionButton = ({ icon: Icon, title, onPress, variant = 'primary', disable
     if (disabled || variant === 'disabled') {
       return styles.actionButtonTextDisabled;
     }
+    if (variant === 'secondary') {
+      return styles.actionButtonTextSecondary;
+    }
     return styles.actionButtonText;
   };
 
   const getIconColor = () => {
     if (disabled || variant === 'disabled') {
       return '#6b7280';
+    }
+    if (variant === 'secondary') {
+      return colors.primaryText; // Dark color for secondary buttons
     }
     return '#ffffff';
   };
@@ -904,6 +873,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#ffffff',
   },
+  actionButtonTextSecondary: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primaryText,
+  },
   actionButtonTextDisabled: {
     fontSize: 16,
     fontWeight: '600',
@@ -1139,17 +1113,35 @@ export default function EventDetails() {
     }
   };
 
+  const handleGiveFeedback = () => {
+    router.push(`/give-feedback?eventId=${event.id}`);
+  };
+
+  const checkIfCanGiveFeedback = () => {
+    if (!event) return false;
+    
+    // Only allow feedback if user attended and event has ended
+    if (event.registrationStatus !== 'enrolled' && event.attendanceStatus !== 'attended') {
+      return false;
+    }
+    
+    const now = new Date();
+    const eventTime = new Date(event.time);
+    const eventEndTime = new Date(eventTime.getTime() + (event.expectedTime || 2) * 60 * 60 * 1000);
+    const feedbackAvailableTime = new Date(eventEndTime.getTime() + 5 * 60 * 1000); // 5 minutes after event ends
+    
+    return now >= feedbackAvailableTime;
+  };
+
   // Show loading state
   if (loading) {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-        <DataLoadingOverlay 
-          visible={true}
-          message="Loading Event Details"
-          subMessage="Fetching event information and requirements"
-          icon={Calendar}
-        />
+        <ProfessionalBackground />
+        <SafeAreaView style={styles.safeArea}>
+          <StudentHeader onBack={handleBack} />
+        </SafeAreaView>
       </View>
     );
   }
@@ -1159,11 +1151,10 @@ export default function EventDetails() {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-        <IconLoadingState 
-          icon={AlertCircle}
-          message={error ? 'Failed to Load Event' : 'Event Not Found'}
-          subMessage={error || "The event you're looking for doesn't exist or has been removed."}
-        />
+        <ProfessionalBackground />
+        <SafeAreaView style={styles.safeArea}>
+          <StudentHeader onBack={handleBack} />
+        </SafeAreaView>
       </View>
     );
   }
@@ -1231,39 +1222,20 @@ export default function EventDetails() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Hero Section */}
-          <Animated.View entering={FadeInDown.delay(200)} style={styles.heroSection}>
+          <View style={styles.heroSection}>
             <EventHeroCard event={event} />
-          </Animated.View>
+          </View>
 
           {/* Requirements */}
-          <Animated.View entering={FadeInUp.delay(400)} style={styles.section}>
-            <InfoSectionCard title="Requirements" delay={400}>
+          <View style={styles.section}>
+            <InfoSectionCard title="Requirements">
               <Text style={styles.requirementsText}>{event.requirements}</Text>
             </InfoSectionCard>
-          </Animated.View>
-
-          {/* Agenda */}
-          <Animated.View entering={FadeInUp.delay(600)} style={styles.section}>
-            <InfoSectionCard title="Event Agenda" delay={600}>
-              <View style={styles.agendaContainer}>
-                {event.agenda.map((item, index) => {
-                  const [time, activity] = item.split(' - ');
-                  return (
-                    <AgendaItem
-                      key={index}
-                      time={time}
-                      activity={activity}
-                      index={index}
-                    />
-                  );
-                })}
-              </View>
-            </InfoSectionCard>
-          </Animated.View>
+          </View>
 
           {/* Speaker Info */}
-          <Animated.View entering={FadeInUp.delay(800)} style={styles.section}>
-            <InfoSectionCard title="Speaker" delay={800}>
+          <View style={styles.section}>
+            <InfoSectionCard title="Speaker">
               <View style={styles.speakerCard}>
                 <View style={styles.speakerAvatar}>
                   <Text style={styles.speakerAvatarText}>{event.speaker.name.charAt(0)}</Text>
@@ -1275,25 +1247,25 @@ export default function EventDetails() {
                 </View>
               </View>
             </InfoSectionCard>
-          </Animated.View>
+          </View>
 
           {/* Volunteers */}
           {event.volunteers && event.volunteers.length > 0 && (
-            <Animated.View entering={FadeInUp.delay(1000)} style={styles.section}>
-              <InfoSectionCard title="Event Volunteers" delay={1000}>
+            <View style={styles.section}>
+              <InfoSectionCard title="Event Volunteers">
                 <View style={styles.volunteersContainer}>
                   {event.volunteers.map((volunteer, index) => (
                     <VolunteerCard key={volunteer.id} volunteer={volunteer} index={index} />
                   ))}
                 </View>
               </InfoSectionCard>
-            </Animated.View>
+            </View>
           )}
 
           {/* Action Buttons - Different for Staff vs Students */}
           {userIsStaff ? (
             // Staff QR Scanner Actions
-            <Animated.View entering={FadeInUp.delay(1200)} style={styles.actionsSection}>
+            <View style={styles.actionsSection}>
               <View style={styles.staffActionsHeader}>
                 <Text style={styles.staffActionsTitle}>Staff Check-in</Text>
                 <Text style={styles.staffActionsSubtitle}>Scan student QR codes to verify registration</Text>
@@ -1334,10 +1306,10 @@ export default function EventDetails() {
                   <Text style={styles.staffStatLabel}>Full</Text>
                 </View>
               </View>
-            </Animated.View>
+            </View>
           ) : (
             // Student Registration Actions
-            <Animated.View entering={FadeInUp.delay(1200)} style={styles.actionsSection}>
+            <View style={styles.actionsSection}>
               {/* Quick Actions Row */}
               <View style={styles.quickActionsRow}>
                 <ActionButton
@@ -1356,6 +1328,16 @@ export default function EventDetails() {
                   disabled={false}
                   style={styles.quickActionButton}
                 />
+                {checkIfCanGiveFeedback() && (
+                  <ActionButton
+                    icon={Star}
+                    title="Give Feedback"
+                    onPress={handleGiveFeedback}
+                    variant="primary"
+                    disabled={false}
+                    style={styles.quickActionButton}
+                  />
+                )}
               </View>
               
               {/* Main Registration Button */}
@@ -1366,7 +1348,7 @@ export default function EventDetails() {
                 variant={buttonProps.variant}
                 disabled={buttonProps.disabled}
               />
-            </Animated.View>
+            </View>
           )}
 
           <View style={styles.bottomSpacer} />

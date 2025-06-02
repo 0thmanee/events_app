@@ -2,10 +2,6 @@ import { View, Text, ScrollView, Pressable, Dimensions, RefreshControl, Alert, S
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
-  FadeInDown, 
-  FadeInRight,
-  FadeInUp,
-  FadeInLeft,
   useSharedValue,
   useAnimatedStyle,
   withSpring,
@@ -275,8 +271,8 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.cardBorder,
+    // borderWidth: 2,
+    // borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -360,7 +356,6 @@ const styles = StyleSheet.create({
   profileAvatar: {
     width: 44,
     height: 44,
-    backgroundColor: colors.lightAccent,
     borderWidth: 2,
     borderColor: colors.accent,
     borderRadius: 22,
@@ -1373,7 +1368,7 @@ export default function AdminDashboard() {
             }
           >
             {/* Clean Professional Header */}
-            <Animated.View entering={FadeInDown.delay(200)} style={styles.cleanHeader}>
+            <View style={styles.cleanHeader}>
               <View style={styles.headerRow}>
                 {/* Innovative Logo */}
                 <View style={styles.logoContainer}>
@@ -1395,18 +1390,18 @@ export default function AdminDashboard() {
                   </View>
                 </View>
 
-                {/* User Profile Icon */}
-                <Pressable style={styles.profileButton}>
+                {/* Settings Button */}
+                <Pressable style={styles.profileButton} onPress={() => router.push('/settings')}>
                   <View style={styles.profileAvatar}>
-                    <User color={colors.accent} size={20} strokeWidth={2} />
+                    <Settings color={colors.accent} size={20} strokeWidth={2} />
                   </View>
                   <View style={styles.profileDot} />
                 </Pressable>
               </View>
-            </Animated.View>
+            </View>
 
             {/* Management Modules - Enhanced Layout */}
-            <Animated.View entering={FadeInUp.delay(800)} style={styles.managementSection}>
+            <View style={styles.managementSection}>
               
               {/* Section Title */}
               {/* <Animated.View entering={FadeInDown.delay(900)} style={styles.managementHeader}>
@@ -1424,9 +1419,8 @@ export default function AdminDashboard() {
               {/* Primary Cards Row */}
               <View style={styles.primaryCardsRow}>
                 {managementModules.slice(0, 2).map((module, index) => (
-                  <Animated.View
+                  <View
                     key={module.title}
-                    entering={FadeInRight.delay(1000 + index * 150)}
                     style={styles.primaryCardWrapper}
                   >
                     <Pressable 
@@ -1465,16 +1459,15 @@ export default function AdminDashboard() {
                         </View>
                       </View>
                     </Pressable>
-                  </Animated.View>
+                  </View>
                 ))}
               </View>
 
               {/* Secondary Cards Grid */}
               <View style={styles.secondaryCardsGrid}>
                 {managementModules.slice(2).map((module, index) => (
-                  <Animated.View
+                  <View
                     key={module.title}
-                    entering={FadeInUp.delay(1300 + index * 120)}
                     style={styles.secondaryCardWrapper}
                   >
                     <Pressable 
@@ -1499,10 +1492,10 @@ export default function AdminDashboard() {
                       
                       {/* <View style={[styles.secondaryAccessIndicator, { backgroundColor: module.color }]} /> */}
                     </Pressable>
-                  </Animated.View>
+                  </View>
                 ))}
               </View>
-            </Animated.View>
+            </View>
 
             <View style={styles.bottomSpacer} />
           </ScrollView>

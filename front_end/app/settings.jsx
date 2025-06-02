@@ -35,6 +35,7 @@ import {
   BarChart3
 } from 'lucide-react-native';
 import ApiService from '../services/ApiService';
+import ProfileImage from '../components/ProfileImage';
 import NotificationService from '../services/NotificationService';
 import CalendarService from '../services/CalendarService';
 import RecommendationService from '../services/RecommendationService';
@@ -180,17 +181,29 @@ const ProfileCard = ({ user, onEditPress }) => {
       />
       
       <View style={styles.profileContent}>
-        <View style={styles.profileAvatar}>
-          <Text style={styles.profileAvatarText}>{getUserName().charAt(0).toUpperCase()}</Text>
-        </View>
+        <ProfileImage
+          imageUrl={user.picture}
+          name={getUserName()}
+          size={56}
+          backgroundColor={colors.accent}
+          textColor={colors.white}
+          borderRadius={16}
+          borderWidth={2}
+          borderColor={colors.accent}
+          style={{ 
+            marginRight: 16,
+            shadowColor: colors.accent,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        />
         <View style={styles.profileInfo}>
           <Text style={styles.profileName}>{getUserName()}</Text>
           <Text style={styles.profileEmail}>{getUserEmail()}</Text>
-          <Text style={styles.profileProgram}>{getUserProgram()}</Text>
         </View>
-        <Pressable style={styles.editButton} onPress={onEditPress}>
           <Text style={styles.editButtonText}>Edit</Text>
-        </Pressable>
       </View>
     </Animated.View>
   );
@@ -575,34 +588,10 @@ export default function Settings() {
               onValueChange={handleCalendarSyncChange}
               color="#10b981"
             />
-            <ToggleItem
-              icon={Sparkles}
-              title="Personalized Recommendations"
-              subtitle="Get AI-powered event suggestions"
-              value={recommendationsEnabled}
-              onValueChange={handleRecommendationsChange}
-              color="#f59e0b"
-            />
-            <ToggleItem
-              icon={QrCode}
-              title="QR Check-in Notifications"
-              subtitle="Notifications for QR code check-ins"
-              value={qrNotifications}
-              onValueChange={handleQrNotificationsChange}
-              color="#ef4444"
-            />
           </SettingsSection>
 
           {/* App Preferences */}
           <SettingsSection title="App Preferences" delay={800}>
-            <ToggleItem
-              icon={Moon}
-              title="Dark Mode"
-              subtitle="Use dark theme"
-              value={darkMode}
-              onValueChange={handleDarkModeChange}
-              color="#6b7280"
-            />
             <SettingsItem
               icon={Globe}
               title="Language"
@@ -610,47 +599,9 @@ export default function Settings() {
               onPress={handleLanguagePress}
               color="#ec4899"
             />
-            <ToggleItem
-              icon={Download}
-              title="Auto Download"
-              subtitle="Download content automatically"
-              value={autoDownload}
-              onValueChange={handleAutoDownloadChange}
-              color="#10b981"
-            />
           </SettingsSection>
 
-          {/* Support */}
-          <SettingsSection title="Support" delay={1000}>
-            <SettingsItem
-              icon={HelpCircle}
-              title="Help & Support"
-              subtitle="Get help and contact support"
-              onPress={handleHelpPress}
-              color="#3b82f6"
-            />
-            <SettingsItem
-              icon={Star}
-              title="Rate App"
-              subtitle="Rate us on the app store"
-              onPress={() => console.log('Rate app')}
-              color="#f59e0b"
-            />
-            <SettingsItem
-              icon={Heart}
-              title="Send Feedback"
-              subtitle="Help us improve the app"
-              onPress={() => console.log('Send feedback')}
-              color="#ec4899"
-            />
-            <SettingsItem
-              icon={Info}
-              title="About"
-              subtitle="App version and information"
-              onPress={handleAboutPress}
-              color="#6b7280"
-            />
-          </SettingsSection>
+          
 
           {/* Danger Zone */}
           <SettingsSection title="Account Actions" delay={1200}>
@@ -775,27 +726,6 @@ const styles = {
     alignItems: 'center',
     padding: 20,
   },
-  profileAvatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: colors.lightAccent,
-    borderWidth: 2,
-    borderColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-    shadowColor: colors.accent,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  profileAvatarText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.accent,
-  },
   profileInfo: {
     flex: 1,
   },
@@ -810,22 +740,6 @@ const styles = {
     color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 2,
-  },
-  profileProgram: {
-    fontSize: 12,
-    color: colors.muted,
-    fontWeight: '500',
-  },
-  editButton: {
-    backgroundColor: colors.accent,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 10,
-    shadowColor: colors.accent,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
   editButtonText: {
     fontSize: 14,

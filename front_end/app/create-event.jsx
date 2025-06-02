@@ -299,7 +299,6 @@ const CategorySelector = ({ selectedCategory, onSelect }) => {
   const categories = [
     { id: 'workshop', name: 'Workshop', color: colors.info },
     { id: 'talk', name: 'Talk', color: colors.success },
-    { id: 'coding_night', name: 'Coding Night', color: colors.warning },
     { id: 'social', name: 'Social', color: colors.highlight },
     { id: 'other', name: 'Other', color: colors.muted },
   ];

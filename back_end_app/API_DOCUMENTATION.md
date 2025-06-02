@@ -538,7 +538,7 @@ Response: Array of daily statistics
 GET /api/analytics/events
 Authorization: Required (Admin only)
 Query Parameters:
-- category: "workshop|talk|coding_night|social|other"
+- category: "workshop|talk|vibe_coding|social|other"
 - startDate: "YYYY-MM-DD"
 - endDate: "YYYY-MM-DD"
 ```

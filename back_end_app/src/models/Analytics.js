@@ -21,7 +21,7 @@ const dailyStatsSchema = new mongoose.Schema({
   eventsByCategory: {
     workshop: { type: Number, default: 0 },
     talk: { type: Number, default: 0 },
-    coding_night: { type: Number, default: 0 },
+    vibe_coding: { type: Number, default: 0 },
     social: { type: Number, default: 0 },
     other: { type: Number, default: 0 }
   },
@@ -185,7 +185,7 @@ analyticsSchema.methods.updateDailyStats = async function(date) {
     }, {
       workshop: 0,
       talk: 0,
-      coding_night: 0,
+      vibe_coding: 0,
       social: 0,
       other: 0
     }),

@@ -367,7 +367,6 @@ export default function AnalyticsDashboard({ data, timeRange = '30d' }) {
     topPerformers: data?.topPerformers || [
       { name: 'React Workshop', attendees: 45, rating: 4.9 },
       { name: 'AI/ML Talk', attendees: 38, rating: 4.8 },
-      { name: 'Coding Night', attendees: 42, rating: 4.7 },
     ]
   }), [data]);
 

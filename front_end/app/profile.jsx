@@ -17,8 +17,8 @@ import {
   Edit3,
   Check,
   X,
-  Bell,
-  Send
+  Github,
+  Linkedin
 } from 'lucide-react-native';
 import { 
   ProfessionalBackground, 
@@ -27,7 +27,27 @@ import {
   PageTransitionLoading
 } from '../components/LoadingComponents';
 import ApiService from '../services/ApiService';
-import NotificationService from '../services/NotificationService';
+import ProfileImage from '../components/ProfileImage';
+
+// Color Palette - Minimalist Luxe Light Theme (matching the app)
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
 
 // Student Header Component
 const StudentHeader = ({ onBack, onSave, hasChanges }) => {
@@ -36,7 +56,7 @@ const StudentHeader = ({ onBack, onSave, hasChanges }) => {
       <View style={styles.headerContent}>
         <View style={styles.headerLeft}>
           <Pressable style={styles.backButton} onPress={onBack}>
-            <ArrowLeft color="#9ca3af" size={20} strokeWidth={1.5} />
+            <ArrowLeft color={colors.secondaryText} size={20} strokeWidth={1.5} />
           </Pressable>
           <View style={styles.headerTitleContainer}>
             <Text style={styles.headerGreeting}>Edit</Text>
@@ -49,7 +69,7 @@ const StudentHeader = ({ onBack, onSave, hasChanges }) => {
             onPress={onSave}
             disabled={!hasChanges}
           >
-            <Save color={hasChanges ? "#ffffff" : "#6b7280"} size={18} strokeWidth={1.5} />
+            <Save color={hasChanges ? colors.white : colors.muted} size={18} strokeWidth={1.5} />
             <Text style={[styles.saveButtonText, hasChanges && styles.saveButtonTextActive]}>
               Save
             </Text>
@@ -73,31 +93,32 @@ const FormSection = ({ title, children, delay = 0 }) => {
 };
 
 // Input Field Component
-const InputField = ({ icon: Icon, label, value, onChangeText, placeholder, keyboardType = 'default', multiline = false }) => {
+const InputField = ({ icon: Icon, label, value, onChangeText, placeholder, keyboardType = 'default', multiline = false, editable = true }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.inputLabel}>{label}</Text>
-      <View style={[styles.inputWrapper, isFocused && styles.inputWrapperFocused]}>
+      <View style={[styles.inputWrapper, isFocused && styles.inputWrapperFocused, !editable && styles.inputWrapperDisabled]}>
         <LinearGradient
-          colors={['rgba(255, 255, 255, 0.02)', 'transparent']}
+          colors={[colors.lightAccent, 'transparent']}
           style={styles.inputGradient}
         />
         <View style={styles.inputIconContainer}>
-          <Icon color="#6b7280" size={18} strokeWidth={1.5} />
+          <Icon color={colors.accent} size={18} strokeWidth={1.5} />
         </View>
         <TextInput
           style={[styles.textInput, multiline && styles.textInputMultiline]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={colors.muted}
           keyboardType={keyboardType}
           multiline={multiline}
           numberOfLines={multiline ? 3 : 1}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          editable={editable}
         />
       </View>
     </View>
@@ -105,23 +126,35 @@ const InputField = ({ icon: Icon, label, value, onChangeText, placeholder, keybo
 };
 
 // Profile Avatar Component
-const ProfileAvatar = ({ name, onEditPress }) => {
+const ProfileAvatar = ({ user, onEditPress }) => {
+  const getUserName = () => {
+    return user?.nickname || user?.name || 'User';
+  };
+
   return (
     <Animated.View entering={FadeInDown.delay(200)} style={styles.avatarSection}>
       <View style={styles.avatarContainer}>
         <LinearGradient
-          colors={['rgba(99, 102, 241, 0.2)', 'rgba(99, 102, 241, 0.05)']}
+          colors={[colors.lightAccent, colors.lightHighlight]}
           style={styles.avatarGradient}
         />
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{name.charAt(0)}</Text>
-        </View>
+        <ProfileImage
+          imageUrl={user?.picture}
+          name={getUserName()}
+          size={92}
+          backgroundColor={colors.accent}
+          textColor={colors.white}
+          borderRadius={46}
+          borderWidth={3}
+          borderColor={colors.accent}
+          showGradient={false}
+        />
         <Pressable style={styles.editAvatarButton} onPress={onEditPress}>
-          <Camera color="#ffffff" size={16} strokeWidth={1.5} />
+          <Camera color={colors.white} size={16} strokeWidth={1.5} />
         </Pressable>
       </View>
       <Text style={styles.avatarLabel}>Profile Picture</Text>
-      <Text style={styles.avatarSubtitle}>Tap the camera icon to change</Text>
+      <Text style={styles.avatarSubtitle}>Managed through your 42 account</Text>
     </Animated.View>
   );
 };
@@ -129,31 +162,49 @@ const ProfileAvatar = ({ name, onEditPress }) => {
 export default function Profile() {
   const router = useRouter();
   
-  // Initial user data
-  const initialUserData = {
-    name: 'Si Yhya',
-    email: 'si.yhya@1337.ma',
-    phone: '+212 6 12 34 56 78',
-    program: 'Software Engineering',
-    year: '3rd Year',
-    location: 'Khouribga, Morocco',
-    bio: 'Passionate software engineering student with a focus on mobile development and AI.',
-    github: 'si-yhya',
-    linkedin: 'si-yhya'
-  };
-
-  const [userData, setUserData] = useState(initialUserData);
+  const [userData, setUserData] = useState(null);
+  const [originalUserData, setOriginalUserData] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
+    loadUserProfile();
   }, []);
 
+  const loadUserProfile = async () => {
+    try {
+      setLoading(true);
+      const profile = await ApiService.getUserProfile();
+      const profileData = {
+        name: profile.nickname || '',
+        email: profile.email || '',
+        phone: '', // Not available in current API
+        picture: profile.picture || null,
+        program: profile.email?.includes('@student.42') ? 'Software Engineering' : 'Computer Science',
+        year: `Level ${profile.level || 1}`,
+        location: 'Khouribga, Morocco', // Default for 1337
+        bio: '', // Not available in current API
+        github: profile.github || '',
+        linkedin: profile.linkedin || ''
+      };
+      setUserData(profileData);
+      setOriginalUserData(JSON.parse(JSON.stringify(profileData)));
+    } catch (error) {
+      console.error('Failed to load user profile:', error);
+      Alert.alert('Error', 'Failed to load profile data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Check if any data has changed
-    const dataChanged = JSON.stringify(userData) !== JSON.stringify(initialUserData);
-    setHasChanges(dataChanged);
-  }, [userData]);
+    if (userData && originalUserData) {
+      // Check if any data has changed
+      const dataChanged = JSON.stringify(userData) !== JSON.stringify(originalUserData);
+      setHasChanges(dataChanged);
+    }
+  }, [userData, originalUserData]);
 
   const handleBack = () => {
     if (hasChanges) {
@@ -170,23 +221,31 @@ export default function Profile() {
     }
   };
 
-  const handleSave = () => {
-    Alert.alert(
-      'Profile Updated',
-      'Your profile has been successfully updated.',
-      [{ text: 'OK', onPress: () => router.back() }]
-    );
+  const handleSave = async () => {
+    try {
+      // Update only the fields that are supported by the API
+      const updates = {
+        nickname: userData.name
+      };
+      
+      await ApiService.updateUserProfile(updates);
+      setOriginalUserData(JSON.parse(JSON.stringify(userData)));
+      Alert.alert(
+        'Profile Updated',
+        'Your profile has been successfully updated.',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      Alert.alert('Error', 'Failed to update profile. Please try again.');
+    }
   };
 
   const handleEditAvatar = () => {
     Alert.alert(
       'Change Profile Picture',
-      'Choose an option',
-      [
-        { text: 'Camera', onPress: () => console.log('Open camera') },
-        { text: 'Gallery', onPress: () => console.log('Open gallery') },
-        { text: 'Cancel', style: 'cancel' }
-      ]
+      'Profile picture changes are managed through your 42 account.',
+      [{ text: 'OK' }]
     );
   };
 
@@ -194,113 +253,44 @@ export default function Profile() {
     setUserData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleTestPushNotification = async () => {
-    try {
-      Alert.alert(
-        'Send Test Notification',
-        'This will send a test push notification to your device.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Send', 
-            onPress: async () => {
-              try {
-                const result = await ApiService.testPushNotification(
-                  'Test Notification 🔔',
-                  'This is a test push notification from your Events app!'
-                );
-                Alert.alert('Success', 'Test notification sent! Check your notifications.');
-              } catch (error) {
-                console.error('Test notification error:', error);
-                Alert.alert('Error', error.message || 'Failed to send test notification');
-              }
-            }
-          }
-        ]
-      );
-    } catch (error) {
-      console.error('Test notification error:', error);
-      Alert.alert('Error', 'Failed to send test notification');
-    }
-  };
+  // Show loading state
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+        <ProfessionalBackground />
+        <SafeAreaView style={styles.safeArea}>
+          <DataLoadingOverlay 
+            visible={true}
+            message="Loading Profile"
+            subMessage="Getting your information"
+            icon={User}
+          />
+        </SafeAreaView>
+      </View>
+    );
+  }
 
-  const handleCheckDeviceTokens = async () => {
-    try {
-      const result = await ApiService.getDeviceTokens();
-      Alert.alert(
-        'Device Tokens',
-        `You have ${result.tokens?.length || 0} registered device tokens.\n\nActive tokens: ${result.activeTokens?.length || 0}\nInactive tokens: ${result.inactiveTokens?.length || 0}`,
-        [{ text: 'OK' }]
-      );
-    } catch (error) {
-      Alert.alert('Error', 'Failed to fetch device tokens: ' + error.message);
-    }
-  };
-
-  const handleTestEventNotification = async () => {
-    try {
-      Alert.alert(
-        'Test Event Notification',
-        'This will send an event notification to ALL users in the app. Are you sure you want to continue?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Send to All Users', 
-            style: 'destructive',
-            onPress: async () => {
-              try {
-                // Get the first available event to test with
-                const events = await ApiService.getEvents({ limit: 1 });
-                if (events.length === 0) {
-                  Alert.alert('Error', 'No events found to test with. Please create an event first.');
-                  return;
-                }
-                
-                const eventId = events[0]._id;
-                const result = await ApiService.testEventNotification(eventId);
-                Alert.alert(
-                  'Success!', 
-                  `Event notification sent to ${result.notification.recipientCount} users!\n\nPush notifications: ${result.notification.pushSent ? 'Sent' : 'Failed'}`
-                );
-              } catch (error) {
-                Alert.alert('Error', 'Failed to send event notification: ' + error.message);
-              }
-            }
-          }
-        ]
-      );
-    } catch (error) {
-      Alert.alert('Error', 'Failed to prepare test: ' + error.message);
-    }
-  };
-
-  const handleDebugPushNotifications = async () => {
-    try {
-      const debugInfo = await ApiService.debugPushNotifications();
-      const status = debugInfo.firebaseStatus;
-      
-      let message = `🔍 Push Notification Debug Info:\n\n`;
-      message += `Mode: ${debugInfo.serviceStatus.mode}\n`;
-      message += `Firebase Initialized: ${status.initialized ? '✅' : '❌'}\n`;
-      message += `Has Messaging: ${status.hasMessaging ? '✅' : '❌'}\n`;
-      message += `Has SendMulticast: ${status.hasSendMulticast ? '✅' : '❌'}\n\n`;
-      message += `Environment Variables:\n`;
-      message += `PROJECT_ID: ${status.envVarStatus.FIREBASE_PROJECT_ID ? '✅' : '❌'}\n`;
-      message += `PRIVATE_KEY: ${status.envVarStatus.FIREBASE_PRIVATE_KEY ? '✅' : '❌'}\n`;
-      message += `CLIENT_EMAIL: ${status.envVarStatus.FIREBASE_CLIENT_EMAIL ? '✅' : '❌'}\n\n`;
-      message += `Your Device Tokens: ${debugInfo.user.activeTokens}/${debugInfo.user.totalTokens}\n`;
-      message += `Push Enabled: ${debugInfo.user.pushEnabled ? '✅' : '❌'}\n`;
-      message += `Quiet Hours: ${debugInfo.user.quietHours ? '🔇' : '🔊'}`;
-      
-      Alert.alert('Debug Info', message, [{ text: 'OK' }]);
-    } catch (error) {
-      Alert.alert('Error', 'Failed to get debug info: ' + error.message);
-    }
-  };
+  // Show error state if no data
+  if (!userData) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+        <ProfessionalBackground />
+        <SafeAreaView style={styles.safeArea}>
+          <IconLoadingState 
+            icon={User}
+            message="Unable to Load Profile"
+            subMessage="Please try again later"
+          />
+        </SafeAreaView>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <ProfessionalBackground />
       
       <SafeAreaView style={styles.safeArea}>
@@ -311,7 +301,7 @@ export default function Profile() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Profile Avatar */}
-          <ProfileAvatar name={userData.name} onEditPress={handleEditAvatar} />
+          <ProfileAvatar user={userData} onEditPress={handleEditAvatar} />
 
           {/* Basic Information */}
           <FormSection title="Basic Information" delay={400}>
@@ -329,6 +319,7 @@ export default function Profile() {
               onChangeText={(value) => updateField('email', value)}
               placeholder="Enter your email"
               keyboardType="email-address"
+              editable={false}
             />
             <InputField
               icon={Phone}
@@ -347,26 +338,29 @@ export default function Profile() {
               label="Program"
               value={userData.program}
               onChangeText={(value) => updateField('program', value)}
-              placeholder="Your program of study"
+              placeholder="Your study program"
+              editable={false}
             />
             <InputField
               icon={Calendar}
-              label="Academic Year"
+              label="Current Level"
               value={userData.year}
               onChangeText={(value) => updateField('year', value)}
-              placeholder="Current academic year"
+              placeholder="Your current year/level"
+              editable={false}
             />
             <InputField
               icon={MapPin}
-              label="Location"
+              label="Campus Location"
               value={userData.location}
               onChangeText={(value) => updateField('location', value)}
-              placeholder="Your current location"
+              placeholder="Your campus location"
+              editable={false}
             />
           </FormSection>
 
           {/* Personal Information */}
-          <FormSection title="Personal Information" delay={800}>
+          <FormSection title="About You" delay={800}>
             <InputField
               icon={Edit3}
               label="Bio"
@@ -376,93 +370,19 @@ export default function Profile() {
               multiline={true}
             />
             <InputField
-              icon={User}
+              icon={Github}
               label="GitHub Username"
               value={userData.github}
               onChangeText={(value) => updateField('github', value)}
               placeholder="Your GitHub username"
             />
             <InputField
-              icon={User}
+              icon={Linkedin}
               label="LinkedIn Username"
               value={userData.linkedin}
               onChangeText={(value) => updateField('linkedin', value)}
               placeholder="Your LinkedIn username"
             />
-          </FormSection>
-
-          {/* Push Notification Testing */}
-          <FormSection title="Push Notifications" delay={1000}>
-            <View style={styles.notificationTestContainer}>
-              <Text style={styles.notificationTestDescription}>
-                Test push notifications to make sure they're working properly on your device.
-              </Text>
-              
-              <Pressable 
-                style={styles.testNotificationButton}
-                onPress={handleTestPushNotification}
-              >
-                <LinearGradient
-                  colors={['rgba(99, 102, 241, 0.1)', 'rgba(99, 102, 241, 0.05)']}
-                  style={styles.testButtonGradient}
-                />
-                <View style={styles.testButtonContent}>
-                  <View style={styles.testButtonIcon}>
-                    <Bell color="#6366f1" size={20} strokeWidth={1.5} />
-                  </View>
-                  <View style={styles.testButtonText}>
-                    <Text style={styles.testButtonTitle}>Test Push Notification</Text>
-                    <Text style={styles.testButtonSubtitle}>Send a test notification to this device</Text>
-                  </View>
-                  <Send color="#6366f1" size={16} strokeWidth={1.5} />
-                </View>
-              </Pressable>
-              
-              <View style={styles.checkTokenContainer}>
-                <Pressable 
-                  style={styles.checkTokenButton}
-                  onPress={handleCheckDeviceTokens}
-                >
-                  <Text style={styles.checkTokenButtonText}>Check Device Tokens</Text>
-                </Pressable>
-                
-                <Pressable 
-                  style={styles.debugButton}
-                  onPress={handleDebugPushNotifications}
-                >
-                  <Text style={styles.debugButtonText}>🔍 Debug Push Notifications</Text>
-                </Pressable>
-              </View>
-            </View>
-          </FormSection>
-
-          {/* Event Notification Testing */}
-          <FormSection title="Event Notifications" delay={1200}>
-            <View style={styles.eventTestContainer}>
-              <Text style={styles.eventTestDescription}>
-                Test event notifications to make sure they're working properly in the app.
-              </Text>
-              
-              <Pressable 
-                style={styles.testEventButton}
-                onPress={handleTestEventNotification}
-              >
-                <LinearGradient
-                  colors={['rgba(99, 102, 241, 0.1)', 'rgba(99, 102, 241, 0.05)']}
-                  style={styles.eventButtonGradient}
-                />
-                <View style={styles.eventButtonContent}>
-                  <View style={styles.eventButtonIcon}>
-                    <Bell color="#6366f1" size={20} strokeWidth={1.5} />
-                  </View>
-                  <View style={styles.eventButtonText}>
-                    <Text style={styles.eventButtonTitle}>Test Event Notification</Text>
-                    <Text style={styles.eventButtonSubtitle}>Send a test event notification to all users</Text>
-                  </View>
-                  <Send color="#6366f1" size={16} strokeWidth={1.5} />
-                </View>
-              </Pressable>
-            </View>
           </FormSection>
 
           <View style={styles.bottomSpacer} />
@@ -475,7 +395,7 @@ export default function Profile() {
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -487,7 +407,13 @@ const styles = {
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1a2332',
+    borderBottomColor: colors.cardBorder,
+    backgroundColor: colors.white,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -503,25 +429,30 @@ const styles = {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   headerTitleContainer: {
     marginLeft: 16,
   },
   headerGreeting: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '500',
     marginBottom: 4,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: -0.5,
   },
   headerRight: {
@@ -531,25 +462,25 @@ const styles = {
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f1419',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 10,
     gap: 8,
   },
   saveButtonActive: {
-    backgroundColor: '#6366f1',
-    borderColor: '#6366f1',
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   saveButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6b7280',
+    color: colors.muted,
   },
   saveButtonTextActive: {
-    color: '#ffffff',
+    color: colors.white,
   },
 
   scrollContent: {
@@ -577,21 +508,6 @@ const styles = {
     right: -4,
     bottom: -4,
   },
-  avatar: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: '#0f1419',
-    borderWidth: 3,
-    borderColor: '#6366f1',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#6366f1',
-  },
   editAvatarButton: {
     position: 'absolute',
     bottom: 0,
@@ -599,21 +515,26 @@ const styles = {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#6366f1',
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
-    borderColor: '#000000',
+    borderColor: colors.white,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   avatarLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   avatarSubtitle: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     textAlign: 'center',
   },
 
@@ -623,39 +544,54 @@ const styles = {
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 16,
+    letterSpacing: 0.3,
   },
   sectionContent: {
-    gap: 16,
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+    overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   // Input Fields
   inputContainer: {
-    marginBottom: 4,
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.cardBorder,
   },
   inputLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 8,
   },
   inputWrapper: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
     flexDirection: 'row',
     alignItems: 'flex-start',
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
     position: 'relative',
     overflow: 'hidden',
   },
   inputWrapperFocused: {
-    borderColor: '#6366f1',
+    borderColor: colors.accent,
+  },
+  inputWrapperDisabled: {
+    backgroundColor: colors.secondaryBg,
   },
   inputGradient: {
     position: 'absolute',
@@ -671,7 +607,7 @@ const styles = {
   textInput: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.primaryText,
     fontWeight: '500',
     padding: 0,
   },
@@ -682,136 +618,5 @@ const styles = {
 
   bottomSpacer: {
     height: 40,
-  },
-
-  // Notification Testing
-  notificationTestContainer: {
-    padding: 20,
-    gap: 20,
-  },
-  notificationTestDescription: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  testNotificationButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#0a0f1c',
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
-  },
-  testButtonGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  testButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  testButtonIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#0a0f1c',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  testButtonText: {
-    flex: 1,
-  },
-  testButtonTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#ffffff',
-  },
-  testButtonSubtitle: {
-    fontSize: 14,
-    color: '#9ca3af',
-  },
-  checkTokenContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  checkTokenButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#0a0f1c',
-    borderRadius: 12,
-    padding: 16,
-  },
-  checkTokenButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  debugButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#0a0f1c',
-    borderRadius: 12,
-    padding: 16,
-  },
-  debugButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-
-  // Event Testing
-  eventTestContainer: {
-    padding: 20,
-    gap: 20,
-  },
-  eventTestDescription: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  testEventButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#0a0f1c',
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
-  },
-  eventButtonGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  eventButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  eventButtonIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#0a0f1c',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  eventButtonText: {
-    flex: 1,
-  },
-  eventButtonTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#ffffff',
-  },
-  eventButtonSubtitle: {
-    fontSize: 14,
-    color: '#9ca3af',
   },
 }; 
