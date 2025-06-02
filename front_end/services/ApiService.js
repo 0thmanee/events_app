@@ -278,6 +278,20 @@ class ApiService {
     return this.makeRequest('/api/leaderboard/achievements');
   }
 
+  // Admin: Get detailed leaderboard with all user data
+  async getAdminLeaderboard(filters = {}) {
+    const queryParams = new URLSearchParams();
+    
+    if (filters.search) queryParams.append('search', filters.search);
+    if (filters.filter) queryParams.append('filter', filters.filter);
+    if (filters.limit) queryParams.append('limit', filters.limit.toString());
+
+    const queryString = queryParams.toString();
+    const endpoint = `/api/leaderboard/admin${queryString ? `?${queryString}` : ''}`;
+    
+    return this.makeRequest(endpoint);
+  }
+
   // ========== WALLET & STORE ==========
   
   // Get user's wallet balance and transaction history
@@ -720,6 +734,212 @@ class ApiService {
   // Get events that need feedback from the current user
   async getEventsNeedingFeedback() {
     return this.makeRequest('/api/events/feedback-pending');
+  }
+
+  // ========== ADMIN EVENT MANAGEMENT ==========
+  
+  // Get all events for admin management (including pending, rejected, etc.)
+  async getAdminEvents(filters = {}) {
+    const queryParams = new URLSearchParams();
+    
+    if (filters.status) queryParams.append('status', filters.status);
+    if (filters.category) queryParams.append('category', filters.category);
+    if (filters.search) queryParams.append('search', filters.search);
+
+    const queryString = queryParams.toString();
+    const endpoint = `/api/events${queryString ? `?${queryString}` : ''}`;
+    
+    return this.makeRequest(endpoint);
+  }
+
+  // Approve event (admin only)
+  async approveEvent(eventId) {
+    return this.makeRequest(`/api/events/${eventId}/approve`, {
+      method: 'PATCH'
+    });
+  }
+
+  // Reject event (admin only) - using update endpoint with status
+  async rejectEvent(eventId, reason = '') {
+    return this.makeRequest(`/api/events/${eventId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ 
+        status: 'rejected',
+        rejectionReason: reason 
+      })
+    });
+  }
+
+  // Update event (admin only)
+  async updateEvent(eventId, updates) {
+    return this.makeRequest(`/api/events/${eventId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates)
+    });
+  }
+
+  // Delete event (admin only)
+  async deleteEvent(eventId) {
+    return this.makeRequest(`/api/events/${eventId}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // Get event statistics (admin only)
+  async getEventStats(eventId) {
+    return this.makeRequest(`/api/events/${eventId}/stats`);
+  }
+
+  // Transform backend event data for admin view
+  transformEventForAdmin(backendEvent) {
+    return {
+      id: backendEvent._id,
+      title: backendEvent.title,
+      description: backendEvent.description,
+      organizer: backendEvent.creator?.nickname || 'Unknown',
+      organizerId: backendEvent.creator?._id,
+      category: backendEvent.category,
+      status: backendEvent.status,
+      date: this.formatEventDate(backendEvent.time),
+      time: this.formatEventTime(backendEvent.time),
+      location: backendEvent.location,
+      capacity: backendEvent.maxCapacity,
+      registered: backendEvent.attendees?.length || 0,
+      attendees: backendEvent.attendees || [],
+      speakers: backendEvent.speakers || [],
+      rewardPoints: backendEvent.rewardPoints,
+      expectedTime: backendEvent.expectedTime,
+      tags: backendEvent.tags || [],
+      createdAt: backendEvent.createdAt,
+      updatedAt: backendEvent.updatedAt,
+      rejectionReason: backendEvent.rejectionReason
+    };
+  }
+
+  // ========== STAFF QR VERIFICATION ==========
+  
+  // Verify student registration by QR code (staff only)
+  async verifyStudentRegistration(eventId, qrCodeData) {
+    try {
+      // Parse QR code data
+      const parsedData = JSON.parse(qrCodeData);
+      
+      // Validate QR code structure
+      if (!parsedData.userId || !parsedData.eventId) {
+        throw new Error('Invalid QR code format');
+      }
+      
+      // Check if the QR code is for the correct event
+      if (parsedData.eventId !== eventId) {
+        throw new Error('QR code is not for this event');
+      }
+      
+      // Make API call to verify registration
+      return this.makeRequest(`/api/events/${eventId}/verify-registration`, {
+        method: 'POST',
+        body: JSON.stringify({
+          userId: parsedData.userId,
+          qrData: parsedData
+        })
+      });
+    } catch (error) {
+      console.error('QR verification failed:', error);
+      throw new Error(error.message || 'Failed to verify student registration');
+    }
+  }
+
+  // Check-in student via QR scan (staff only)
+  async checkInStudentByQR(eventId, qrCodeData) {
+    try {
+      // Parse QR code data
+      const parsedData = JSON.parse(qrCodeData);
+      
+      return this.makeRequest(`/api/events/${eventId}/check-in`, {
+        method: 'POST',
+        body: JSON.stringify({
+          userId: parsedData.userId,
+          qrData: parsedData,
+          checkInTime: new Date().toISOString()
+        })
+      });
+    } catch (error) {
+      console.error('QR check-in failed:', error);
+      throw new Error(error.message || 'Failed to check-in student');
+    }
+  }
+
+  // Get event attendance list (staff only)
+  async getEventAttendance(eventId) {
+    return this.makeRequest(`/api/events/${eventId}/attendance`);
+  }
+
+  // ========== NOTIFICATIONS ==========
+  
+  // Get user notifications
+  async getNotifications(page = 1, limit = 20, unreadOnly = false) {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', page.toString());
+    queryParams.append('limit', limit.toString());
+    if (unreadOnly) queryParams.append('unreadOnly', 'true');
+
+    const queryString = queryParams.toString();
+    const endpoint = `/api/notifications${queryString ? `?${queryString}` : ''}`;
+    
+    return this.makeRequest(endpoint);
+  }
+
+  // Get unread notification count
+  async getUnreadNotificationCount() {
+    const response = await this.makeRequest('/api/notifications/unread-count');
+    return response.count || 0;
+  }
+
+  // Mark notification as read
+  async markNotificationAsRead(notificationId) {
+    return this.makeRequest(`/api/notifications/${notificationId}/read`, {
+      method: 'PATCH'
+    });
+  }
+
+  // Mark all notifications as read
+  async markAllNotificationsAsRead() {
+    return this.makeRequest('/api/notifications/mark-all-read', {
+      method: 'PATCH'
+    });
+  }
+
+  // Admin: Create custom notification
+  async createNotification(notificationData) {
+    return this.makeRequest('/api/notifications/create', {
+      method: 'POST',
+      body: JSON.stringify(notificationData)
+    });
+  }
+
+  // Admin: Get all notifications
+  async getAdminNotifications(page = 1, limit = 20, type = 'all') {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', page.toString());
+    queryParams.append('limit', limit.toString());
+    if (type !== 'all') queryParams.append('type', type);
+
+    const queryString = queryParams.toString();
+    return this.makeRequest(`/api/notifications/admin/all?${queryString}`);
+  }
+
+  // Admin: Delete notification
+  async deleteNotification(notificationId) {
+    return this.makeRequest(`/api/notifications/admin/${notificationId}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // Admin: Send event reminders
+  async sendEventReminders(hours = 24) {
+    return this.makeRequest('/api/notifications/send-reminders', {
+      method: 'POST',
+      body: JSON.stringify({ hours })
+    });
   }
 }
 

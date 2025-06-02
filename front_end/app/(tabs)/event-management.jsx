@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Dimensions, RefreshControl, StatusBar, StyleSheet, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, Dimensions, RefreshControl, StatusBar, StyleSheet, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
@@ -29,9 +29,12 @@ import {
   BookOpen,
   Heart,
   Award,
-  User
+  User,
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react-native';
 import AdminHeader from '../../components/AdminHeader';
+import ApiService from '../../services/ApiService';
 import { 
   ProfessionalBackground, 
   IconLoadingState,
@@ -40,6 +43,26 @@ import {
 } from '../../components/LoadingComponents';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
 
 // Simple Background - minimal distraction
 const SimpleBackground = () => {
@@ -52,7 +75,7 @@ const SimpleBackground = () => {
 };
 
 // Clean Simple Event Card
-const EventCard = ({ event, index, onPress }) => {
+const EventCard = ({ event, index, onPress, onApprove, onReject }) => {
   const cardOpacity = useSharedValue(0);
   const cardScale = useSharedValue(1);
 
@@ -75,10 +98,10 @@ const EventCard = ({ event, index, onPress }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return '#f59e0b';
-      case 'approved': return '#10b981';
-      case 'rejected': return '#ef4444';
-      default: return '#6b7280';
+      case 'pending': return colors.warning;
+      case 'approved': return colors.success;
+      case 'rejected': return colors.error;
+      default: return colors.muted;
     }
   };
 
@@ -96,6 +119,30 @@ const EventCard = ({ event, index, onPress }) => {
   const statusColor = getStatusColor(event.status);
   const CategoryIcon = getCategoryIcon(event.category);
 
+  const handleApprove = (e) => {
+    e.stopPropagation();
+    Alert.alert(
+      'Approve Event',
+      `Are you sure you want to approve "${event.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Approve', style: 'default', onPress: () => onApprove(event.id) }
+      ]
+    );
+  };
+
+  const handleReject = (e) => {
+    e.stopPropagation();
+    Alert.alert(
+      'Reject Event',
+      `Are you sure you want to reject "${event.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Reject', style: 'destructive', onPress: () => onReject(event.id) }
+      ]
+    );
+  };
+
   return (
     <Animated.View style={[styles.eventCard, cardStyle]}>
       <Pressable
@@ -111,7 +158,7 @@ const EventCard = ({ event, index, onPress }) => {
           {/* Header */}
           <View style={styles.eventCardHeader}>
             <View style={styles.categoryContainer}>
-              <CategoryIcon color="#9ca3af" size={16} strokeWidth={2} />
+              <CategoryIcon color={colors.muted} size={16} strokeWidth={2} />
               <Text style={styles.categoryText}>{event.category}</Text>
             </View>
             <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
@@ -122,28 +169,45 @@ const EventCard = ({ event, index, onPress }) => {
             {event.title}
           </Text>
 
+          {/* Organizer */}
+          <View style={styles.organizerRow}>
+            <User color={colors.muted} size={14} strokeWidth={2} />
+            <Text style={styles.organizerText}>by {event.organizer}</Text>
+          </View>
+
           {/* Key Info */}
           <View style={styles.eventInfo}>
             <View style={styles.infoRow}>
-              <Calendar color="#6b7280" size={14} strokeWidth={2} />
+              <Calendar color={colors.muted} size={14} strokeWidth={2} />
               <Text style={styles.infoText}>
-                {new Date(event.date).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric' 
-                })} • {event.time}
+                {event.date} • {event.time}
               </Text>
             </View>
             <View style={styles.infoRow}>
-              <Users color="#6b7280" size={14} strokeWidth={2} />
+              <Users color={colors.muted} size={14} strokeWidth={2} />
               <Text style={styles.infoText}>
                 {event.registered}/{event.capacity}
               </Text>
             </View>
           </View>
 
+          {/* Action Buttons for Pending Events */}
+          {event.status === 'pending' && (
+            <View style={styles.actionButtons}>
+              <Pressable style={styles.approveButton} onPress={handleApprove}>
+                <CheckCircle color={colors.white} size={16} strokeWidth={2} />
+                <Text style={styles.approveButtonText}>Approve</Text>
+              </Pressable>
+              <Pressable style={styles.rejectButton} onPress={handleReject}>
+                <XCircle color={colors.white} size={16} strokeWidth={2} />
+                <Text style={styles.rejectButtonText}>Reject</Text>
+              </Pressable>
+            </View>
+          )}
+
           {/* Arrow */}
           <View style={styles.arrowContainer}>
-            <ChevronRight color="#6b7280" size={16} strokeWidth={2} />
+            <ChevronRight color={colors.muted} size={16} strokeWidth={2} />
           </View>
         </View>
       </Pressable>
@@ -157,142 +221,164 @@ const QuickStats = ({ events }) => {
     { 
       label: 'Pending', 
       value: events.filter(e => e.status === 'pending').length, 
-      color: '#f59e0b' 
+      color: colors.warning
     },
     { 
       label: 'Approved', 
       value: events.filter(e => e.status === 'approved').length, 
-      color: '#10b981' 
+      color: colors.success
     },
     { 
       label: 'Total', 
       value: events.length, 
-      color: '#3b82f6' 
+      color: colors.info
     },
     { 
       label: 'Active', 
-      value: events.filter(e => e.status === 'approved').reduce((sum, e) => sum + e.registered, 0), 
-      color: '#8b5cf6' 
+      value: events.filter(e => e.status === 'approved' || e.status === 'ongoing').length, 
+      color: colors.accent
     },
   ];
 
   return (
     <View style={styles.statsContainer}>
       {stats.map((stat, index) => (
-        <Animated.View
+        <Animated.View 
           key={stat.label}
           entering={FadeInUp.delay(200 + index * 100)}
           style={styles.statCard}
         >
-          <Text style={styles.statValue}>{stat.value}</Text>
+          <Text style={[styles.statValue, { color: stat.color }]}>{stat.value}</Text>
           <Text style={styles.statLabel}>{stat.label}</Text>
-          <View style={[styles.statIndicator, { backgroundColor: stat.color }]} />
         </Animated.View>
       ))}
     </View>
   );
 };
 
-// Main Component
 export default function EventManagement() {
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
+    loadEvents();
   }, []);
+
+  const loadEvents = async () => {
+    try {
+      setError(null);
+      const filters = selectedFilter !== 'all' ? { status: selectedFilter } : {};
+      const backendEvents = await ApiService.getAdminEvents(filters);
+      
+      // Transform backend data to frontend format
+      const transformedEvents = backendEvents.map(event => ApiService.transformEventForAdmin(event));
+      setEvents(transformedEvents);
+    } catch (error) {
+      console.error('Failed to load events:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await loadEvents();
     setRefreshing(false);
   };
 
-  // Mock event data
-  const events = [
-    {
-      id: 1,
-      title: 'Advanced Algorithms & Data Structures Masterclass',
-      organizer: 'Prof. Ahmed Benali',
-      category: 'Workshop',
-      status: 'pending',
-      date: '2024-12-30',
-      time: '14:00',
-      location: 'Innovation Lab - Building A',
-      capacity: 50,
-      registered: 47,
-    },
-    {
-      id: 2,
-      title: 'Tech Giants Career Fair 2025',
-      organizer: '1337 Career Services',
-      category: 'career',
-      status: 'pending',
-      date: '2025-01-15',
-      time: '09:00',
-      location: 'Main Auditorium',
-      capacity: 500,
-      registered: 489,
-    },
-    {
-      id: 3,
-      title: 'React Native Cross-Platform Development',
-      organizer: 'Student Innovation Club',
-      category: 'coding',
-      status: 'approved',
-      date: '2025-01-08',
-      time: '16:00',
-      location: 'Development Hub',
-      capacity: 80,
-      registered: 71,
-    },
-    {
-      id: 4,
-      title: 'Cybersecurity & Ethical Hacking Workshop',
-      organizer: '1337 Security Team',
-      category: 'workshop',
-      status: 'approved',
-      date: '2025-01-12',
-      time: '10:00',
-      location: 'Security Lab',
-      capacity: 40,
-      registered: 38,
-    },
-    {
-      id: 5,
-      title: 'AI/ML Research Symposium',
-      organizer: '1337 Research Department',
-      category: 'workshop',
-      status: 'rejected',
-      date: '2025-01-25',
-      time: '13:30',
-      location: 'Research Center',
-      capacity: 60,
-      registered: 23,
-    },
-  ];
+  const handleFilterChange = (filter) => {
+    setSelectedFilter(filter);
+    setLoading(true);
+    // Reload events with new filter
+    setTimeout(() => loadEvents(), 100);
+  };
+
+  const handleApproveEvent = async (eventId) => {
+    try {
+      await ApiService.approveEvent(eventId);
+      Alert.alert('Success', 'Event approved successfully!');
+      await loadEvents(); // Reload events
+    } catch (error) {
+      console.error('Failed to approve event:', error);
+      Alert.alert('Error', `Failed to approve event: ${error.message}`);
+    }
+  };
+
+  const handleRejectEvent = async (eventId) => {
+    try {
+      await ApiService.rejectEvent(eventId);
+      Alert.alert('Success', 'Event rejected successfully!');
+      await loadEvents(); // Reload events
+    } catch (error) {
+      console.error('Failed to reject event:', error);
+      Alert.alert('Error', `Failed to reject event: ${error.message}`);
+    }
+  };
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.organizer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = selectedFilter === 'all' || event.status === selectedFilter;
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
 
   const handleEventPress = (event) => {
     router.push(`/event-details?id=${event.id}`);
   };
 
+  // Show loading state
+  if (loading && events.length === 0) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+        <DataLoadingOverlay 
+          visible={true}
+          message="Loading Events"
+          subMessage="Fetching event management data"
+          icon={Calendar}
+        />
+      </View>
+    );
+  }
+
+  // Show error state
+  if (error && events.length === 0) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+        <SimpleBackground />
+        <SafeAreaView style={styles.safeArea}>
+          <AdminHeader title="Event Management" subtitle="Approve and manage events" />
+          <View style={styles.errorContainer}>
+            <IconLoadingState 
+              icon={AlertTriangle}
+              message="Unable to Load Events"
+              subMessage={error}
+            />
+            <Pressable style={styles.retryButton} onPress={loadEvents}>
+              <RefreshCw color={colors.white} size={16} strokeWidth={2} />
+              <Text style={styles.retryButtonText}>Try Again</Text>
+            </Pressable>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <SimpleBackground />
       
       <SafeAreaView style={styles.safeArea}>
-        <AdminHeader />
+        <AdminHeader title="Event Management" subtitle="Approve and manage events" />
 
         <ScrollView 
           showsVerticalScrollIndicator={false}
@@ -307,11 +393,11 @@ export default function EventManagement() {
           {/* Search */}
           <Animated.View entering={FadeInUp.delay(400)} style={styles.searchSection}>
             <View style={styles.searchBar}>
-              <Search color="#6b7280" size={20} strokeWidth={2} />
+              <Search color={colors.muted} size={20} strokeWidth={2} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search events..."
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.muted}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
@@ -319,7 +405,7 @@ export default function EventManagement() {
                 style={styles.filterButton}
                 onPress={() => setShowFilters(!showFilters)}
               >
-                <Filter color="#6b7280" size={18} strokeWidth={2} />
+                <Filter color={colors.muted} size={18} strokeWidth={2} />
               </Pressable>
             </View>
 
@@ -335,7 +421,7 @@ export default function EventManagement() {
                       styles.filterChip,
                       selectedFilter === filter && styles.filterChipActive
                     ]}
-                    onPress={() => setSelectedFilter(filter)}
+                    onPress={() => handleFilterChange(filter)}
                   >
                     <Text style={[
                       styles.filterChipText,
@@ -356,7 +442,7 @@ export default function EventManagement() {
                 Events ({filteredEvents.length})
               </Text>
               <Pressable style={styles.addButton} onPress={() => router.push('/create-event')}>
-                <Plus color="#3b82f6" size={16} strokeWidth={2} />
+                <Plus color={colors.info} size={16} strokeWidth={2} />
                 <Text style={styles.addButtonText}>New</Text>
               </Pressable>
             </View>
@@ -367,15 +453,17 @@ export default function EventManagement() {
                 event={event}
                 index={index}
                 onPress={handleEventPress}
+                onApprove={handleApproveEvent}
+                onReject={handleRejectEvent}
               />
             ))}
 
-            {filteredEvents.length === 0 && (
+            {filteredEvents.length === 0 && !loading && (
               <View style={styles.emptyState}>
-                <Calendar color="#6b7280" size={48} strokeWidth={1.5} />
+                <Calendar color={colors.muted} size={48} strokeWidth={1.5} />
                 <Text style={styles.emptyStateTitle}>No Events Found</Text>
                 <Text style={styles.emptyStateText}>
-                  Try adjusting your search criteria
+                  {searchQuery ? 'Try adjusting your search criteria' : 'No events match the selected filter'}
                 </Text>
               </View>
             )}
@@ -391,7 +479,7 @@ export default function EventManagement() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: colors.primaryBg,
   },
   safeArea: {
     flex: 1,
@@ -411,7 +499,7 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.8,
     height: screenWidth * 0.8,
     borderRadius: screenWidth * 0.4,
-    backgroundColor: 'rgba(59, 130, 246, 0.02)',
+    backgroundColor: colors.lightAccent,
   },
   subtleOrb2: {
     position: 'absolute',
@@ -420,7 +508,7 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.6,
     height: screenWidth * 0.6,
     borderRadius: screenWidth * 0.3,
-    backgroundColor: 'rgba(139, 92, 246, 0.015)',
+    backgroundColor: colors.lightHighlight,
   },
 
   scrollContent: {
@@ -436,25 +524,30 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.4)',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
     position: 'relative',
     minHeight: 70,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 6,
   },
   statValue: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 2,
     fontFamily: 'monospace',
   },
   statLabel: {
     fontSize: 10,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -476,110 +569,120 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.4)',
-    borderRadius: 12,
+    borderColor: colors.cardBorder,
+    borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 12,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 6,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.primaryText,
     fontWeight: '500',
   },
   filterButton: {
-    padding: 4,
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: colors.secondaryBg,
   },
+
+  // Filter Row
   filterRow: {
     flexDirection: 'row',
+    marginTop: 16,
     gap: 8,
-    marginTop: 12,
   },
   filterChip: {
-    backgroundColor: 'rgba(31, 41, 55, 0.6)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#374151',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderColor: colors.cardBorder,
   },
   filterChipActive: {
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    borderColor: '#3b82f6',
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
   filterChipText: {
-    fontSize: 12,
-    color: '#9ca3af',
+    fontSize: 14,
     fontWeight: '600',
+    color: colors.secondaryText,
   },
   filterChipTextActive: {
-    color: '#3b82f6',
+    color: colors.white,
   },
 
   // Events Section
   eventsSection: {
     paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingTop: 32,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#ffffff',
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.primaryText,
+    letterSpacing: -0.5,
   },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#3b82f6',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderColor: colors.accent,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
     gap: 6,
   },
   addButtonText: {
-    fontSize: 12,
-    color: '#3b82f6',
+    fontSize: 14,
     fontWeight: '600',
+    color: colors.accent,
   },
 
-  // Clean Event Cards
+  // Event Card
   eventCard: {
-    marginBottom: 12,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(17, 24, 39, 0.6)',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(31, 41, 55, 0.4)',
+    borderColor: colors.cardBorder,
+    borderRadius: 16,
+    marginBottom: 16,
+    overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 6,
   },
   eventCardPressable: {
-    position: 'relative',
+    flex: 1,
   },
   statusLine: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 3,
+    height: 4,
   },
   eventCardContent: {
-    padding: 16,
-    paddingLeft: 20,
+    padding: 20,
   },
   eventCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   categoryContainer: {
     flexDirection: 'row',
@@ -588,9 +691,10 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 12,
-    color: '#9ca3af',
     fontWeight: '600',
-    textTransform: 'capitalize',
+    color: colors.secondaryText,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   statusDot: {
     width: 8,
@@ -598,30 +702,87 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   eventTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: 12,
-    lineHeight: 22,
-    paddingRight: 32,
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.primaryText,
+    marginBottom: 8,
+    lineHeight: 24,
   },
-  eventInfo: {
+
+  // Organizer Row
+  organizerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
+    marginBottom: 12,
+  },
+  organizerText: {
+    fontSize: 13,
+    color: colors.muted,
+    fontWeight: '500',
+  },
+
+  // Event Info
+  eventInfo: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 16,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   infoText: {
-    fontSize: 14,
-    color: '#d1d5db',
+    fontSize: 12,
+    color: colors.muted,
     fontWeight: '500',
   },
+
+  // Action Buttons
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  approveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.success,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  approveButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.white,
+  },
+  rejectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.error,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  rejectButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.white,
+  },
+
+  // Arrow Container
   arrowContainer: {
     position: 'absolute',
-    right: 16,
-    bottom: 16,
+    top: 20,
+    right: 20,
   },
 
   // Empty State
@@ -632,17 +793,39 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyStateText: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     textAlign: 'center',
   },
 
   bottomSpacer: {
     height: 40,
+  },
+
+  // Error container styles
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.accent,
+    padding: 12,
+    borderRadius: 12,
+    gap: 6,
+    marginTop: 16,
+  },
+  retryButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.white,
   },
 }); 

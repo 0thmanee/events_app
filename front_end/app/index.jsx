@@ -494,13 +494,25 @@ export default function WelcomeScreen() {
 
   const checkExistingAuth = async () => {
     try {
-      const [appToken, userRole] = await Promise.all([
+      const [appToken, userRole, userData] = await Promise.all([
         AsyncStorage.getItem('appToken'),
-        AsyncStorage.getItem('userRole')
+        AsyncStorage.getItem('userRole'),
+        AsyncStorage.getItem('userData')
       ]);
 
       if (appToken && userRole) {
         console.log('🔐 Existing authentication found, redirecting...');
+        
+        // Special case for development: treat "obouchta" as staff
+        let finalUserRole = userRole;
+        if (userData) {
+          const parsedUserData = JSON.parse(userData);
+          if (parsedUserData?.intraUsername === 'obouchta' || parsedUserData?.nickname === 'obouchta') {
+            console.log('🔧 DEV: Treating obouchta as staff for existing auth check');
+            finalUserRole = 'staff';
+            await AsyncStorage.setItem('userRole', 'staff'); // Update stored role
+          }
+        }
         
         // Update loading text to show auto-login
         setLoadingText('AUTHENTICATING...');
@@ -508,7 +520,7 @@ export default function WelcomeScreen() {
         
         // Small delay to show the loading state
         setTimeout(() => {
-          if (userRole === 'staff' || userRole === 'admin') {
+          if (finalUserRole === 'staff' || finalUserRole === 'admin') {
             console.log('🎯 Auto-routing to admin panel...');
             router.replace('/(tabs)/admin');
           } else {
@@ -600,12 +612,18 @@ export default function WelcomeScreen() {
       await new Promise(resolve => setTimeout(resolve, 800));
       
       // The role is already determined by the backend based on 42 staff status
-      const userRole = authData.user.role;
+      let userRole = authData.user.role;
       
-      // Store the role (it's already stored in AuthService, but ensure it's set)
+      // Special case for development: treat "obouchta" as staff
+      if (authData.user.intraUsername === 'obouchta' || authData.user.nickname === 'obouchta') {
+        console.log('🔧 DEV: Treating obouchta as staff for navigation');
+        userRole = 'staff';
+      }
+      
+      // Store the role (override if obouchta)
       await AsyncStorage.setItem('userRole', userRole);
       
-      // Navigate directly based on the backend-determined role
+      // Navigate directly based on the determined role
       if (userRole === 'staff' || userRole === 'admin') {
         console.log('🎯 Routing to staff/admin panel...');
         router.replace('/(tabs)/admin');

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, Dimensions, RefreshControl, StatusBar, StyleSheet, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +12,6 @@ import Animated, {
   withTiming,
   withSpring
 } from 'react-native-reanimated';
-import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { 
   Trophy,
@@ -37,6 +37,7 @@ import {
   User
 } from 'lucide-react-native';
 import AdminHeader from '../../components/AdminHeader';
+import ApiService from '../../services/ApiService';
 import { 
   ProfessionalBackground, 
   IconLoadingState,
@@ -157,141 +158,97 @@ export default function ManageRanking() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
     StatusBar.setBarStyle('dark-content');
+    loadRankingData();
   }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      if (searchQuery.length >= 2 || searchQuery.length === 0) {
+        loadRankingData();
+      }
+    }, 500);
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchQuery]);
+
+  // Filter change effect
+  useEffect(() => {
+    loadRankingData();
+  }, [selectedFilter]);
+
+  // Load ranking data from API
+  const loadRankingData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const filters = {};
+      if (searchQuery.length >= 2) {
+        filters.search = searchQuery;
+      }
+      if (selectedFilter !== 'all') {
+        filters.filter = selectedFilter;
+      }
+      
+      const rankingData = await ApiService.getAdminLeaderboard(filters);
+      setStudents(rankingData || []);
+    } catch (error) {
+      console.error('Failed to load ranking data:', error);
+      setError('Failed to load ranking data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setRefreshing(false);
+    try {
+      await loadRankingData();
+    } catch (error) {
+      console.error('Refresh failed:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
-  // Mock student ranking data
-  const students = [
-    {
-      id: 1,
-      rank: 1,
-      name: 'Si Yhya',
-      login: 'yalami',
-      level: 12,
-      score: 8750,
-      eventsAttended: 45,
-      totalCoins: 2340,
-      lastActivity: 'active',
-      achievements: 18,
-      feedback: 42
-    },
-    {
-      id: 2,
-      rank: 2,
-      name: 'Fatima Zahra El Mansouri',
-      login: 'fel-mans',
-      level: 11,
-      score: 8200,
-      eventsAttended: 38,
-      totalCoins: 2100,
-      lastActivity: 'active',
-      achievements: 16,
-      feedback: 35
-    },
-    {
-      id: 3,
-      rank: 3,
-      name: 'Ahmed Benali',
-      login: 'abenali',
-      level: 10,
-      score: 7650,
-      eventsAttended: 32,
-      totalCoins: 1850,
-      lastActivity: 'active',
-      achievements: 14,
-      feedback: 28
-    },
-    {
-      id: 4,
-      rank: 4,
-      name: 'Sara Amrani',
-      login: 'samrani',
-      level: 9,
-      score: 6890,
-      eventsAttended: 28,
-      totalCoins: 1560,
-      lastActivity: 'active',
-      achievements: 12,
-      feedback: 24
-    },
-    {
-      id: 5,
-      rank: 5,
-      name: 'Omar Tazi',
-      login: 'otazi',
-      level: 8,
-      score: 6120,
-      eventsAttended: 25,
-      totalCoins: 1340,
-      lastActivity: 'idle',
-      achievements: 10,
-      feedback: 20
-    },
-    {
-      id: 6,
-      rank: 6,
-      name: 'Nadia Kassimi',
-      login: 'nkassimi',
-      level: 7,
-      score: 5450,
-      eventsAttended: 22,
-      totalCoins: 1180,
-      lastActivity: 'active',
-      achievements: 8,
-      feedback: 18
-    },
-    {
-      id: 7,
-      rank: 7,
-      name: 'Karim Bouazza',
-      login: 'kbouazza',
-      level: 6,
-      score: 4780,
-      eventsAttended: 19,
-      totalCoins: 980,
-      lastActivity: 'idle',
-      achievements: 7,
-      feedback: 15
-    },
-    {
-      id: 8,
-      rank: 8,
-      name: 'Malika Idrissi',
-      login: 'midrissi',
-      level: 5,
-      score: 4120,
-      eventsAttended: 16,
-      totalCoins: 820,
-      lastActivity: 'active',
-      achievements: 6,
-      feedback: 12
-    }
-  ];
-
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         student.login.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = selectedFilter === 'all' || 
-                         (selectedFilter === 'active' && student.lastActivity === 'active') ||
-                         (selectedFilter === 'high-level' && student.level >= 8) ||
-                         (selectedFilter === 'top-10' && student.rank <= 10);
-    return matchesSearch && matchesFilter;
-  });
+  // Filter students based on search and filter criteria (simplified since server-side filtering is now used)
+  const filteredStudents = students;
 
   const handleViewProfile = (student) => {
+    const profileInfo = [
+      `👑 Rank: #${student.rank}`,
+      `📊 Level: ${student.level}`,
+      `⭐ Score: ${student.score} XP`,
+      `🎯 Events Attended: ${student.eventsAttended}`,
+      `🪙 Total Coins: ${student.totalCoins}`,
+      `🏆 Achievements: ${student.achievements}`,
+      `💬 Feedback Given: ${student.feedback}`,
+      `📧 Email: ${student.email}`,
+      `🏷️ Role: ${student.role || 'student'}`,
+      `📅 Joined: ${student.joinDate ? new Date(student.joinDate).toLocaleDateString() : 'N/A'}`
+    ].join('\n');
+
     Alert.alert(
-      `${student.name}'s Profile`,
-      `Rank: #${student.rank}\nLevel: ${student.level}\nScore: ${student.score} XP\nEvents: ${student.eventsAttended}\nCoins: ${student.totalCoins}\nAchievements: ${student.achievements}\nFeedback Given: ${student.feedback}`,
-      [{ text: 'Close' }]
+      `📋 ${student.name}'s Profile`,
+      profileInfo,
+      [
+        { text: 'Close', style: 'cancel' },
+        { 
+          text: 'View Details', 
+          onPress: () => {
+            // TODO: Navigate to detailed user profile page
+            Alert.alert('Feature Coming Soon', 'Detailed user profile view will be available soon.');
+          }
+        }
+      ]
     );
   };
 
@@ -316,7 +273,7 @@ export default function ManageRanking() {
       <ProfessionalBackground />
       
       <SafeAreaView style={styles.safeArea}>
-        <AdminHeader />
+        <AdminHeader  />
 
         <ScrollView 
           showsVerticalScrollIndicator={false}
@@ -326,19 +283,38 @@ export default function ManageRanking() {
           contentContainerStyle={styles.scrollContent}
         >
 
-          {/* Action Buttons */}
-          <Animated.View entering={FadeInUp.delay(300)} style={styles.actionsContainer}>
-            <View style={styles.actionButtons}>
-              <Pressable style={styles.actionButton} onPress={handleExportData}>
-                <Download color={colors.info} size={16} strokeWidth={2} />
-                <Text style={styles.actionButtonText}>Export</Text>
-              </Pressable>
-              <Pressable style={styles.actionButton} onPress={handleResetRankings}>
-                <RefreshCw color={colors.error} size={16} strokeWidth={2} />
-                <Text style={[styles.actionButtonText, { color: colors.error }]}>Reset</Text>
-              </Pressable>
-            </View>
-          </Animated.View>
+          {/* Stats Overview */}
+          {!loading && !error && students.length > 0 && (
+            <Animated.View entering={FadeInUp.delay(200)} style={styles.statsContainer}>
+              <View style={styles.statCard}>
+                <View style={[styles.statIcon, { backgroundColor: `${colors.info}15`, borderColor: colors.info }]}>
+                  <Users color={colors.info} size={16} strokeWidth={2} />
+                </View>
+                <Text style={styles.statValue}>{students.length}</Text>
+                <Text style={styles.statLabel}>Total Students</Text>
+              </View>
+              
+              <View style={styles.statCard}>
+                <View style={[styles.statIcon, { backgroundColor: `${colors.success}15`, borderColor: colors.success }]}>
+                  <Activity color={colors.success} size={16} strokeWidth={2} />
+                </View>
+                <Text style={styles.statValue}>
+                  {students.filter(s => s.lastActivity === 'active').length}
+                </Text>
+                <Text style={styles.statLabel}>Active Users</Text>
+              </View>
+              
+              <View style={styles.statCard}>
+                <View style={[styles.statIcon, { backgroundColor: `${colors.accent}15`, borderColor: colors.accent }]}>
+                  <TrendingUp color={colors.accent} size={16} strokeWidth={2} />
+                </View>
+                <Text style={styles.statValue}>
+                  {students.length > 0 ? (students.reduce((sum, s) => sum + s.level, 0) / students.length).toFixed(1) : '0'}
+                </Text>
+                <Text style={styles.statLabel}>Avg Level</Text>
+              </View>
+            </Animated.View>
+          )}
 
           {/* Search */}
           <Animated.View entering={FadeInUp.delay(400)} style={styles.searchSection}>
@@ -391,27 +367,45 @@ export default function ManageRanking() {
           <View style={styles.rankingsSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
-                Student Rankings ({filteredStudents.length})
+                Student Rankings ({loading ? '...' : filteredStudents.length})
               </Text>
             </View>
 
-            {filteredStudents.map((student, index) => (
-              <RankingCard
-                key={student.id}
-                student={student}
-                index={index}
-                onViewProfile={handleViewProfile}
+            {loading ? (
+              <DataLoadingOverlay 
+                message="Loading student rankings..."
+                showBackground={false}
               />
-            ))}
-
-            {filteredStudents.length === 0 && (
+            ) : error ? (
+              <View style={styles.errorState}>
+                <Trophy color={colors.error} size={48} strokeWidth={1.5} />
+                <Text style={styles.errorStateTitle}>Failed to Load Rankings</Text>
+                <Text style={styles.errorStateText}>{error}</Text>
+                <Pressable style={styles.retryButton} onPress={loadRankingData}>
+                  <RefreshCw color={colors.accent} size={16} strokeWidth={2} />
+                  <Text style={styles.retryButtonText}>Try Again</Text>
+                </Pressable>
+              </View>
+            ) : filteredStudents.length === 0 ? (
               <View style={styles.emptyState}>
                 <Trophy color={colors.secondaryText} size={48} strokeWidth={1.5} />
                 <Text style={styles.emptyStateTitle}>No Students Found</Text>
                 <Text style={styles.emptyStateText}>
-                  Try adjusting your search criteria
+                  {searchQuery || selectedFilter !== 'all' 
+                    ? 'Try adjusting your search criteria'
+                    : 'No students have been registered yet'
+                  }
                 </Text>
               </View>
+            ) : (
+              filteredStudents.map((student, index) => (
+                <RankingCard
+                  key={student.id}
+                  student={student}
+                  index={index}
+                  onViewProfile={handleViewProfile}
+                />
+              ))
             )}
           </View>
 
@@ -705,5 +699,37 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+
+  // Error State
+  errorState: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  errorStateTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.primaryText,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  errorStateText: {
+    fontSize: 14,
+    color: colors.secondaryText,
+    textAlign: 'center',
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    fontSize: 12,
+    color: colors.accent,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 }); 

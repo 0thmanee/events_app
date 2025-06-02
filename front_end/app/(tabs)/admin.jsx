@@ -251,7 +251,8 @@ const styles = StyleSheet.create({
   cleanHeader: {
     paddingHorizontal: 24,
     paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: 32,
+    marginBottom: 16,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
     borderBottomColor: colors.cardBorder,
@@ -1248,32 +1249,32 @@ export default function AdminDashboard() {
       value: '18',
       label: 'Pending Events',
       trend: '+3 today',
-      color: '#f59e0b',
-      gradient: ['#f59e0b', '#d97706'],
+      color: colors.warning,
+      gradient: [colors.warning, colors.warning],
     },
     {
       icon: ShoppingBag,
       value: '8',
       label: 'Shop Requests',
       trend: '+2 this week',
-      color: '#8b5cf6',
-      gradient: ['#8b5cf6', '#7c3aed'],
+      color: colors.highlight,
+      gradient: [colors.highlight, colors.highlight],
     },
     {
       icon: Coins,
       value: '47.2K',
       label: 'Coins Distributed',
       trend: '+1.2K today',
-      color: '#10b981',
-      gradient: ['#10b981', '#059669'],
+      color: colors.success,
+      gradient: [colors.success, colors.success],
     },
     {
       icon: Trophy,
       value: '247',
       label: 'Active Rankings',
       trend: '+12 this week',
-      color: '#ef4444',
-      gradient: ['#ef4444', '#dc2626'],
+      color: colors.error,
+      gradient: [colors.error, colors.error],
     },
   ];
 
@@ -1282,8 +1283,8 @@ export default function AdminDashboard() {
       title: 'Event Management',
       description: 'Approve and manage events',
       icon: Calendar,
-      color: '#3b82f6',
-      gradient: ['#3b82f6', '#1d4ed8'],
+      color: colors.info,
+      gradient: [colors.info, colors.info],
       badge: 6,
       route: '/event-management',
     },
@@ -1291,8 +1292,8 @@ export default function AdminDashboard() {
       title: 'Shop Requests',
       description: 'Profile customizations',
       icon: ShoppingBag,
-      color: '#f59e0b',
-      gradient: ['#f59e0b', '#d97706'],
+      color: colors.warning,
+      gradient: [colors.warning, colors.warning],
       badge: 3,
       route: '/manage-shop',
     },
@@ -1300,16 +1301,16 @@ export default function AdminDashboard() {
       title: 'Wallet System',
       description: 'Monitor transactions',
       icon: Wallet,
-      color: '#10b981',
-      gradient: ['#10b981', '#059669'],
+      color: colors.success,
+      gradient: [colors.success, colors.success],
       route: '/manage-wallet',
     },
     {
       title: 'Rankings',
       description: 'Student leaderboards',
       icon: Trophy,
-      color: '#ef4444',
-      gradient: ['#ef4444', '#dc2626'],
+      color: colors.error,
+      gradient: [colors.error, colors.error],
       route: '/manage-ranking',
     },
   ];
@@ -1323,7 +1324,7 @@ export default function AdminDashboard() {
       time: '2 min ago',
       amount: '+50',
       icon: Coins,
-      color: '#10b981',
+      color: colors.success,
     },
     {
       type: 'shop_request',
@@ -1333,7 +1334,7 @@ export default function AdminDashboard() {
       time: '15 min ago',
       amount: '-100',
       icon: User,
-      color: '#f59e0b',
+      color: colors.warning,
     },
     {
       type: 'event_created',
@@ -1343,7 +1344,7 @@ export default function AdminDashboard() {
       time: '1 hour ago',
       amount: '',
       icon: Plus,
-      color: '#3b82f6',
+      color: colors.info,
     },
     {
       type: 'ranking_update',
@@ -1353,7 +1354,7 @@ export default function AdminDashboard() {
       time: '2 hours ago',
       amount: '+500 XP',
       icon: Crown,
-      color: '#8b5cf6',
+      color: colors.accent,
     },
   ];
 
@@ -1411,7 +1412,7 @@ export default function AdminDashboard() {
               {/* <Animated.View entering={FadeInDown.delay(900)} style={styles.managementHeader}>
                 <View style={styles.headerTitleContainer}>
                   <View style={styles.headerIconContainer}>
-                    <Shield color="#3b82f6" size={24} strokeWidth={2} />
+                    <Shield color={colors.info} size={24} strokeWidth={2} />
                   </View>
                   <View>
                     <Text style={styles.managementSectionTitle}>Management Center</Text>

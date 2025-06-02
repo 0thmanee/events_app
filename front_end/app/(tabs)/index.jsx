@@ -51,6 +51,7 @@ import ApiService from '../../services/ApiService';
 import RecommendationService from '../../services/RecommendationService';
 import CalendarService from '../../services/CalendarService';
 import NotificationService from '../../services/NotificationService';
+import NotificationBell from '../../components/NotificationBell';
 import { 
   ProfessionalBackground, 
   EventCardSkeleton, 
@@ -93,9 +94,7 @@ const StudentHeader = ({ navigateWithTransition }) => {
           <Text style={[styles.headerSubtitle, { color: colors.secondaryText }]}>Welcome back to your event hub</Text>
         </View>
         <View style={styles.headerRight}>
-          <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => navigateWithTransition('/notifications', 'Loading notifications...')}>
-            <Bell color={colors.accent} size={20} strokeWidth={1.5} />
-          </Pressable>
+          <NotificationBell iconSize={20} showBadge={true} />
           <Pressable style={[styles.headerButton, { backgroundColor: colors.secondaryBg }]} onPress={() => navigateWithTransition('/settings', 'Loading settings...')}>
             <Settings color={colors.accent} size={20} strokeWidth={1.5} />
           </Pressable>

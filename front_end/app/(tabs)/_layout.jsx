@@ -49,6 +49,20 @@ const colors = {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+// Helper function to check if current user is obouchta (for dev purposes)
+const isObouchta = async () => {
+  try {
+    const userData = await AsyncStorage.getItem('userData');
+    if (userData) {
+      const parsedUserData = JSON.parse(userData);
+      return parsedUserData?.intraUsername === 'obouchta' || parsedUserData?.nickname === 'obouchta';
+    }
+  } catch (error) {
+    console.error('Error checking if user is obouchta:', error);
+  }
+  return false;
+};
+
 // Enhanced Custom Tab Bar Component
 function CustomTabBar({ state, descriptors, navigation, userRole }) {
   // Filter routes based on user role
@@ -400,6 +414,18 @@ export default function TabLayout() {
     const getUserRole = async () => {
       try {
         const role = await AsyncStorage.getItem('userRole');
+        const userData = await AsyncStorage.getItem('userData');
+        
+        // Special case for development: treat "obouchta" as staff
+        if (userData) {
+          const parsedUserData = JSON.parse(userData);
+          if (parsedUserData?.intraUsername === 'obouchta' || parsedUserData?.nickname === 'obouchta') {
+            console.log('🔧 DEV: Treating obouchta as staff for tab navigation');
+            setUserRole('staff');
+            return;
+          }
+        }
+        
         console.log('📱 Current user role:', role);
         setUserRole(role || 'student'); // Default to student
       } catch (error) {

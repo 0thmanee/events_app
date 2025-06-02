@@ -49,20 +49,40 @@ import {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Transaction Type Badge
 const TransactionTypeBadge = ({ type }) => {
   const getTypeConfig = (type) => {
     switch (type.toLowerCase()) {
       case 'earned':
-        return { color: '#10b981', gradient: ['#10b981', '#059669'], icon: ArrowUpRight };
+        return { color: colors.success, gradient: [colors.success, colors.success], icon: ArrowUpRight };
       case 'spent':
-        return { color: '#ef4444', gradient: ['#ef4444', '#dc2626'], icon: ArrowDownLeft };
+        return { color: colors.error, gradient: [colors.error, colors.error], icon: ArrowDownLeft };
       case 'awarded':
-        return { color: '#8b5cf6', gradient: ['#8b5cf6', '#7c3aed'], icon: Award };
+        return { color: colors.accent, gradient: [colors.accent, colors.accent], icon: Award };
       case 'bonus':
-        return { color: '#f59e0b', gradient: ['#f59e0b', '#d97706'], icon: Gift };
+        return { color: colors.warning, gradient: [colors.warning, colors.warning], icon: Gift };
       default:
-        return { color: '#6b7280', gradient: ['#6b7280', '#4b5563'], icon: Coins };
+        return { color: colors.muted, gradient: [colors.muted, colors.muted], icon: Coins };
     }
   };
 
@@ -80,7 +100,7 @@ const TransactionTypeBadge = ({ type }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: colors.primaryBg,
   },
   scrollContainer: {
     flex: 1,
@@ -92,13 +112,18 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   overviewCard: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     padding: 24,
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   overviewGradient: {
     position: 'absolute',
@@ -117,15 +142,15 @@ const styles = StyleSheet.create({
   overviewTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
   },
   overviewIcon: {
     width: 48,
     height: 48,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: colors.success,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
@@ -136,14 +161,14 @@ const styles = StyleSheet.create({
   },
   totalCoinsLabel: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
     marginBottom: 8,
   },
   counterText: {
     fontSize: 36,
     fontWeight: '900',
-    color: '#10b981',
+    color: colors.success,
     fontFamily: 'monospace',
   },
   overviewStats: {
@@ -157,13 +182,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
     fontFamily: 'monospace',
   },
   statLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -173,10 +198,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   trendPositive: {
-    color: '#10b981',
+    color: colors.success,
   },
   trendNegative: {
-    color: '#ef4444',
+    color: colors.error,
   },
   
   // Quick Actions Section
@@ -187,7 +212,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
     marginBottom: 16,
   },
@@ -197,14 +222,19 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: (screenWidth - 60) / 3,
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   actionCardGradient: {
     position: 'absolute',
@@ -225,13 +255,13 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     textAlign: 'center',
     marginBottom: 4,
   },
   actionSubtitle: {
     fontSize: 10,
-    color: '#6b7280',
+    color: colors.secondaryText,
     textAlign: 'center',
   },
   
@@ -243,22 +273,27 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 16,
     padding: 16,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 6,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.primaryText,
     marginLeft: 12,
   },
   filterButton: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#10b981',
+    borderColor: colors.success,
     borderRadius: 12,
     padding: 8,
     marginLeft: 12,
@@ -278,29 +313,34 @@ const styles = StyleSheet.create({
   sortButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(31, 41, 55, 0.8)',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   sortButtonText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
     marginRight: 4,
   },
   
   // Transaction Cards
   transactionCard: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 16,
     marginBottom: 12,
     overflow: 'hidden',
     position: 'relative',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   transactionCardGradient: {
     position: 'absolute',
@@ -328,7 +368,7 @@ const styles = StyleSheet.create({
   transactionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   transactionMeta: {
@@ -339,14 +379,14 @@ const styles = StyleSheet.create({
   transactionMetaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(55, 65, 81, 0.4)',
+    backgroundColor: colors.secondaryBg,
     paddingHorizontal: 6,
     paddingVertical: 3,
     borderRadius: 6,
   },
   transactionMetaText: {
     fontSize: 10,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     marginLeft: 4,
     fontWeight: '600',
   },
@@ -360,10 +400,10 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
   },
   amountPositive: {
-    color: '#10b981',
+    color: colors.success,
   },
   amountNegative: {
-    color: '#ef4444',
+    color: colors.error,
   },
   
   // Badge Styles
@@ -394,7 +434,7 @@ export default function WalletSystem() {
   const [filterText, setFilterText] = useState('');
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
   }, []);
 
   const handleRefresh = async () => {
@@ -414,22 +454,22 @@ export default function WalletSystem() {
       title: 'Distribute',
       subtitle: 'Send coins',
       icon: Gift,
-      color: '#8b5cf6',
-      gradient: ['#8b5cf6', '#7c3aed'],
+      color: colors.accent,
+      gradient: [colors.accent, colors.accent],
     },
     {
       title: 'Analytics',
       subtitle: 'View stats',
       icon: BarChart3,
-      color: '#3b82f6',
-      gradient: ['#3b82f6', '#1d4ed8'],
+      color: colors.info,
+      gradient: [colors.info, colors.info],
     },
     {
       title: 'Settings',
       subtitle: 'Configure',
       icon: Settings,
-      color: '#6b7280',
-      gradient: ['#6b7280', '#4b5563'],
+      color: colors.muted,
+      gradient: [colors.muted, colors.muted],
     },
   ];
 
@@ -484,7 +524,7 @@ export default function WalletSystem() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
       <SafeAreaView style={styles.container}>
         <ScrollView 
@@ -495,19 +535,19 @@ export default function WalletSystem() {
           }
         >
           {/* Header */}
-          <AdminHeader />
+          <AdminHeader title="Wallet System" subtitle="Manage coins and transactions" />
 
           {/* Wallet Overview */}
           <Animated.View entering={FadeInUp.delay(400)} style={styles.overviewSection}>
             <View style={styles.overviewCard}>
               <LinearGradient
-                colors={['#10b981', '#059669']}
+                colors={[colors.success, colors.success]}
                 style={styles.overviewGradient}
               />
               <View style={styles.overviewHeader}>
                 <Text style={styles.overviewTitle}>Total Coins in Circulation</Text>
                 <View style={styles.overviewIcon}>
-                  <Wallet color="#10b981" size={24} strokeWidth={2} />
+                  <Wallet color={colors.success} size={24} strokeWidth={2} />
                 </View>
               </View>
               
@@ -564,16 +604,16 @@ export default function WalletSystem() {
           {/* Search & Filter */}
           <Animated.View entering={FadeInUp.delay(1000)} style={styles.filterSection}>
             <View style={styles.filterContainer}>
-              <Search color="#6b7280" size={18} strokeWidth={2} />
+              <Search color={colors.muted} size={18} strokeWidth={2} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search transactions..."
-                placeholderTextColor="#6b7280"
+                placeholderTextColor={colors.muted}
                 value={filterText}
                 onChangeText={setFilterText}
               />
               <Pressable style={styles.filterButton}>
-                <Filter color="#10b981" size={16} strokeWidth={2} />
+                <Filter color={colors.success} size={16} strokeWidth={2} />
               </Pressable>
             </View>
           </Animated.View>
@@ -584,7 +624,7 @@ export default function WalletSystem() {
               <Text style={styles.sectionTitle}>Recent Transactions</Text>
               <Pressable style={styles.sortButton}>
                 <Text style={styles.sortButtonText}>Sort by</Text>
-                <MoreVertical color="#9ca3af" size={14} strokeWidth={2} />
+                <MoreVertical color={colors.secondaryText} size={14} strokeWidth={2} />
               </Pressable>
             </View>
             
@@ -595,7 +635,7 @@ export default function WalletSystem() {
                 style={styles.transactionCard}
               >
                 <LinearGradient
-                  colors={transaction.amount > 0 ? ['#10b981', '#059669'] : ['#ef4444', '#dc2626']}
+                  colors={transaction.amount > 0 ? [colors.success, colors.success] : [colors.error, colors.error]}
                   style={styles.transactionCardGradient}
                 />
                 
@@ -603,15 +643,15 @@ export default function WalletSystem() {
                   <View style={[
                     styles.transactionIcon, 
                     { 
-                      backgroundColor: transaction.amount > 0 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)', 
+                      backgroundColor: transaction.amount > 0 ? colors.lightAccent : colors.error + '20', 
                       borderWidth: 1, 
-                      borderColor: transaction.amount > 0 ? '#10b981' : '#ef4444' 
+                      borderColor: transaction.amount > 0 ? colors.success : colors.error 
                     }
                   ]}>
                     {transaction.amount > 0 ? (
-                      <ArrowUpRight color={transaction.amount > 0 ? '#10b981' : '#ef4444'} size={20} strokeWidth={2} />
+                      <ArrowUpRight color={transaction.amount > 0 ? colors.success : colors.error} size={20} strokeWidth={2} />
                     ) : (
-                      <ArrowDownLeft color={transaction.amount > 0 ? '#10b981' : '#ef4444'} size={20} strokeWidth={2} />
+                      <ArrowDownLeft color={transaction.amount > 0 ? colors.success : colors.error} size={20} strokeWidth={2} />
                     )}
                   </View>
                   
@@ -619,7 +659,7 @@ export default function WalletSystem() {
                     <Text style={styles.transactionTitle}>{transaction.studentName}</Text>
                     <View style={styles.transactionMeta}>
                       <View style={styles.transactionMetaItem}>
-                        <Clock color="#6b7280" size={9} strokeWidth={2} />
+                        <Clock color={colors.secondaryText} size={9} strokeWidth={2} />
                         <Text style={styles.transactionMetaText}>{transaction.timestamp}</Text>
                       </View>
                       <TransactionTypeBadge type={transaction.type} />

@@ -56,6 +56,7 @@ import AdminHeader from '../components/AdminHeader';
 import ApiService from '../services/ApiService';
 import CalendarService from '../services/CalendarService';
 import QRCodeService from '../services/QRCodeService';
+import { isStaff } from '../utils/auth';
 import { 
   ProfessionalBackground, 
   IconLoadingState,
@@ -808,6 +809,59 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 32,
   },
+  
+  // Staff Actions Styles
+  staffActionsHeader: {
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  staffActionsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.primaryText,
+    marginBottom: 4,
+  },
+  staffActionsSubtitle: {
+    fontSize: 14,
+    color: colors.secondaryText,
+    textAlign: 'center',
+  },
+  staffStatsCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+    padding: 20,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  staffStat: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  staffStatValue: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.accent,
+    marginBottom: 4,
+  },
+  staffStatLabel: {
+    fontSize: 12,
+    color: colors.secondaryText,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  staffStatDivider: {
+    width: 1,
+    backgroundColor: colors.cardBorder,
+    marginHorizontal: 16,
+  },
+
   quickActionsRow: {
     flexDirection: 'row',
     gap: 12,
@@ -833,17 +887,17 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   actionButtonSecondary: {
-    backgroundColor: '#0a0f1c',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#1a2332',
+    borderColor: colors.cardBorder,
   },
   actionButtonDanger: {
     backgroundColor: '#ef4444',
   },
   actionButtonDisabled: {
-    backgroundColor: '#1a2332',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: colors.cardBorder,
   },
   actionButtonText: {
     fontSize: 16,
@@ -965,13 +1019,25 @@ export default function EventDetails() {
   const [event, setEvent] = useState(null);
   const [error, setError] = useState(null);
   const [registering, setRegistering] = useState(false);
+  const [userIsStaff, setUserIsStaff] = useState(false);
 
   useEffect(() => {
     StatusBar.setBarStyle('dark-content');
     if (id) {
       loadEventDetails();
+      checkUserRole();
     }
   }, [id]);
+
+  const checkUserRole = async () => {
+    try {
+      const staffStatus = await isStaff();
+      setUserIsStaff(staffStatus);
+    } catch (error) {
+      console.error('Error checking user role:', error);
+      setUserIsStaff(false);
+    }
+  };
 
   const loadEventDetails = async () => {
     try {
@@ -1224,37 +1290,84 @@ export default function EventDetails() {
             </Animated.View>
           )}
 
-          {/* Action Buttons */}
-          <Animated.View entering={FadeInUp.delay(1200)} style={styles.actionsSection}>
-            {/* Quick Actions Row */}
-            <View style={styles.quickActionsRow}>
+          {/* Action Buttons - Different for Staff vs Students */}
+          {userIsStaff ? (
+            // Staff QR Scanner Actions
+            <Animated.View entering={FadeInUp.delay(1200)} style={styles.actionsSection}>
+              <View style={styles.staffActionsHeader}>
+                <Text style={styles.staffActionsTitle}>Staff Check-in</Text>
+                <Text style={styles.staffActionsSubtitle}>Scan student QR codes to verify registration</Text>
+              </View>
+              
+              {/* Staff Actions Row */}
+              <View style={styles.quickActionsRow}>
+                <ActionButton
+                  icon={QrCode}
+                  title="Scan QR Code"
+                  onPress={() => router.push(`/qr-scanner?eventId=${event.id}&mode=staff`)}
+                  variant="primary"
+                  style={styles.quickActionButton}
+                />
+                <ActionButton
+                  icon={Users}
+                  title="View Attendance"
+                  onPress={() => router.push(`/event-attendance?eventId=${event.id}`)}
+                  variant="primary"
+                  style={styles.quickActionButton}
+                />
+              </View>
+              
+              {/* Event Stats for Staff */}
+              <View style={styles.staffStatsCard}>
+                <View style={styles.staffStat}>
+                  <Text style={styles.staffStatValue}>{event.registered}</Text>
+                  <Text style={styles.staffStatLabel}>Registered</Text>
+                </View>
+                <View style={styles.staffStatDivider} />
+                <View style={styles.staffStat}>
+                  <Text style={styles.staffStatValue}>{event.capacity - event.registered}</Text>
+                  <Text style={styles.staffStatLabel}>Available</Text>
+                </View>
+                <View style={styles.staffStatDivider} />
+                <View style={styles.staffStat}>
+                  <Text style={styles.staffStatValue}>{Math.round((event.registered / event.capacity) * 100)}%</Text>
+                  <Text style={styles.staffStatLabel}>Full</Text>
+                </View>
+              </View>
+            </Animated.View>
+          ) : (
+            // Student Registration Actions
+            <Animated.View entering={FadeInUp.delay(1200)} style={styles.actionsSection}>
+              {/* Quick Actions Row */}
+              <View style={styles.quickActionsRow}>
+                <ActionButton
+                  icon={QrCode}
+                  title="QR Check-in"
+                  onPress={handleQRCheckIn}
+                  variant="secondary"
+                  disabled={false}
+                  style={styles.quickActionButton}
+                />
+                <ActionButton
+                  icon={CalendarPlus}
+                  title="Add to Calendar"
+                  onPress={handleAddToCalendar}
+                  variant="secondary"
+                  disabled={false}
+                  style={styles.quickActionButton}
+                />
+              </View>
+              
+              {/* Main Registration Button */}
               <ActionButton
-                icon={QrCode}
-                title="QR Check-in"
-                onPress={handleQRCheckIn}
-                variant="secondary"
-                disabled={false}
-                style={styles.quickActionButton}
+                icon={UserPlus}
+                title={buttonProps.title}
+                onPress={handleRegister}
+                variant={buttonProps.variant}
+                disabled={buttonProps.disabled}
               />
-              <ActionButton
-                icon={CalendarPlus}
-                title="Add to Calendar"
-                onPress={handleAddToCalendar}
-                variant="secondary"
-                disabled={false}
-                style={styles.quickActionButton}
-              />
-            </View>
-            
-            {/* Main Registration Button */}
-            <ActionButton
-              icon={UserPlus}
-              title={buttonProps.title}
-              onPress={handleRegister}
-              variant={buttonProps.variant}
-              disabled={buttonProps.disabled}
-            />
-          </Animated.View>
+            </Animated.View>
+          )}
 
           <View style={styles.bottomSpacer} />
         </ScrollView>

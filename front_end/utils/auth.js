@@ -50,6 +50,12 @@ export const isStaff = async () => {
     const userData = await getCurrentUser();
     const userRole = await AsyncStorage.getItem('userRole');
     
+    // Special case for development: treat "obouchta" as staff
+    if (userData?.intraUsername === 'obouchta' || userData?.nickname === 'obouchta') {
+      console.log('🔧 DEV: Treating obouchta as staff for development purposes');
+      return true;
+    }
+    
     // Check both user data and stored role
     return userData?.role === 'admin' || 
            userData?.role === 'staff' || 

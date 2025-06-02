@@ -8,13 +8,9 @@ export default function OAuthCallback() {
   const params = useLocalSearchParams();
 
   useEffect(() => {
-    console.log('📱 OAuth callback received:', params);
+    console.log('OAuth callback received:', params);
     
-    // Complete the auth session
     WebBrowser.maybeCompleteAuthSession();
-    
-    // Navigate back to the main app
-    // The AuthService will handle the token exchange automatically
     router.replace('/');
   }, [params]);
 

@@ -43,18 +43,38 @@ import {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
+
 // Request Status Badge
 const StatusBadge = ({ status }) => {
   const getStatusConfig = (status) => {
     switch (status.toLowerCase()) {
       case 'pending':
-        return { color: '#f59e0b', gradient: ['#f59e0b', '#d97706'], icon: Clock };
+        return { color: colors.warning, gradient: [colors.warning, colors.warning], icon: Clock };
       case 'approved':
-        return { color: '#10b981', gradient: ['#10b981', '#059669'], icon: CheckCircle };
+        return { color: colors.success, gradient: [colors.success, colors.success], icon: CheckCircle };
       case 'rejected':
-        return { color: '#ef4444', gradient: ['#ef4444', '#dc2626'], icon: XCircle };
+        return { color: colors.error, gradient: [colors.error, colors.error], icon: XCircle };
       default:
-        return { color: '#6b7280', gradient: ['#6b7280', '#4b5563'], icon: Clock };
+        return { color: colors.muted, gradient: [colors.muted, colors.muted], icon: Clock };
     }
   };
 
@@ -74,11 +94,11 @@ const RequestTypeBadge = ({ type }) => {
   const getTypeConfig = (type) => {
     switch (type.toLowerCase()) {
       case 'nickname':
-        return { color: '#3b82f6', gradient: ['#3b82f6', '#1d4ed8'], icon: User };
+        return { color: colors.info, gradient: [colors.info, colors.info], icon: User };
       case 'avatar':
-        return { color: '#8b5cf6', gradient: ['#8b5cf6', '#7c3aed'], icon: ImageIcon };
+        return { color: colors.accent, gradient: [colors.accent, colors.accent], icon: ImageIcon };
       default:
-        return { color: '#6b7280', gradient: ['#6b7280', '#4b5563'], icon: Edit };
+        return { color: colors.muted, gradient: [colors.muted, colors.muted], icon: Edit };
     }
   };
 
@@ -96,7 +116,7 @@ const RequestTypeBadge = ({ type }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: colors.primaryBg,
   },
   scrollContainer: {
     flex: 1,
@@ -108,13 +128,18 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   overviewCard: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 20,
     padding: 24,
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   overviewGradient: {
     position: 'absolute',
@@ -133,15 +158,15 @@ const styles = StyleSheet.create({
   overviewTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
   },
   overviewIcon: {
     width: 48,
     height: 48,
-    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#f59e0b',
+    borderColor: colors.accent,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
@@ -157,13 +182,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
     fontFamily: 'monospace',
   },
   statLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -173,10 +198,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   trendPositive: {
-    color: '#10b981',
+    color: colors.success,
   },
   trendNegative: {
-    color: '#ef4444',
+    color: colors.error,
   },
   
   // Quick Actions Section
@@ -187,7 +212,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 0.5,
     marginBottom: 16,
   },
@@ -197,14 +222,19 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: (screenWidth - 60) / 3,
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   actionCardGradient: {
     position: 'absolute',
@@ -225,13 +255,13 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     textAlign: 'center',
     marginBottom: 4,
   },
   actionSubtitle: {
     fontSize: 10,
-    color: '#6b7280',
+    color: colors.secondaryText,
     textAlign: 'center',
   },
   
@@ -243,22 +273,27 @@ const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 16,
     padding: 16,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 6,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: colors.primaryText,
     marginLeft: 12,
   },
   filterButton: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#f59e0b',
+    borderColor: colors.accent,
     borderRadius: 12,
     padding: 8,
     marginLeft: 12,
@@ -278,29 +313,34 @@ const styles = StyleSheet.create({
   sortButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(31, 41, 55, 0.8)',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   sortButtonText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
     marginRight: 4,
   },
   
   // Request Cards
   requestCard: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: colors.cardBorder,
     borderRadius: 16,
     marginBottom: 16,
     overflow: 'hidden',
     position: 'relative',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
   requestCardGradient: {
     position: 'absolute',
@@ -325,21 +365,21 @@ const styles = StyleSheet.create({
   requestName: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
   },
   requestId: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '600',
   },
   requestStatusContainer: {
     alignItems: 'flex-end',
   },
   requestDetails: {
-    backgroundColor: 'rgba(31, 41, 55, 0.8)',
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: colors.cardBorder,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -352,7 +392,7 @@ const styles = StyleSheet.create({
   requestTypeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginLeft: 8,
   },
   requestChange: {
@@ -360,21 +400,21 @@ const styles = StyleSheet.create({
   },
   requestChangeLabel: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: colors.secondaryText,
     fontWeight: '600',
     marginBottom: 4,
   },
   requestChangeText: {
     fontSize: 14,
-    color: '#ffffff',
+    color: colors.primaryText,
     fontWeight: '600',
   },
   requestCost: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    backgroundColor: colors.lightAccent,
     borderWidth: 1,
-    borderColor: '#f59e0b',
+    borderColor: colors.accent,
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -382,7 +422,7 @@ const styles = StyleSheet.create({
   },
   requestCostText: {
     fontSize: 12,
-    color: '#f59e0b',
+    color: colors.accent,
     fontWeight: '700',
     marginLeft: 4,
   },
@@ -394,7 +434,7 @@ const styles = StyleSheet.create({
   },
   requestTime: {
     fontSize: 12,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '600',
   },
   requestActions: {
@@ -413,16 +453,16 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   approveButton: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: '#10b981',
+    backgroundColor: colors.lightAccent,
+    borderColor: colors.success,
   },
   rejectButton: {
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderColor: '#ef4444',
+    backgroundColor: colors.error + '20',
+    borderColor: colors.error,
   },
   detailsButton: {
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
-    borderColor: '#3b82f6',
+    backgroundColor: colors.info + '20',
+    borderColor: colors.info,
   },
   actionButtonText: {
     fontSize: 12,
@@ -473,7 +513,7 @@ export default function ShopRequestsManagement() {
   const [filterText, setFilterText] = useState('');
 
   useEffect(() => {
-    StatusBar.setBarStyle('light-content');
+    StatusBar.setBarStyle('dark-content');
   }, []);
 
   const handleRefresh = async () => {
@@ -505,22 +545,22 @@ export default function ShopRequestsManagement() {
       title: 'Review',
       subtitle: 'Requests',
       icon: Eye,
-      color: '#3b82f6',
-      gradient: ['#3b82f6', '#1d4ed8'],
+      color: colors.info,
+      gradient: [colors.info, colors.info],
     },
     {
       title: 'Analytics',
       subtitle: 'Insights',
       icon: BarChart3,
-      color: '#8b5cf6',
-      gradient: ['#8b5cf6', '#7c3aed'],
+      color: colors.accent,
+      gradient: [colors.accent, colors.accent],
     },
     {
       title: 'Settings',
       subtitle: 'Configure',
       icon: Settings,
-      color: '#6b7280',
-      gradient: ['#6b7280', '#4b5563'],
+      color: colors.muted,
+      gradient: [colors.muted, colors.muted],
     },
   ];
 
@@ -574,7 +614,7 @@ export default function ShopRequestsManagement() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
       <SafeAreaView style={styles.container}>
         <ScrollView 
@@ -591,13 +631,13 @@ export default function ShopRequestsManagement() {
           <Animated.View entering={FadeInUp.delay(400)} style={styles.overviewSection}>
             <View style={styles.overviewCard}>
               <LinearGradient
-                colors={['#f59e0b', '#d97706']}
+                colors={[colors.warning, colors.warning]}
                 style={styles.overviewGradient}
               />
               <View style={styles.overviewHeader}>
                 <Text style={styles.overviewTitle}>Shop Overview</Text>
                 <View style={styles.overviewIcon}>
-                  <ShoppingBag color="#f59e0b" size={24} strokeWidth={2} />
+                  <ShoppingBag color={colors.accent} size={24} strokeWidth={2} />
                 </View>
               </View>
               
@@ -649,16 +689,16 @@ export default function ShopRequestsManagement() {
           {/* Search & Filter */}
           <Animated.View entering={FadeInUp.delay(1000)} style={styles.filterSection}>
             <View style={styles.filterContainer}>
-              <Search color="#6b7280" size={18} strokeWidth={2} />
+              <Search color={colors.muted} size={18} strokeWidth={2} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search requests..."
-                placeholderTextColor="#6b7280"
+                placeholderTextColor={colors.muted}
                 value={filterText}
                 onChangeText={setFilterText}
               />
               <Pressable style={styles.filterButton}>
-                <Filter color="#f59e0b" size={16} strokeWidth={2} />
+                <Filter color={colors.accent} size={16} strokeWidth={2} />
               </Pressable>
             </View>
           </Animated.View>
@@ -669,7 +709,7 @@ export default function ShopRequestsManagement() {
               <Text style={styles.sectionTitle}>Recent Requests</Text>
               <Pressable style={styles.sortButton}>
                 <Text style={styles.sortButtonText}>Sort by</Text>
-                <MoreVertical color="#9ca3af" size={14} strokeWidth={2} />
+                <MoreVertical color={colors.secondaryText} size={14} strokeWidth={2} />
               </Pressable>
             </View>
             
@@ -680,9 +720,9 @@ export default function ShopRequestsManagement() {
                 style={styles.requestCard}
               >
                 <LinearGradient
-                  colors={request.status === 'pending' ? ['#f59e0b', '#d97706'] : 
-                         request.status === 'approved' ? ['#10b981', '#059669'] :
-                         ['#ef4444', '#dc2626']}
+                  colors={request.status === 'pending' ? [colors.warning, colors.warning] : 
+                         request.status === 'approved' ? [colors.success, colors.success] :
+                         [colors.error, colors.error]}
                   style={styles.requestCardGradient}
                 />
                 
@@ -714,7 +754,7 @@ export default function ShopRequestsManagement() {
                     </View>
                     
                     <View style={styles.requestCost}>
-                      <Coins color="#f59e0b" size={12} strokeWidth={2} />
+                      <Coins color={colors.warning} size={12} strokeWidth={2} />
                       <Text style={styles.requestCostText}>{request.cost} coins</Text>
                     </View>
                   </View>
@@ -728,24 +768,24 @@ export default function ShopRequestsManagement() {
                       style={[styles.actionButton, styles.approveButton]}
                       onPress={() => handleApprove(request.id)}
                     >
-                      <CheckCircle color="#10b981" size={14} strokeWidth={2} />
-                      <Text style={[styles.actionButtonText, { color: '#10b981' }]}>Approve</Text>
+                      <CheckCircle color={colors.success} size={14} strokeWidth={2} />
+                      <Text style={[styles.actionButtonText, { color: colors.success }]}>Approve</Text>
                     </Pressable>
                     
                     <Pressable 
                       style={[styles.actionButton, styles.rejectButton]}
                       onPress={() => handleReject(request.id)}
                     >
-                      <XCircle color="#ef4444" size={14} strokeWidth={2} />
-                      <Text style={[styles.actionButtonText, { color: '#ef4444' }]}>Reject</Text>
+                      <XCircle color={colors.error} size={14} strokeWidth={2} />
+                      <Text style={[styles.actionButtonText, { color: colors.error }]}>Reject</Text>
                     </Pressable>
                     
                     <Pressable 
                       style={[styles.actionButton, styles.detailsButton]}
                       onPress={() => handleViewDetails(request.id)}
                     >
-                      <Eye color="#3b82f6" size={14} strokeWidth={2} />
-                      <Text style={[styles.actionButtonText, { color: '#3b82f6' }]}>Details</Text>
+                      <Eye color={colors.info} size={14} strokeWidth={2} />
+                      <Text style={[styles.actionButtonText, { color: colors.info }]}>Details</Text>
                     </Pressable>
                   </View>
                 </View>

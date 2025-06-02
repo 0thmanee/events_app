@@ -1,8 +1,32 @@
 import { View, Text, Pressable } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { User } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Settings } from 'lucide-react-native';
+import NotificationBell from './NotificationBell';
+
+// Color Palette - Minimalist Luxe Light Theme
+const colors = {
+  primaryBg: '#F5F5F5',      // Soft Off-White
+  secondaryBg: '#EAEAEA',    // Light Gray
+  primaryText: '#333333',    // Dark Gray
+  secondaryText: '#555555',  // Medium Gray
+  accent: '#3EB489',         // Mint Green
+  highlight: '#E1C3AD',      // Soft Beige
+  error: '#D9534F',          // Muted Red
+  white: '#FFFFFF',
+  lightAccent: '#3EB48920',  // Mint Green with opacity
+  lightHighlight: '#E1C3AD30', // Soft Beige with opacity
+  cardBorder: '#E0E0E0',     // Light border
+  shadow: '#00000015',       // Subtle shadow
+  success: '#059669',        // Success green
+  warning: '#d97706',        // Warning orange
+  info: '#2563eb',           // Info blue
+  muted: '#9ca3af'           // Muted text
+};
 
 const AdminHeader = ({ title, subtitle }) => {
+  const router = useRouter();
+
   return (
     <Animated.View entering={FadeInDown.delay(200)} style={styles.cleanHeader}>
       <View style={styles.headerRow}>
@@ -26,13 +50,13 @@ const AdminHeader = ({ title, subtitle }) => {
           </View>
         </View>
 
-        {/* User Profile Icon */}
-        <Pressable style={styles.profileButton}>
-          <View style={styles.profileAvatar}>
-            <User color="#3b82f6" size={20} strokeWidth={2} />
-          </View>
-          <View style={styles.profileDot} />
-        </Pressable>
+        {/* Settings Button - Student Style */}
+        <View style={styles.headerActions}>
+          <NotificationBell iconSize={20} showBadge={true} />
+          <Pressable style={styles.headerButton} onPress={() => router.push('/settings')}>
+            <Settings color={colors.accent} size={20} strokeWidth={1.5} />
+          </Pressable>
+        </View>
       </View>
       
       {/* Page Title Section (if provided) */}
@@ -50,7 +74,16 @@ const styles = {
   cleanHeader: {
     paddingHorizontal: 24,
     paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: 32,
+    marginBottom: 16,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.cardBorder,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   headerRow: {
     flexDirection: 'row',
@@ -64,33 +97,41 @@ const styles = {
   logoSquare: {
     width: 56,
     height: 56,
-    backgroundColor: '#0a0a0a',
-    borderWidth: 1,
-    borderColor: '#1f2937',
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     marginRight: 16,
+    borderRadius: 16,
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   logoCornerTL: {
     position: 'absolute',
-    top: -1,
-    left: -1,
+    top: -2,
+    left: -2,
     width: 16,
     height: 16,
-    borderTopWidth: 2,
-    borderLeftWidth: 2,
-    borderColor: '#3b82f6',
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderColor: colors.accent,
+    borderTopLeftRadius: 8,
   },
   logoCornerBR: {
     position: 'absolute',
-    bottom: -1,
-    right: -1,
+    bottom: -2,
+    right: -2,
     width: 16,
     height: 16,
-    borderBottomWidth: 2,
-    borderRightWidth: 2,
-    borderColor: '#3b82f6',
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    borderColor: colors.accent,
+    borderBottomRightRadius: 8,
   },
   logoTextLines: {
     alignItems: 'center',
@@ -99,12 +140,9 @@ const styles = {
   logoNumber: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.accent,
     letterSpacing: 1,
     fontFamily: 'monospace',
-    textShadowColor: '#3b82f6',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
     lineHeight: 18,
   },
   logoTextContainer: {
@@ -113,42 +151,33 @@ const styles = {
   logoTitle: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#ffffff',
+    color: colors.primaryText,
     letterSpacing: 1.5,
     fontFamily: 'monospace',
     lineHeight: 20,
   },
   logoSubtitle: {
     fontSize: 11,
-    color: '#6b7280',
+    color: colors.secondaryText,
     letterSpacing: 2,
     textTransform: 'uppercase',
     fontWeight: '600',
     marginTop: 2,
   },
-  profileButton: {
-    position: 'relative',
-  },
-  profileAvatar: {
-    width: 44,
-    height: 44,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+  headerButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.secondaryBg,
     borderWidth: 1,
-    borderColor: '#3b82f6',
-    borderRadius: 22,
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  profileDot: {
-    position: 'absolute',
-    top: 2,
-    right: 2,
-    width: 12,
-    height: 12,
-    backgroundColor: '#10b981',
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: '#0a0a0a',
+    shadowColor: colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   pageTitleSection: {
     marginTop: 24,
@@ -156,14 +185,18 @@ const styles = {
   pageTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
     marginBottom: 4,
     letterSpacing: -0.5,
   },
   pageSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: colors.secondaryText,
     fontWeight: '500',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 };
 
