@@ -863,11 +863,50 @@ router.post('/test-push', auth, async (req, res) => {
         success: result.success,
         successCount: result.successCount,
         failureCount: result.failureCount,
-        devicesTargeted: deviceTokens.length
+        devicesTargeted: deviceTokens.length,
+        simulated: result.simulated || false
       }
     });
   } catch (error) {
     console.error('Error sending test push notification:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Debug push notification service (for development)
+router.get('/debug-push', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('deviceTokens pushNotificationSettings nickname');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Get Firebase status
+    const firebaseStatus = await PushNotificationService.debugFirebaseStatus();
+    const serviceStatus = PushNotificationService.getStatus();
+
+    // Get user token info
+    const deviceTokens = user.getActiveDeviceTokens();
+    
+    res.json({
+      user: {
+        nickname: user.nickname,
+        totalTokens: user.deviceTokens?.length || 0,
+        activeTokens: deviceTokens.length,
+        pushEnabled: user.wantsPushNotification('event_created'),
+        quietHours: user.isQuietHours(),
+        tokens: user.deviceTokens?.map(dt => ({
+          platform: dt.platform,
+          active: dt.active,
+          lastUsed: dt.lastUsed,
+          preview: dt.token.substring(0, 20) + '...'
+        })) || []
+      },
+      firebaseStatus,
+      serviceStatus
+    });
+  } catch (error) {
+    console.error('Error getting push debug info:', error);
     res.status(500).json({ error: error.message });
   }
 });

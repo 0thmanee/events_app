@@ -1,4 +1,4 @@
-package com.hackathon.mobileapp
+package com.school1337.events
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

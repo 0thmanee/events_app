@@ -1,4 +1,4 @@
-package com.hackathon.mobileapp
+package com.school1337.events
 
 import android.app.Application
 import android.content.res.Configuration

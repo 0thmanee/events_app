@@ -941,6 +941,50 @@ class ApiService {
       body: JSON.stringify({ hours })
     });
   }
+
+  // ========== PUSH NOTIFICATIONS ==========
+  
+  // Test push notification
+  async testPushNotification(title, message) {
+    return this.makeRequest('/api/users/test-push', {
+      method: 'POST',
+      body: JSON.stringify({ title, message })
+    });
+  }
+
+  // Get user's device tokens (for debugging)
+  async getDeviceTokens() {
+    return this.makeRequest('/api/users/device-tokens');
+  }
+
+  // Register device token
+  async registerDeviceToken(token, platform) {
+    return this.makeRequest('/api/users/device-token', {
+      method: 'POST',
+      body: JSON.stringify({ token, platform })
+    });
+  }
+
+  // Remove device token
+  async removeDeviceToken(token) {
+    return this.makeRequest('/api/users/device-token', {
+      method: 'DELETE',
+      body: JSON.stringify({ token })
+    });
+  }
+
+  // Test event notification (Admin only)
+  async testEventNotification(eventId) {
+    return this.makeRequest(`/api/events/${eventId}/test-notification`, {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
+  }
+
+  // Debug push notification service
+  async debugPushNotifications() {
+    return this.makeRequest('/api/users/debug-push');
+  }
 }
 
 export default new ApiService(); 

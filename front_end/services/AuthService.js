@@ -2,6 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FORTYTWO_CONFIG, BACKEND_CONFIG } from '../constants/config';
+import NotificationService from './NotificationService';
 
 // Complete auth session when returning to app
 WebBrowser.maybeCompleteAuthSession();
@@ -105,6 +106,13 @@ class AuthService {
             await AsyncStorage.setItem('userData', JSON.stringify(backendAuth.user));
             await AsyncStorage.setItem('appToken', backendAuth.token); // Store backend JWT
             await AsyncStorage.setItem('userRole', backendAuth.user.role); // Store user role for navigation
+            
+            // Retry push token registration now that we have backend auth
+            try {
+              await NotificationService.retryPendingTokenRegistration();
+            } catch (error) {
+              console.error('❌ Failed to register push token after login:', error);
+            }
             
             resolve({
               success: true,
@@ -249,7 +257,15 @@ class AuthService {
 
   async logout() {
     try {
-      console.log('🚪 Logging out...');
+      console.log('�� Logging out...');
+      
+      // Unregister push token from backend
+      try {
+        await NotificationService.unregisterTokenFromBackend();
+      } catch (error) {
+        console.error('❌ Failed to unregister push token:', error);
+      }
+      
       const storedTokens = await this.getStoredTokens();
       if (storedTokens && storedTokens.access_token) {
         // Revoke the token

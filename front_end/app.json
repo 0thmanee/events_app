@@ -35,7 +35,8 @@
         "android.permission.WRITE_CALENDAR",
         "android.permission.VIBRATE",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.SCHEDULE_EXACT_ALARM"
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -73,8 +74,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "1337-events-hackathon"
+        "projectId": "657970c7-9e39-4e24-af50-fe28fd04c9d5"
       }
-    }
+    },
+    "owner": "yahyayahya"
   }
 }

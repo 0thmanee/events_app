@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626708413377",
+    "project_id": "kokl-979e3",
+    "storage_bucket": "kokl-979e3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626708413377:android:20da1f85767e4821004d40",
+        "android_client_info": {
+          "package_name": "com.school1337.events"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-3PsjEWptjQ51fF19OcfF4r3CeFGRG8Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

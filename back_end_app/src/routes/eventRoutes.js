@@ -1101,4 +1101,32 @@ router.get('/:id/feedbacks', auth, async (req, res) => {
   }
 });
 
+// Test endpoint: Trigger event notification manually (for testing)
+router.post('/:id/test-notification', auth, isAdmin, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    // Manually trigger event notification
+    const notification = await Notification.createEventNotification(event._id, 'event_created', 
+      `🧪 TEST: "${event.title}" - This is a test notification to all users!`);
+
+    res.json({
+      message: 'Test notification sent successfully',
+      notification: {
+        id: notification._id,
+        title: notification.title,
+        message: notification.message,
+        recipientCount: notification.recipients.length,
+        pushSent: notification.pushNotification.sent
+      }
+    });
+  } catch (error) {
+    console.error('Error sending test notification:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

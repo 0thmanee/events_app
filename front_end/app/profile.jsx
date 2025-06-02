@@ -16,7 +16,9 @@ import {
   Camera,
   Edit3,
   Check,
-  X
+  X,
+  Bell,
+  Send
 } from 'lucide-react-native';
 import { 
   ProfessionalBackground, 
@@ -24,6 +26,8 @@ import {
   DataLoadingOverlay,
   PageTransitionLoading
 } from '../components/LoadingComponents';
+import ApiService from '../services/ApiService';
+import NotificationService from '../services/NotificationService';
 
 // Student Header Component
 const StudentHeader = ({ onBack, onSave, hasChanges }) => {
@@ -190,6 +194,110 @@ export default function Profile() {
     setUserData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleTestPushNotification = async () => {
+    try {
+      Alert.alert(
+        'Send Test Notification',
+        'This will send a test push notification to your device.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Send', 
+            onPress: async () => {
+              try {
+                const result = await ApiService.testPushNotification(
+                  'Test Notification 🔔',
+                  'This is a test push notification from your Events app!'
+                );
+                Alert.alert('Success', 'Test notification sent! Check your notifications.');
+              } catch (error) {
+                console.error('Test notification error:', error);
+                Alert.alert('Error', error.message || 'Failed to send test notification');
+              }
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Test notification error:', error);
+      Alert.alert('Error', 'Failed to send test notification');
+    }
+  };
+
+  const handleCheckDeviceTokens = async () => {
+    try {
+      const result = await ApiService.getDeviceTokens();
+      Alert.alert(
+        'Device Tokens',
+        `You have ${result.tokens?.length || 0} registered device tokens.\n\nActive tokens: ${result.activeTokens?.length || 0}\nInactive tokens: ${result.inactiveTokens?.length || 0}`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch device tokens: ' + error.message);
+    }
+  };
+
+  const handleTestEventNotification = async () => {
+    try {
+      Alert.alert(
+        'Test Event Notification',
+        'This will send an event notification to ALL users in the app. Are you sure you want to continue?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Send to All Users', 
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                // Get the first available event to test with
+                const events = await ApiService.getEvents({ limit: 1 });
+                if (events.length === 0) {
+                  Alert.alert('Error', 'No events found to test with. Please create an event first.');
+                  return;
+                }
+                
+                const eventId = events[0]._id;
+                const result = await ApiService.testEventNotification(eventId);
+                Alert.alert(
+                  'Success!', 
+                  `Event notification sent to ${result.notification.recipientCount} users!\n\nPush notifications: ${result.notification.pushSent ? 'Sent' : 'Failed'}`
+                );
+              } catch (error) {
+                Alert.alert('Error', 'Failed to send event notification: ' + error.message);
+              }
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to prepare test: ' + error.message);
+    }
+  };
+
+  const handleDebugPushNotifications = async () => {
+    try {
+      const debugInfo = await ApiService.debugPushNotifications();
+      const status = debugInfo.firebaseStatus;
+      
+      let message = `🔍 Push Notification Debug Info:\n\n`;
+      message += `Mode: ${debugInfo.serviceStatus.mode}\n`;
+      message += `Firebase Initialized: ${status.initialized ? '✅' : '❌'}\n`;
+      message += `Has Messaging: ${status.hasMessaging ? '✅' : '❌'}\n`;
+      message += `Has SendMulticast: ${status.hasSendMulticast ? '✅' : '❌'}\n\n`;
+      message += `Environment Variables:\n`;
+      message += `PROJECT_ID: ${status.envVarStatus.FIREBASE_PROJECT_ID ? '✅' : '❌'}\n`;
+      message += `PRIVATE_KEY: ${status.envVarStatus.FIREBASE_PRIVATE_KEY ? '✅' : '❌'}\n`;
+      message += `CLIENT_EMAIL: ${status.envVarStatus.FIREBASE_CLIENT_EMAIL ? '✅' : '❌'}\n\n`;
+      message += `Your Device Tokens: ${debugInfo.user.activeTokens}/${debugInfo.user.totalTokens}\n`;
+      message += `Push Enabled: ${debugInfo.user.pushEnabled ? '✅' : '❌'}\n`;
+      message += `Quiet Hours: ${debugInfo.user.quietHours ? '🔇' : '🔊'}`;
+      
+      Alert.alert('Debug Info', message, [{ text: 'OK' }]);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to get debug info: ' + error.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
@@ -281,6 +389,80 @@ export default function Profile() {
               onChangeText={(value) => updateField('linkedin', value)}
               placeholder="Your LinkedIn username"
             />
+          </FormSection>
+
+          {/* Push Notification Testing */}
+          <FormSection title="Push Notifications" delay={1000}>
+            <View style={styles.notificationTestContainer}>
+              <Text style={styles.notificationTestDescription}>
+                Test push notifications to make sure they're working properly on your device.
+              </Text>
+              
+              <Pressable 
+                style={styles.testNotificationButton}
+                onPress={handleTestPushNotification}
+              >
+                <LinearGradient
+                  colors={['rgba(99, 102, 241, 0.1)', 'rgba(99, 102, 241, 0.05)']}
+                  style={styles.testButtonGradient}
+                />
+                <View style={styles.testButtonContent}>
+                  <View style={styles.testButtonIcon}>
+                    <Bell color="#6366f1" size={20} strokeWidth={1.5} />
+                  </View>
+                  <View style={styles.testButtonText}>
+                    <Text style={styles.testButtonTitle}>Test Push Notification</Text>
+                    <Text style={styles.testButtonSubtitle}>Send a test notification to this device</Text>
+                  </View>
+                  <Send color="#6366f1" size={16} strokeWidth={1.5} />
+                </View>
+              </Pressable>
+              
+              <View style={styles.checkTokenContainer}>
+                <Pressable 
+                  style={styles.checkTokenButton}
+                  onPress={handleCheckDeviceTokens}
+                >
+                  <Text style={styles.checkTokenButtonText}>Check Device Tokens</Text>
+                </Pressable>
+                
+                <Pressable 
+                  style={styles.debugButton}
+                  onPress={handleDebugPushNotifications}
+                >
+                  <Text style={styles.debugButtonText}>🔍 Debug Push Notifications</Text>
+                </Pressable>
+              </View>
+            </View>
+          </FormSection>
+
+          {/* Event Notification Testing */}
+          <FormSection title="Event Notifications" delay={1200}>
+            <View style={styles.eventTestContainer}>
+              <Text style={styles.eventTestDescription}>
+                Test event notifications to make sure they're working properly in the app.
+              </Text>
+              
+              <Pressable 
+                style={styles.testEventButton}
+                onPress={handleTestEventNotification}
+              >
+                <LinearGradient
+                  colors={['rgba(99, 102, 241, 0.1)', 'rgba(99, 102, 241, 0.05)']}
+                  style={styles.eventButtonGradient}
+                />
+                <View style={styles.eventButtonContent}>
+                  <View style={styles.eventButtonIcon}>
+                    <Bell color="#6366f1" size={20} strokeWidth={1.5} />
+                  </View>
+                  <View style={styles.eventButtonText}>
+                    <Text style={styles.eventButtonTitle}>Test Event Notification</Text>
+                    <Text style={styles.eventButtonSubtitle}>Send a test event notification to all users</Text>
+                  </View>
+                  <Send color="#6366f1" size={16} strokeWidth={1.5} />
+                </View>
+              </Pressable>
+            </View>
           </FormSection>
 
           <View style={styles.bottomSpacer} />
@@ -500,5 +682,136 @@ const styles = {
 
   bottomSpacer: {
     height: 40,
+  },
+
+  // Notification Testing
+  notificationTestContainer: {
+    padding: 20,
+    gap: 20,
+  },
+  notificationTestDescription: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  testNotificationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0a0f1c',
+    borderRadius: 12,
+    padding: 16,
+    gap: 12,
+  },
+  testButtonGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  testButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  testButtonIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#0a0f1c',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  testButtonText: {
+    flex: 1,
+  },
+  testButtonTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  testButtonSubtitle: {
+    fontSize: 14,
+    color: '#9ca3af',
+  },
+  checkTokenContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  checkTokenButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0a0f1c',
+    borderRadius: 12,
+    padding: 16,
+  },
+  checkTokenButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  debugButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0a0f1c',
+    borderRadius: 12,
+    padding: 16,
+  },
+  debugButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+
+  // Event Testing
+  eventTestContainer: {
+    padding: 20,
+    gap: 20,
+  },
+  eventTestDescription: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  testEventButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0a0f1c',
+    borderRadius: 12,
+    padding: 16,
+    gap: 12,
+  },
+  eventButtonGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  eventButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  eventButtonIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#0a0f1c',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eventButtonText: {
+    flex: 1,
+  },
+  eventButtonTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  eventButtonSubtitle: {
+    fontSize: 14,
+    color: '#9ca3af',
   },
 }; 

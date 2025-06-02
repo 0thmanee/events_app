@@ -3,6 +3,7 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { BACKEND_CONFIG } from '../constants/config';
 
 // Configure notification handling
 Notifications.setNotificationHandler({
@@ -12,6 +13,52 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
+
+// Get FCM token instead of Expo token
+async function getFirebaseToken() {
+  try {
+    if (Platform.OS === 'android') {
+      // For Android, we can get the FCM token using Expo's Firebase integration
+      const { getExpoPushTokenAsync } = await import('expo-notifications');
+      const token = await getExpoPushTokenAsync({
+        projectId: Constants.expoConfig?.extra?.eas?.projectId || Constants.expoConfig?.projectId
+      });
+      
+      // Extract the actual FCM token from Expo's response
+      if (token.data && token.data.includes('ExponentPushToken')) {
+        // If we get an Expo token, we need to convert it to FCM
+        // For now, let's try to get the FCM token directly
+        try {
+          const { getDevicePushTokenAsync } = await import('expo-notifications');
+          const fcmToken = await getDevicePushTokenAsync();
+          console.log('📱 FCM Token obtained:', fcmToken.data.substring(0, 20) + '...');
+          return fcmToken.data;
+        } catch (error) {
+          console.log('⚠️ Could not get FCM token, using Expo token:', error.message);
+          return token.data;
+        }
+      }
+      
+      return token.data;
+    } else if (Platform.OS === 'ios') {
+      // For iOS, get the device push token which should be compatible with FCM
+      const { getDevicePushTokenAsync } = await import('expo-notifications');
+      const token = await getDevicePushTokenAsync();
+      console.log('📱 iOS APNs Token obtained:', token.data.substring(0, 20) + '...');
+      return token.data;
+    }
+    
+    // Fallback to Expo token
+    const { getExpoPushTokenAsync } = await import('expo-notifications');
+    const token = await getExpoPushTokenAsync({
+      projectId: Constants.expoConfig?.extra?.eas?.projectId || Constants.expoConfig?.projectId
+    });
+    return token.data;
+  } catch (error) {
+    console.error('❌ Error getting push token:', error);
+    throw error;
+  }
+}
 
 class NotificationService {
   constructor() {
@@ -26,10 +73,44 @@ class NotificationService {
       // Request permissions
       await this.requestPermissions();
       
+      // Set up Android notification channels
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#6366f1',
+        });
+
+        // Create additional channels for different notification types
+        await Notifications.setNotificationChannelAsync('events_channel', {
+          name: 'Event Notifications',
+          importance: Notifications.AndroidImportance.HIGH,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#3b82f6',
+          sound: 'default',
+        });
+
+        await Notifications.setNotificationChannelAsync('reminders', {
+          name: 'Event Reminders',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 500, 200, 500],
+          lightColor: '#f59e0b',
+          sound: 'default',
+        });
+      }
+      
       // Get push token
       if (Device.isDevice) {
-        this.expoPushToken = await this.registerForPushNotificationsAsync();
+        this.expoPushToken = await getFirebaseToken();
         console.log('📱 Push token:', this.expoPushToken);
+        
+        // Register token with backend
+        if (this.expoPushToken) {
+          await this.registerTokenWithBackend(this.expoPushToken);
+        }
+      } else {
+        console.log('⚠️ Must use physical device for Push Notifications');
       }
 
       // Configure notification categories
@@ -66,49 +147,38 @@ class NotificationService {
 
   async registerForPushNotificationsAsync() {
     try {
-      const projectId = Constants?.expoConfig?.extra?.eas?.projectId || 
-                       Constants?.easConfig?.projectId;
-
-      if (!projectId) {
-        throw new Error('Project ID not found');
+      if (!Device.isDevice) {
+        console.log('❌ Must use physical device for Push Notifications');
+        return null;
       }
 
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId,
-      });
-
-      console.log('📱 Expo push token:', token.data);
-
-      if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-          name: 'default',
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#6366f1',
-        });
-
-        // Create additional channels for different notification types
-        await Notifications.setNotificationChannelAsync('events', {
-          name: 'Event Notifications',
-          importance: Notifications.AndroidImportance.HIGH,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#3b82f6',
-          sound: 'default',
-        });
-
-        await Notifications.setNotificationChannelAsync('reminders', {
-          name: 'Event Reminders',
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 500, 200, 500],
-          lightColor: '#f59e0b',
-          sound: 'default',
-        });
+      // Request permissions
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      
+      if (finalStatus !== 'granted') {
+        console.log('❌ Failed to get push token for push notification!');
+        return null;
       }
 
-      return token.data;
+      // Get FCM/device push token
+      const token = await getFirebaseToken();
+      
+      if (!token) {
+        console.log('❌ Failed to get push token');
+        return null;
+      }
+
+      console.log('✅ Push notification token obtained');
+      return token;
     } catch (error) {
-      console.error('Failed to get push token:', error);
-      return null;
+      console.error('❌ Error in registerForPushNotificationsAsync:', error);
+      throw error;
     }
   }
 
@@ -381,6 +451,93 @@ class NotificationService {
 
   getPushToken() {
     return this.expoPushToken;
+  }
+
+  async registerTokenWithBackend(token) {
+    try {
+      const appToken = await AsyncStorage.getItem('appToken');
+      
+      if (!appToken) {
+        console.log('⚠️ No auth token found, will register push token after login');
+        // Store token for later registration
+        await AsyncStorage.setItem('pendingPushToken', token);
+        return;
+      }
+
+      const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+      
+      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/api/users/device-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${appToken}`
+        },
+        body: JSON.stringify({
+          token: token,
+          platform: platform
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to register push token: ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Push token registered with backend:', result.message);
+      
+      // Remove pending token since it's now registered
+      await AsyncStorage.removeItem('pendingPushToken');
+      
+    } catch (error) {
+      console.error('❌ Failed to register push token with backend:', error);
+      // Store token for retry later
+      await AsyncStorage.setItem('pendingPushToken', token);
+    }
+  }
+
+  async retryPendingTokenRegistration() {
+    try {
+      const pendingToken = await AsyncStorage.getItem('pendingPushToken');
+      const appToken = await AsyncStorage.getItem('appToken');
+      
+      if (pendingToken && appToken) {
+        console.log('🔄 Retrying pending push token registration...');
+        await this.registerTokenWithBackend(pendingToken);
+      }
+    } catch (error) {
+      console.error('❌ Failed to retry push token registration:', error);
+    }
+  }
+
+  async unregisterTokenFromBackend() {
+    try {
+      const appToken = await AsyncStorage.getItem('appToken');
+      
+      if (!appToken || !this.expoPushToken) {
+        return;
+      }
+
+      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/api/users/device-token`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${appToken}`
+        },
+        body: JSON.stringify({
+          token: this.expoPushToken
+        })
+      });
+
+      if (response.ok) {
+        console.log('✅ Push token unregistered from backend');
+      } else {
+        console.error('❌ Failed to unregister push token from backend');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error unregistering push token:', error);
+    }
   }
 }
 

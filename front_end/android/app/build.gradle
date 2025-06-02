@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.hackathon.mobileapp'
+    namespace 'com.school1337.events'
     defaultConfig {
-        applicationId 'com.hackathon.mobileapp'
+        applicationId 'com.school1337.events'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -175,3 +175,6 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+// Apply Google Services plugin for Firebase
+apply plugin: 'com.google.gms.google-services'
