@@ -11,7 +11,7 @@ export const FORTYTWO_CONFIG = {
 // Backend Configuration
 export const BACKEND_CONFIG = {
   // Update this to your actual backend URL
-  BASE_URL: 'http://10.32.121.220:3001', // Updated to match actual backend server URL
+  BASE_URL: 'http://10.32.129.236:3001', // Updated to match actual backend server URL
   ENDPOINTS: {
     AUTH_42_CALLBACK: '/api/users/auth/42/callback',
     AUTH_42_FRONTEND: '/api/users/auth/42/frontend',

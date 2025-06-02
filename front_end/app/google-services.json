@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "455638001023",
+    "project_id": "notif-fc32d",
+    "storage_bucket": "notif-fc32d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455638001023:android:bcfe1e0857ac3b7c8d264a",
+        "android_client_info": {
+          "package_name": "com.hack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZRb8bI9MDl4ca9YA7ae3hrQJSKaF6e1Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
